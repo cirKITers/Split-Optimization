@@ -17,9 +17,13 @@ from typing import Any, Dict, List, Tuple
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
 
+
 def train_model(
-    epochs: int, TRAINING_SIZE: int, train_dataloader:DataLoader, test_dataloader:DataLoader
-) ->Dict:
+    epochs: int,
+    TRAINING_SIZE: int,
+    train_dataloader: DataLoader,
+    test_dataloader: DataLoader,
+) -> Dict:
     model = Net()
     loss_func = nn.MSELoss()
 
@@ -61,10 +65,12 @@ def train_model(
         "loss_func": loss_func,
     }
 
-    return {"model":model, "model_history":model_history}
+    return {"model": model, "model_history": model_history}
 
 
-def test_model(model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader:DataLoader)->Dict:
+def test_model(
+    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader
+) -> Dict:
     model.eval()
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()
@@ -99,13 +105,12 @@ def test_model(model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader
     return test_output
 
 
-def plot_loss(model_history: dict, test_output: dict)->plt.figure:
+def plot_loss(model_history: dict, test_output: dict) -> plt.figure:
     fig = plt.figure()
     plt.plot(model_history["train_loss_list"])
     plt.title("Hybrid NN Training Convergence")
     plt.xlabel("Training Iterations")
     plt.ylabel("Neg Log Likelihood Loss")
-    plt.savefig("plot.png")
     return fig
 
 
