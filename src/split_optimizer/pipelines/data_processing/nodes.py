@@ -2,13 +2,14 @@ import numpy as np
 import torch
 from typing import Dict
 
+
 def prepare_data(
     train_filepath: str,
     test_filepath: str,
     batch_size: int,
     TRAINING_SIZE: int,
     TEST_SIZE: int,
-)->Dict:
+) -> Dict:
 
     train_data = np.load(train_filepath)  # enthält 7500 samples
     test_data = np.load(test_filepath)  # enthält 1500 samples
@@ -40,15 +41,8 @@ def prepare_data(
         train_dataset, shuffle=True, batch_size=batch_size
     )
     test_dataloader = torch.utils.data.DataLoader(
-        test_dataset, shuffle=True, batch_size=batch_size
+        test_dataset, shuffle=True, batch_size=TEST_SIZE
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}
 
 
-if __name__ == "__main__":
-    train_dataloader = prepare_data("data/01_raw/Train_[0,1,3,6].npz","data/01_raw/Test_[0,1,3,6].npz",3,5,5)["train_dataloader"]
-    print(type(train_dataloader.decompose()))
-    for batch_idx, (data, target) in enumerate(train_dataloader):
-        print(batch_idx)
-        print(data)
-        print(target)

@@ -5,7 +5,6 @@ from .nodes import (
     train_model,
     test_model,
     plot_loss,
-    plot_result_picture,
     plot_confusionmatrix,
 )
 
@@ -38,7 +37,6 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 plot_loss, inputs=["model_history", "test_output"], outputs="loss_curve"
             ),
-            node(plot_result_picture, inputs="test_output", outputs="result_picture"),
             node(
                 plot_confusionmatrix,
                 inputs=["test_output", "test_dataloader"],

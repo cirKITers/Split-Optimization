@@ -11,12 +11,12 @@ from torchvision import datasets, transforms
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
-
+from sklearn.metrics import ConfusionMatrixDisplay
 from typing import Any, Dict, List, Tuple
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
-
+import plotly.graph_objects as go
 
 def train_model(
     epochs: int,
@@ -78,8 +78,10 @@ def test_model(
     with torch.no_grad():
         correct = 0
         test_loss = []
+        predictions = []
         for data, target in test_dataloader:
             output = model(data)
+            predictions.append(output)
 
             pred = output.argmax()
             if pred == target.argmax():
@@ -99,26 +101,57 @@ def test_model(
         test_output = {
             "average_test_loss": average_test_loss,
             "accuracy": accuracy,
-            "pred": pred,
+            "pred": predictions,
         }
 
     return test_output
 
 
 def plot_loss(model_history: dict, test_output: dict) -> plt.figure:
-    fig = plt.figure()
-    plt.plot(model_history["train_loss_list"])
-    plt.title("Hybrid NN Training Convergence")
-    plt.xlabel("Training Iterations")
-    plt.ylabel("Neg Log Likelihood Loss")
-    return fig
+    
+    epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
 
+    plt = go.Figure(
+        [
+            go.Scatter(
+                x=list(epochs),
+                y=model_history["train_loss_list"],
+                mode='lines+markers',
+                name="Training Loss"
+            ),
+            go.Scatter(
+                x=list(epochs),
+                y=model_history["val_loss_list"],
+                mode='lines+markers',
+                name="Validation Loss"
+            )
+        ]
+    )
+    plt.update_layout(
+        title="Training and Validation Loss",
+        xaxis_title="Epochs",
+        yaxis_title="Loss"
+    )
 
-def plot_result_picture(test_output: dict):
-    result_picture = 0
-    return result_picture
+    return plt
+
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
-    confusionmatrix = 0
-    return confusionmatrix
+    predictions_onehot = test_output["pred"]
+    test_features, test_labels_onehot = next(iter(test_dataloader))
+    # convert one-hot encoding to label-encoding
+    predictions = []
+    for i in predictions_onehot[0]:
+        predictions.append(np.argmax(i).item())
+
+    test_labels = []
+    for i in test_labels_onehot:
+        test_labels.append(np.argmax(i).item())
+
+    # calculate and display confusionmatrix
+    ConfusionMatrixDisplay.from_predictions(test_labels, predictions, cmap="OrRd")
+
+    plt.title(f"Confusionmatrix")
+
+    return plt

@@ -3,17 +3,18 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
-
-#data_science.model:
-# type: 
-
 data_science.model:
   type: split_optimizer.helpers.dataset.TorchLocalModel
   filepath: data/06_models/model.pt
   model: model
 
 data_science.loss_curve:
-  type: matplotlib.MatplotlibWriter
+  type: kedro.extras.datasets.plotly.JSONDataSet
   filepath: data/08_reporting/loss_curve.json
 
 
+data_science.confusionmatrix:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/08_reporting/confusionmatrix.png
+  save_args:
+    format: png
