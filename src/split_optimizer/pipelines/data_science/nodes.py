@@ -1,21 +1,20 @@
 from .hybrid_model import Net
 
 import torch
-import pennylane as qml
 import numpy as np
 import matplotlib.pyplot as plt
-
 import torch
-from torch.autograd import Function
-from torchvision import datasets, transforms
 import torch.optim as optim
 import torch.nn as nn
-import torch.nn.functional as F
-
+from sklearn import metrics
+import plotly.figure_factory as ff
 from typing import Any, Dict, List, Tuple
+import plotly.express as px
+
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
+import plotly.graph_objects as go
 
 
 def train_model(
@@ -78,8 +77,10 @@ def test_model(
     with torch.no_grad():
         correct = 0
         test_loss = []
+        predictions = []
         for data, target in test_dataloader:
             output = model(data)
+            predictions.append(output)
 
             pred = output.argmax()
             if pred == target.argmax():
@@ -99,26 +100,67 @@ def test_model(
         test_output = {
             "average_test_loss": average_test_loss,
             "accuracy": accuracy,
-            "pred": pred,
+            "pred": predictions,
         }
 
     return test_output
 
 
 def plot_loss(model_history: dict, test_output: dict) -> plt.figure:
-    fig = plt.figure()
-    plt.plot(model_history["train_loss_list"])
-    plt.title("Hybrid NN Training Convergence")
-    plt.xlabel("Training Iterations")
-    plt.ylabel("Neg Log Likelihood Loss")
-    return fig
 
+    epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
 
-def plot_result_picture(test_output: dict):
-    result_picture = 0
-    return result_picture
+    plt = go.Figure(
+        [
+            go.Scatter(
+                x=list(epochs),
+                y=model_history["train_loss_list"],
+                mode="lines+markers",
+                name="Training Loss",
+            ),
+            go.Scatter(
+                x=list(epochs),
+                y=model_history["val_loss_list"],
+                mode="lines+markers",
+                name="Validation Loss",
+            ),
+        ]
+    )
+    plt.update_layout(
+        title="Training and Validation Loss", xaxis_title="Epochs", yaxis_title="Loss"
+    )
+
+    return plt
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
-    confusionmatrix = 0
-    return confusionmatrix
+    predictions_onehot = test_output["pred"]
+    test_features, test_labels_onehot = next(iter(test_dataloader))
+    # convert one-hot encoding to label-encoding
+    predictions = []
+    for i in predictions_onehot[0]:
+        predictions.append(np.argmax(i).item())
+
+    test_labels = []
+    for i in test_labels_onehot:
+        test_labels.append(np.argmax(i).item())
+
+    confusion_matrix = metrics.confusion_matrix(test_labels, predictions)
+    confusion_matrix = confusion_matrix.transpose()
+    labels = ["0", "1", "3", "6"]
+    fig = px.imshow(
+        confusion_matrix,
+        x=labels,
+        y=labels,
+        color_continuous_scale="Viridis",
+        aspect="auto",
+    )
+    z_text = z_text = [[str(y) for y in x] for x in confusion_matrix]
+    fig.update_traces(text=z_text, texttemplate="%{text}")
+    fig.update_layout(
+     title_text="Confusion Matrix",
+     xaxis_title = "Real Label",
+     yaxis_title = "Predicted Label")
+    fig.update_xaxes()
+    fig.show()
+    return fig
