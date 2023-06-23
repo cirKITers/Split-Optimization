@@ -14,7 +14,6 @@ data_science.loss_curve:
 
 
 data_science.confusionmatrix:
-  type: matplotlib.MatplotlibWriter
-  filepath: data/08_reporting/confusionmatrix.png
-  save_args:
-    format: png
+  type: kedro.extras.datasets.plotly.JSONDataSet
+  filepath: data/08_reporting/confusionmatrix.json
+  

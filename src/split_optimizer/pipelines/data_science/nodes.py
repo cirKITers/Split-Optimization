@@ -1,22 +1,21 @@
 from .hybrid_model import Net
 
 import torch
-import pennylane as qml
 import numpy as np
 import matplotlib.pyplot as plt
-
 import torch
-from torch.autograd import Function
-from torchvision import datasets, transforms
 import torch.optim as optim
 import torch.nn as nn
-import torch.nn.functional as F
-from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn import metrics
+import plotly.figure_factory as ff
 from typing import Any, Dict, List, Tuple
+import plotly.express as px
+
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
 import plotly.graph_objects as go
+
 
 def train_model(
     epochs: int,
@@ -108,7 +107,7 @@ def test_model(
 
 
 def plot_loss(model_history: dict, test_output: dict) -> plt.figure:
-    
+
     epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
 
     plt = go.Figure(
@@ -116,25 +115,22 @@ def plot_loss(model_history: dict, test_output: dict) -> plt.figure:
             go.Scatter(
                 x=list(epochs),
                 y=model_history["train_loss_list"],
-                mode='lines+markers',
-                name="Training Loss"
+                mode="lines+markers",
+                name="Training Loss",
             ),
             go.Scatter(
                 x=list(epochs),
                 y=model_history["val_loss_list"],
-                mode='lines+markers',
-                name="Validation Loss"
-            )
+                mode="lines+markers",
+                name="Validation Loss",
+            ),
         ]
     )
     plt.update_layout(
-        title="Training and Validation Loss",
-        xaxis_title="Epochs",
-        yaxis_title="Loss"
+        title="Training and Validation Loss", xaxis_title="Epochs", yaxis_title="Loss"
     )
 
     return plt
-
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
@@ -149,9 +145,22 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
     for i in test_labels_onehot:
         test_labels.append(np.argmax(i).item())
 
-    # calculate and display confusionmatrix
-    ConfusionMatrixDisplay.from_predictions(test_labels, predictions, cmap="OrRd")
-
-    plt.title(f"Confusionmatrix")
-
-    return plt
+    confusion_matrix = metrics.confusion_matrix(test_labels, predictions)
+    confusion_matrix = confusion_matrix.transpose()
+    labels = ["0", "1", "3", "6"]
+    fig = px.imshow(
+        confusion_matrix,
+        x=labels,
+        y=labels,
+        color_continuous_scale="Viridis",
+        aspect="auto",
+    )
+    z_text = z_text = [[str(y) for y in x] for x in confusion_matrix]
+    fig.update_traces(text=z_text, texttemplate="%{text}")
+    fig.update_layout(
+     title_text="Confusion Matrix",
+     xaxis_title = "Real Label",
+     yaxis_title = "Predicted Label")
+    fig.update_xaxes()
+    fig.show()
+    return fig
