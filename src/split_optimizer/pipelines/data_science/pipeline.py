@@ -6,6 +6,7 @@ from .nodes import (
     test_model,
     plot_loss,
     plot_confusionmatrix,
+    parameter_tracking,
 )
 
 
@@ -17,10 +18,15 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     "params:epochs",
                     "params:TRAINING_SIZE",
+                    "params:loss_func",
                     "train_dataloader",
                     "test_dataloader",
                 ],
-                outputs={"model": "model", "model_history": "model_history"},
+                outputs={
+                    "model": "model",
+                    "model_history": "model_history",
+                    "model_tracking": "model_tracking",
+                },
                 name="train_model",
             ),
             node(
@@ -31,16 +37,27 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:TEST_SIZE",
                     "test_dataloader",
                 ],
-                outputs="test_output",
+                outputs=["test_output", "test_tracking"],
                 name="test_model",
             ),
-            node(
-                plot_loss, inputs=["model_history", "test_output"], outputs="loss_curve"
-            ),
+            node(plot_loss, inputs="model_history", outputs="loss_curve"),
             node(
                 plot_confusionmatrix,
                 inputs=["test_output", "test_dataloader"],
                 outputs="confusionmatrix",
+            ),
+            node(
+                parameter_tracking,
+                inputs=[
+                    "params:epochs",
+                    "params:learning_rate",
+                    "params:loss_func",
+                    "params:TRAINING_SIZE",
+                    "params:TEST_SIZE",
+                    "params:number_of_qubits"
+                ],
+                outputs="params_tracking",
+                name="parameter_tracking",
             ),
         ],
         inputs={
