@@ -82,24 +82,26 @@ def test_model(
             output = model(data)
             predictions_onehot.append(output)
 
-            pred = output.argmax()
-            if pred == target.argmax():
-                correct += 1
+            for i in output:
+                pred = i.argmax()
+                if pred == target.argmax():
+                    correct += 1 
+
 
             loss = calculate_loss(output, target)
             test_loss.append(loss.item())
 
-            accuracy = correct / TEST_SIZE * 100
-            average_test_loss = sum(test_loss) / len(test_loss)
+        accuracy = correct / TEST_SIZE 
+        average_test_loss = sum(test_loss) / len(test_loss)
 
         print(
-            "Performance on test data:\n\tLoss: {:.4f}\n\tAccuracy: {:.1f}%".format(
+            "Performance on test data:\n\tLoss: {:.4f}\n\tAccuracy: {:.1f}".format(
                 average_test_loss, accuracy
             )
         )
 
         label_predictions = []
-        for i in predictions_onehot[0]:
+        for i in predictions_onehot:
             label_predictions.append(np.argmax(i).item())
 
         test_output = {
@@ -140,7 +142,11 @@ def plot_loss(model_history: dict) -> plt.figure:
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
-    _, test_labels_onehot = next(iter(test_dataloader))
+    
+    test_labels_onehot=[]
+    for _, target in test_dataloader:
+        test_labels_onehot.append(target)
+    
     label_predictions = test_output["pred"]
     
     test_labels = []
