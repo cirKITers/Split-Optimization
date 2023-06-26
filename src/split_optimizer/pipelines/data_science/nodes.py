@@ -20,11 +20,13 @@ import plotly.graph_objects as go
 def train_model(
     epochs: int,
     TRAINING_SIZE: int,
+    loss_func: str,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
 ) -> Dict:
     model = Net()
-    loss_func = nn.MSELoss()
+    if loss_func == "MSELoss":
+        calculate_loss = nn.MSELoss()
 
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -35,7 +37,7 @@ def train_model(
         for batch_idx, (data, target) in enumerate(train_dataloader):
             optimizer.zero_grad()
             output = model(data)
-            loss = loss_func(output, target)
+            loss = calculate_loss(output, target)
             loss.backward()
             optimizer.step()
             total_loss.append(loss.item())
@@ -52,19 +54,16 @@ def train_model(
             epoch_loss = []
             for data, target in test_dataloader:
                 output = model(data)
-                loss = loss_func(output, target)
+                loss = calculate_loss(output, target)
 
                 epoch_loss.append(loss.item())
 
         val_loss_list.append(np.mean(epoch_loss))
 
-    model_history = {
-        "train_loss_list": train_loss_list,
-        "val_loss_list": val_loss_list,
-        "loss_func": loss_func,
-    }
-
-    return {"model": model, "model_history": model_history}
+    model_history = {"train_loss_list": train_loss_list, "val_loss_list": val_loss_list}
+    model_tracking = model_history
+    
+    return {"model": model, "model_history": model_history, "model_tracking":model_tracking}
 
 
 def test_model(
@@ -77,10 +76,10 @@ def test_model(
     with torch.no_grad():
         correct = 0
         test_loss = []
-        predictions = []
+        predictions_onehot = []
         for data, target in test_dataloader:
             output = model(data)
-            predictions.append(output)
+            predictions_onehot.append(output)
 
             pred = output.argmax()
             if pred == target.argmax():
@@ -97,16 +96,22 @@ def test_model(
                 average_test_loss, accuracy
             )
         )
+
+        label_predictions = []
+        for i in predictions_onehot[0]:
+            label_predictions.append(np.argmax(i).item())
+
         test_output = {
             "average_test_loss": average_test_loss,
             "accuracy": accuracy,
-            "pred": predictions,
+            "pred": label_predictions,
         }
+        test_tracking = test_output
 
-    return test_output
+    return test_output, test_tracking
 
 
-def plot_loss(model_history: dict, test_output: dict) -> plt.figure:
+def plot_loss(model_history: dict) -> plt.figure:
 
     epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
 
@@ -134,18 +139,14 @@ def plot_loss(model_history: dict, test_output: dict) -> plt.figure:
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
-    predictions_onehot = test_output["pred"]
-    test_features, test_labels_onehot = next(iter(test_dataloader))
-    # convert one-hot encoding to label-encoding
-    predictions = []
-    for i in predictions_onehot[0]:
-        predictions.append(np.argmax(i).item())
-
+    _, test_labels_onehot = next(iter(test_dataloader))
+    label_predictions = test_output["pred"]
+    
     test_labels = []
     for i in test_labels_onehot:
         test_labels.append(np.argmax(i).item())
 
-    confusion_matrix = metrics.confusion_matrix(test_labels, predictions)
+    confusion_matrix = metrics.confusion_matrix(test_labels, label_predictions)
     confusion_matrix = confusion_matrix.transpose()
     labels = ["0", "1", "3", "6"]
     fig = px.imshow(
@@ -158,9 +159,26 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
     z_text = z_text = [[str(y) for y in x] for x in confusion_matrix]
     fig.update_traces(text=z_text, texttemplate="%{text}")
     fig.update_layout(
-     title_text="Confusion Matrix",
-     xaxis_title = "Real Label",
-     yaxis_title = "Predicted Label")
-    fig.update_xaxes()
-    fig.show()
+        title_text="Confusion Matrix",
+        xaxis_title="Real Label",
+        yaxis_title="Predicted Label",
+    )
     return fig
+
+def parameter_tracking(
+        epochs:int,
+        learning_rate:float,
+        loss_func:str,
+        TRAINING_SIZE:int,
+        TEST_SIZE:int,
+        number_of_qubits:int
+):
+    params_tracking = {
+        "epochs":epochs,
+        "learning_rate":learning_rate,
+        "loss_func":loss_func,
+        "training_size":TRAINING_SIZE,
+        "test_size":TEST_SIZE,
+        "number_of_qubits":number_of_qubits
+    }
+    return params_tracking

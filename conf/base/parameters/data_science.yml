@@ -4,3 +4,4 @@ data_science:
   number_of_qubits: 6
   loss_func: MSELoss
   epochs: 2
+  learning_rate:
