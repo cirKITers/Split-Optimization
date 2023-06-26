@@ -9,6 +9,7 @@ def prepare_data(
     batch_size: int,
     TRAINING_SIZE: int,
     TEST_SIZE: int,
+    seed: int,
 ) -> Dict:
 
     train_data = np.load(train_filepath)  # enthält 7500 samples
@@ -28,6 +29,8 @@ def prepare_data(
 
     for i in range(TEST_SIZE):
         y_test[i, list(test_data["classes"]).index(test_data["labels"][i])] = 1
+
+    torch.manual_seed(seed)
 
     x_train = torch.from_numpy(x_train)
     y_train = torch.from_numpy(y_train).float()

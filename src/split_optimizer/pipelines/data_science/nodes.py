@@ -19,11 +19,12 @@ import plotly.graph_objects as go
 
 def train_model(
     epochs: int,
-    TRAINING_SIZE: int,
     loss_func: str,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
 ) -> Dict:
+    
+
     model = Net()
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()

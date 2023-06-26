@@ -17,7 +17,6 @@ def create_pipeline(**kwargs) -> Pipeline:
                 train_model,
                 inputs=[
                     "params:epochs",
-                    "params:TRAINING_SIZE",
                     "params:loss_func",
                     "train_dataloader",
                     "test_dataloader",

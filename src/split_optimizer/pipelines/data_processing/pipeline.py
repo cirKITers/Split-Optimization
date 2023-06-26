@@ -8,7 +8,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 prepare_data,
-                inputs=["params:train_filepath", "params:test_filepath", "params:batch_size", "params:TRAINING_SIZE", "params:TEST_SIZE"], 
+                inputs=["params:train_filepath", "params:test_filepath", "params:batch_size", "params:TRAINING_SIZE", "params:TEST_SIZE", "params:seed"], 
                 outputs={
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",

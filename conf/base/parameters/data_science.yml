@@ -1,7 +1,8 @@
 data_science:
-  TRAINING_SIZE: 1000
-  TEST_SIZE: 250
   number_of_qubits: 6
   loss_func: MSELoss
   epochs: 2
-  learning_rate:
+  learning_rate: 0.01
+  TEST_SIZE: ${TEST_SIZE}
+  TRAINING_SIZE: ${TRAINING_SIZE}
+  
