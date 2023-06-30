@@ -10,7 +10,7 @@ from sklearn import metrics
 import plotly.figure_factory as ff
 from typing import Any, Dict, List, Tuple
 import plotly.express as px
-
+from .optimizer import Split_optimizer
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
@@ -20,6 +20,8 @@ import plotly.graph_objects as go
 def train_model(
     epochs: int,
     loss_func: str,
+    learning_rate: float,
+    two_optimizers: bool,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
 ) -> Dict:
@@ -29,7 +31,11 @@ def train_model(
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()
 
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    if two_optimizers:
+        optimizer = Split_optimizer(model, learning_rate)
+    else:
+        optimizer = optim.Adam.optimizer(model.parameters(), learning_rate )
+   
 
     train_loss_list = []
     val_loss_list = []
@@ -147,11 +153,11 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
     for _, target in test_dataloader:
         test_labels_onehot.append(target)
     
-    label_predictions = test_output["pred"]
-    
     test_labels = []
     for i in test_labels_onehot:
         test_labels.append(np.argmax(i).item())
+
+    label_predictions = test_output["pred"]
 
     confusion_matrix = metrics.confusion_matrix(test_labels, label_predictions)
     confusion_matrix = confusion_matrix.transpose()

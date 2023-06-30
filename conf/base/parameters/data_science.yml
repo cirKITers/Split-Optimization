@@ -1,8 +1,9 @@
 data_science:
   number_of_qubits: 6
   loss_func: MSELoss
-  epochs: 2
-  learning_rate: 0.01
+  epochs: 10
+  learning_rate: 0.08
+  two_optimizers: True
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   

@@ -21,7 +21,6 @@ data_science.loss_curve:
   filepath: data/08_reporting/loss_curve.json
   versioned: True
 
-
 data_science.confusionmatrix:
   type: kedro.extras.datasets.plotly.JSONDataSet
   filepath: data/08_reporting/confusionmatrix.json
