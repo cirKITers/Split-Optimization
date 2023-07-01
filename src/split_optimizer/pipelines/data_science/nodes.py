@@ -34,7 +34,7 @@ def train_model(
     if two_optimizers:
         optimizer = Split_optimizer(model, learning_rate)
     else:
-        optimizer = optim.Adam.optimizer(model.parameters(), learning_rate )
+        optimizer = optim.Adam(model.parameters(), learning_rate )
    
 
     train_loss_list = []
