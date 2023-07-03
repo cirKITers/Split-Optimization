@@ -12,8 +12,8 @@ conf/**/*credentials*
 # ignore everything in the following folders
 data/**
 logs/**
-src/test_one_optimizer.py
-src/test_two_optimizer.py
+src/test_1optimizer.py
+src/test_2optimizer.py
 # except their sub-folders
 !data/**/
 !logs/**/

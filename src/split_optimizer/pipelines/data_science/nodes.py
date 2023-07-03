@@ -184,7 +184,8 @@ def parameter_tracking(
         loss_func:str,
         TRAINING_SIZE:int,
         TEST_SIZE:int,
-        number_of_qubits:int
+        number_of_qubits:int,
+        two_optimizer:bool
 ):
     params_tracking = {
         "epochs":epochs,
@@ -192,6 +193,7 @@ def parameter_tracking(
         "loss_func":loss_func,
         "training_size":TRAINING_SIZE,
         "test_size":TEST_SIZE,
-        "number_of_qubits":number_of_qubits
+        "number_of_qubits":number_of_qubits,
+        "two optimizer": two_optimizer
     }
     return params_tracking
