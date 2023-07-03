@@ -1,2 +1,3 @@
 TRAINING_SIZE: 1000
 TEST_SIZE: 250
+save: True

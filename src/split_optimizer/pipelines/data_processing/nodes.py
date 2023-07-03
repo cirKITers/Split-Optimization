@@ -44,6 +44,6 @@ def prepare_data(
         train_dataset, shuffle=True, batch_size=batch_size
     )
     test_dataloader = torch.utils.data.DataLoader(
-        test_dataset, shuffle=True, batch_size=1
+        test_dataset, shuffle=False, batch_size=1
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}

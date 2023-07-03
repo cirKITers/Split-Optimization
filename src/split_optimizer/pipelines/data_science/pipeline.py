@@ -18,6 +18,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=[
                     "params:epochs",
                     "params:loss_func",
+                    "params:learning_rate",
+                    "params:two_optimizers",
                     "train_dataloader",
                     "test_dataloader",
                 ],
@@ -54,6 +56,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:TRAINING_SIZE",
                     "params:TEST_SIZE",
                     "params:number_of_qubits"
+                    "params:two_optimizers"
                 ],
                 outputs="params_tracking",
                 name="parameter_tracking",

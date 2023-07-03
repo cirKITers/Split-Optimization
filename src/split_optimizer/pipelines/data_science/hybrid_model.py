@@ -16,17 +16,26 @@ def quantum_circuit(inputs, weights):
     qml.templates.StronglyEntanglingLayers(weights, wires=range(6))
     return [qml.expval(qml.PauliZ(i)) for i in range(4)]
 
-
-class Net(nn.Module):
+class C_layers(nn.Module):
     def __init__(self):
-        super(Net, self).__init__()
+        super(C_layers, self).__init__()
         self.fc1 = nn.Linear(6, 6)
         self.fc2 = nn.Linear(6, 6)
-        weight_shapes = {"weights": (1, 6, 3)}
-        self.qlayer = qml.qnn.TorchLayer(quantum_circuit, weight_shapes)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+        return x
+
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.clayer = C_layers()
+        weight_shapes = {"weights": (1, 6, 3)}
+        self.qlayer = qml.qnn.TorchLayer(quantum_circuit, weight_shapes)
+
+    def forward(self, x):
+        x = self.clayer(x)
         x = self.qlayer(x)
         return F.softmax(torch.Tensor(x))
