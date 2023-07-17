@@ -10,7 +10,7 @@ from .nodes import (
 )
 
 
-def create_pipeline(**kwargs) -> Pipeline:
+def create_training_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
             node(

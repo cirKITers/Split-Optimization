@@ -11,6 +11,7 @@ import plotly.figure_factory as ff
 from typing import Any, Dict, List, Tuple
 import plotly.express as px
 from .optimizer import Split_optimizer
+import mlflow
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
@@ -165,7 +166,7 @@ def plot_loss(model_history: dict) -> plt.figure:
     plt.update_layout(
         title="Training and Validation Loss", xaxis_title="Epochs", yaxis_title="Loss"
     )
-
+    mlflow.log_figure(plt, "loss_curve.html")
     return plt
 
 
@@ -198,4 +199,5 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
         xaxis_title="Real Label",
         yaxis_title="Predicted Label",
     )
+    mlflow.log_figure(fig, "confusion_matrix.html")
     return fig
