@@ -1,49 +1,56 @@
 import numpy as np
 import torch
-from typing import Dict
+from typing import Any, Dict, Tuple
+from torchvision import datasets
+from torchvision.transforms import ToTensor
+import tensorflow as tf
 
 
 def prepare_data(
-    train_filepath: str,
-    test_filepath: str,
     batch_size: int,
     TRAINING_SIZE: int,
     TEST_SIZE: int,
     seed: int,
 ) -> Dict:
+    data = tf.keras.datasets.mnist.load_data(
+    path="/Users/mona/Documents/quantengruppe_hiwi/split_optimizer/data/01_raw/mnist.npz")
+    classes= [0,1,2,3,4,5,6,7,8,9]
 
-    train_data = np.load(train_filepath)  # enthält 7500 samples
-    test_data = np.load(test_filepath)  # enthält 1500 samples
+    (x_train_full, y_train_full), (x_test_full, y_test_full) = data 
 
-    x_train = train_data["features"][:TRAINING_SIZE]
-    # y_train = train_data["labels"][:TRAINING_SIZE]
-    x_test = test_data["features"][:TEST_SIZE]
-    # y_test = train_data["labels"][:TEST_SIZE]
+    x_train = x_train_full[:TRAINING_SIZE]
+    x_test = x_test_full[:TEST_SIZE]
 
     # one-hot-encoding for the labels
-    y_train = np.zeros((TRAINING_SIZE, len(train_data["classes"])))
-    y_test = np.zeros((TEST_SIZE, len(train_data["classes"])))
+    y_train = np.zeros((TRAINING_SIZE, len(classes)))
+    y_test = np.zeros((TEST_SIZE, len(classes)))
 
     for i in range(TRAINING_SIZE):
-        y_train[i, list(train_data["classes"]).index(train_data["labels"][i])] = 1
+        y_train[i, classes.index(y_train_full[i])] = 1
 
     for i in range(TEST_SIZE):
-        y_test[i, list(test_data["classes"]).index(test_data["labels"][i])] = 1
+        y_test[i, classes.index(y_test_full[i])] = 1
+    
+
+    x_train=np.divide(x_train, 255)
+    x_test=np.divide(x_test, 255)
+
 
     torch.manual_seed(seed)
-
     x_train = torch.from_numpy(x_train)
     y_train = torch.from_numpy(y_train).float()
     x_test = torch.from_numpy(x_test)
     y_test = torch.from_numpy(y_test).float()
 
-    train_dataset = torch.utils.data.TensorDataset(x_train, y_train)
-    test_dataset = torch.utils.data.TensorDataset(x_test, y_test)
 
+    train_data = torch.utils.data.TensorDataset(x_train, y_train)
+    test_data = torch.utils.data.TensorDataset(x_test, y_test)
+
+    
     train_dataloader = torch.utils.data.DataLoader(
-        train_dataset, shuffle=True, batch_size=batch_size
+        train_data, shuffle=True, batch_size=batch_size
     )
     test_dataloader = torch.utils.data.DataLoader(
-        test_dataset, shuffle=False, batch_size=1
+        test_data, shuffle=False, batch_size=1
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}

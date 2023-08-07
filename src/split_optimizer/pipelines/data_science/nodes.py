@@ -27,7 +27,7 @@ def train_model(
     test_dataloader: DataLoader,
 ) -> Dict:
 
-    model = Net()
+    model = Net().float()
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()
 
@@ -42,6 +42,7 @@ def train_model(
         total_loss = []
         for batch_idx, (data, target) in enumerate(train_dataloader):
             optimizer.zero_grad()
+            data=data.reshape(10,1,28,28)
             output = model(data)
             loss = calculate_loss(output, target)
             loss.backward()
@@ -58,6 +59,7 @@ def train_model(
         with torch.no_grad():
             epoch_loss = []
             for data, target in test_dataloader:
+                data=data.reshape(data.shape[0],1,28,28)
                 output = model(data)
                 loss = calculate_loss(output, target)
 
@@ -85,6 +87,7 @@ def test_model(
         test_loss = []
         predictions_onehot = []
         for data, target in test_dataloader:
+            data = data.reshape(data.shape[0],1,28,28)
             output = model(data)
 
             predictions_onehot.append(output)
@@ -184,7 +187,7 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
 
     confusion_matrix = metrics.confusion_matrix(test_labels, label_predictions)
     confusion_matrix = confusion_matrix.transpose()
-    labels = ["0", "1", "3", "6"]
+    labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     fig = px.imshow(
         confusion_matrix,
         x=labels,
