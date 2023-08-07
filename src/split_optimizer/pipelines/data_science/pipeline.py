@@ -6,11 +6,11 @@ from .nodes import (
     test_model,
     plot_loss,
     plot_confusionmatrix,
-    parameter_tracking,
+    mlflow_tracking,
 )
 
 
-def create_pipeline(**kwargs) -> Pipeline:
+def create_training_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
             node(
@@ -26,7 +26,6 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs={
                     "model": "model",
                     "model_history": "model_history",
-                    "model_tracking": "model_tracking",
                 },
                 name="train_model",
             ),
@@ -38,28 +37,19 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:TEST_SIZE",
                     "test_dataloader",
                 ],
-                outputs=["test_output", "test_tracking"],
+                outputs={"test_output":"test_output"},
                 name="test_model",
             ),
-            node(plot_loss, inputs="model_history", outputs="loss_curve"),
+            node(plot_loss, inputs="model_history", outputs={"loss_curve":"loss_curve"}),
             node(
                 plot_confusionmatrix,
                 inputs=["test_output", "test_dataloader"],
-                outputs="confusionmatrix",
+                outputs={"confusionmatrix":"confusionmatrix"},
             ),
             node(
-                parameter_tracking,
-                inputs=[
-                    "params:epochs",
-                    "params:learning_rate",
-                    "params:loss_func",
-                    "params:TRAINING_SIZE",
-                    "params:TEST_SIZE",
-                    "params:number_of_qubits"
-                    "params:two_optimizers"
-                ],
-                outputs="params_tracking",
-                name="parameter_tracking",
+                mlflow_tracking,
+                inputs=["model_history", "test_output"],
+                outputs={"metrics":"metrics"},
             ),
         ],
         inputs={

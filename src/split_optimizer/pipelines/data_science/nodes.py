@@ -11,6 +11,7 @@ import plotly.figure_factory as ff
 from typing import Any, Dict, List, Tuple
 import plotly.express as px
 from .optimizer import Split_optimizer
+import mlflow
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
@@ -25,7 +26,6 @@ def train_model(
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
 ) -> Dict:
-    
 
     model = Net()
     if loss_func == "MSELoss":
@@ -34,8 +34,7 @@ def train_model(
     if two_optimizers:
         optimizer = Split_optimizer(model, learning_rate)
     else:
-        optimizer = optim.Adam(model.parameters(), learning_rate )
-   
+        optimizer = optim.Adam(model.parameters(), learning_rate)
 
     train_loss_list = []
     val_loss_list = []
@@ -48,7 +47,6 @@ def train_model(
             loss.backward()
             optimizer.step()
             total_loss.append(loss.item())
-
         train_loss_list.append(sum(total_loss) / len(total_loss))
         print(
             "Training [{:.0f}%]\tLoss: {:.4f}".format(
@@ -68,9 +66,11 @@ def train_model(
         val_loss_list.append(np.mean(epoch_loss))
 
     model_history = {"train_loss_list": train_loss_list, "val_loss_list": val_loss_list}
-    model_tracking = model_history
-    
-    return {"model": model, "model_history": model_history, "model_tracking":model_tracking}
+
+    return {
+        "model": model,
+        "model_history": model_history,
+    }
 
 
 def test_model(
@@ -86,18 +86,18 @@ def test_model(
         predictions_onehot = []
         for data, target in test_dataloader:
             output = model(data)
+
             predictions_onehot.append(output)
 
             for i in output:
                 pred = i.argmax()
                 if pred == target.argmax():
-                    correct += 1 
-
+                    correct += 1
 
             loss = calculate_loss(output, target)
             test_loss.append(loss.item())
 
-        accuracy = correct / TEST_SIZE 
+        accuracy = correct / TEST_SIZE
         average_test_loss = sum(test_loss) / len(test_loss)
 
         print(
@@ -115,9 +115,32 @@ def test_model(
             "accuracy": accuracy,
             "pred": label_predictions,
         }
-        test_tracking = test_output
 
-    return test_output, test_tracking
+    return {"test_output":test_output}
+
+
+def mlflow_tracking(model_history, test_output):
+    train_loss = []
+    for i, e in enumerate(model_history["train_loss_list"]):
+        train_loss.append({"value": e, "step": i})
+
+    val_loss = []
+    for i, e in enumerate(model_history["val_loss_list"]):
+        val_loss.append({"value": e, "step": i})
+
+    predictions =[]
+    for i, e in enumerate(test_output["pred"]):
+        predictions.append({"value": e, "step": i})
+
+    metrics = {
+        "train_loss": train_loss,
+        "val_loss": val_loss,
+        "predictions": predictions,
+        "average_test_loss": {"value": test_output["average_test_loss"], "step": 1},
+        "accuracy": {"value": test_output["accuracy"], "step": 1},
+    }
+
+    return {"metrics":metrics}
 
 
 def plot_loss(model_history: dict) -> plt.figure:
@@ -143,16 +166,16 @@ def plot_loss(model_history: dict) -> plt.figure:
     plt.update_layout(
         title="Training and Validation Loss", xaxis_title="Epochs", yaxis_title="Loss"
     )
-
-    return plt
+    mlflow.log_figure(plt, "loss_curve.html")
+    return {"loss_curve":plt}
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
-    
-    test_labels_onehot=[]
+
+    test_labels_onehot = []
     for _, target in test_dataloader:
         test_labels_onehot.append(target)
-    
+
     test_labels = []
     for i in test_labels_onehot:
         test_labels.append(np.argmax(i).item())
@@ -176,24 +199,5 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
         xaxis_title="Real Label",
         yaxis_title="Predicted Label",
     )
-    return fig
-
-def parameter_tracking(
-        epochs:int,
-        learning_rate:float,
-        loss_func:str,
-        TRAINING_SIZE:int,
-        TEST_SIZE:int,
-        number_of_qubits:int,
-        two_optimizer:bool
-):
-    params_tracking = {
-        "epochs":epochs,
-        "learning_rate":learning_rate,
-        "loss_func":loss_func,
-        "training_size":TRAINING_SIZE,
-        "test_size":TEST_SIZE,
-        "number_of_qubits":number_of_qubits,
-        "two optimizer": two_optimizer
-    }
-    return params_tracking
+    mlflow.log_figure(fig, "confusion_matrix.html")
+    return {"confusionmatrix":fig}

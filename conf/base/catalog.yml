@@ -3,29 +3,26 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
-data_science.model_tracking:
-  type: tracking.JSONDataSet
-  filepath: data/09_tracking/model_history.json
-
 data_science.model:
   type: split_optimizer.helpers.dataset.TorchLocalModel
   filepath: data/06_models/model.pt
   model: model
 
-data_science.test_tracking:
-  type: tracking.JSONDataSet
-  filepath: data/09_tracking/test_output.json
+data_science.metrics:
+  type: kedro_mlflow.io.metrics.MlflowMetricsDataSet
+  prefix: metrics
 
 data_science.loss_curve:
-  type: kedro.extras.datasets.plotly.JSONDataSet
-  filepath: data/08_reporting/loss_curve.json
-  versioned: True
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+    type: kedro.extras.datasets.plotly.JSONDataSet
+    filepath: data/08_reporting/loss_curve.json
+
 
 data_science.confusionmatrix:
-  type: kedro.extras.datasets.plotly.JSONDataSet
-  filepath: data/08_reporting/confusionmatrix.json
-  versioned: True
-  
-data_science.params_tracking:
-  type: tracking.JSONDataSet
-  filepath: data/09_tracking/params.json
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+    type: kedro.extras.datasets.plotly.JSONDataSet
+    filepath: data/08_reporting/confusionmatrix.json
+
+    
