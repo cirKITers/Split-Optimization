@@ -1,3 +1,5 @@
 TRAINING_SIZE: 1000
 TEST_SIZE: 250
 save: True
+wires: 10
+number_classes: 10

@@ -1,7 +1,6 @@
 data_processing:
-  train_filepath: "data/01_raw/Train_[0,1,3,6].npz"
-  test_filepath: "data/01_raw/Test_[0,1,3,6].npz"
   batch_size: 10
   TRAINING_SIZE: ${TRAINING_SIZE}
   TEST_SIZE: ${TEST_SIZE}
   seed: 32
+  number_classes: ${number_classes}

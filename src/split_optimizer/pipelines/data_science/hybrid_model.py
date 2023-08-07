@@ -5,7 +5,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-wires=10
+#wie kann ich diese beiden Parameter aus kedro laden? wäre das sinnvoll?
+wires = 10
+number_classes=10
+
 dev = qml.device("default.qubit", wires=wires)
 
 @qml.qnode(dev, interface="torch")
@@ -13,7 +16,7 @@ def quantum_circuit(inputs, weights):
     qml.templates.AngleEmbedding(inputs, wires=range(wires))
     # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
     qml.templates.StronglyEntanglingLayers(weights, wires=range(wires))
-    return [qml.expval(qml.PauliZ(i)) for i in range(wires)]
+    return [qml.expval(qml.PauliZ(i)) for i in range(number_classes)]
 
 class C_layers(nn.Module):
     def __init__(self):
@@ -38,7 +41,7 @@ class C_layers(nn.Module):
             nn.Flatten(),
             nn.Linear(64, 16),  # hidden size = 64 -> hidden size = 16
             nn.Tanh(),
-            nn.Linear(16, 10),  # hidden size = 16 -> hidden size = 10x1x1
+            nn.Linear(16, wires),  # hidden size = 16 -> hidden size = 10x1x1
             nn.Tanh(),
             )
     
