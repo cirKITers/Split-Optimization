@@ -116,7 +116,7 @@ def test_model(
             "pred": label_predictions,
         }
 
-    return test_output
+    return {"test_output":test_output}
 
 
 def mlflow_tracking(model_history, test_output):
@@ -140,7 +140,7 @@ def mlflow_tracking(model_history, test_output):
         "accuracy": {"value": test_output["accuracy"], "step": 1},
     }
 
-    return metrics
+    return {"metrics":metrics}
 
 
 def plot_loss(model_history: dict) -> plt.figure:
@@ -167,7 +167,7 @@ def plot_loss(model_history: dict) -> plt.figure:
         title="Training and Validation Loss", xaxis_title="Epochs", yaxis_title="Loss"
     )
     mlflow.log_figure(plt, "loss_curve.html")
-    return plt
+    return {"loss_curve":plt}
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
@@ -200,4 +200,4 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
         yaxis_title="Predicted Label",
     )
     mlflow.log_figure(fig, "confusion_matrix.html")
-    return fig
+    return {"confusionmatrix":fig}
