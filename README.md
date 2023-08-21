@@ -29,10 +29,6 @@ Using pip:
 pip install -r src/requirements.txt
 ```
 
-Using poetry:
-```
-poetry install
-```
 ### Running Experiments
 
 Without further configuration you can execute
