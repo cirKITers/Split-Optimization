@@ -25,11 +25,16 @@ def train_model(
     two_optimizers: bool,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
+    class_weights_train: List,
+    class_weights_test: List
 ) -> Dict:
 
     model = Net().float()
-    if loss_func == "MSELoss":
-        calculate_loss = nn.MSELoss()
+    if loss_func == "CrossEntropyLoss":
+        calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
+        calculate_test_loss = nn.CrossEntropyLoss(weight=class_weights_test)
+
+
 
     if two_optimizers:
         optimizer = Split_optimizer(model, learning_rate)
@@ -43,7 +48,7 @@ def train_model(
         for batch_idx, (data, target) in enumerate(train_dataloader):
             optimizer.zero_grad()
             output = model(data)
-            loss = calculate_loss(output, target)
+            loss = calculate_train_loss(output, target)
             loss.backward()
             optimizer.step()
             total_loss.append(loss.item())
@@ -59,7 +64,7 @@ def train_model(
             epoch_loss = []
             for data, target in test_dataloader:
                 output = model(data)
-                loss = calculate_loss(output, target)
+                loss = calculate_test_loss(output, target)
 
                 epoch_loss.append(loss.item())
 
@@ -74,11 +79,11 @@ def train_model(
 
 
 def test_model(
-    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader
+    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader, class_weights_test
 ) -> Dict:
     model.eval()
-    if loss_func == "MSELoss":
-        calculate_loss = nn.MSELoss()
+    if loss_func == "CrossEntropyLoss":
+        calculate_test_loss = nn.CrossEntropyLoss(weight=class_weights_test)
 
     with torch.no_grad():
         correct = 0
@@ -94,7 +99,7 @@ def test_model(
                 if pred == target.argmax():
                     correct += 1
 
-            loss = calculate_loss(output, target)
+            loss = calculate_test_loss(output, target)
             test_loss.append(loss.item())
 
         accuracy = correct / TEST_SIZE

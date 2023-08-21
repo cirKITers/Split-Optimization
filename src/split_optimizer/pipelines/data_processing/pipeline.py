@@ -1,4 +1,4 @@
-from .nodes import load_data, format_data, create_dataloader
+from .nodes import load_data, format_data, create_dataloader, calculate_class_weights
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
@@ -52,11 +52,29 @@ def create_pipeline(**kwargs) -> Pipeline:
                 },
                 name="create_dataloader",
             ),
+            node(
+                calculate_class_weights,
+                inputs=[
+                    "y_train_full",
+                    "y_test_full",
+                    "params:number_classes",
+                    "params:TRAINING_SIZE",
+                    "params:TEST_SIZE"
+                ],
+                outputs={
+                    "class_weights_train":"class_weights_train",
+                    "class_weights_test":"class_weights_test",
+
+                },
+                name="calculate_class_weights"
+            )
         ],
         inputs={},
         outputs={
             "train_dataloader": "train_dataloader",
             "test_dataloader": "test_dataloader",
+            "class_weights_train":"class_weights_train",
+            "class_weights_test":"class_weights_test",
         },
         namespace="data_processing",
     )

@@ -22,6 +22,8 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "params:two_optimizers",
                     "train_dataloader",
                     "test_dataloader",
+                    "class_weights_train",
+                    "class_weights_test"
                 ],
                 outputs={
                     "model": "model",
@@ -36,6 +38,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "params:loss_func",
                     "params:TEST_SIZE",
                     "test_dataloader",
+                    "class_weights_test"
                 ],
                 outputs={"test_output":"test_output"},
                 name="test_model",
@@ -55,6 +58,8 @@ def create_training_pipeline(**kwargs) -> Pipeline:
         inputs={
             "train_dataloader": "train_dataloader",
             "test_dataloader": "test_dataloader",
+            "class_weights_train":"class_weights_train",
+            "class_weights_test":"class_weights_test",
         },
         outputs={},
         namespace="data_science",

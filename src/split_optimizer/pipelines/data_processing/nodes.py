@@ -82,3 +82,26 @@ def create_dataloader(
         test_data, shuffle=False, batch_size=1
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}
+
+def calculate_class_weights(
+    y_train_full: np.array,
+    y_test_full: np.array,
+    number_classes: int,
+    TRAINING_SIZE: int,
+    TEST_SIZE: int
+):
+    y_train = y_train_full[:TRAINING_SIZE]
+    y_test = y_test_full[:TEST_SIZE]
+
+    class_weights_train = np.array(())
+    class_weights_test = np.array(())
+    for i in range(number_classes):
+        train_elements = np.where(y_train == i)
+        test_elements = np.where(y_test == i)
+        class_weights_train = np.append(class_weights_train, np.divide(TRAINING_SIZE, train_elements[0].size))
+        class_weights_test = np.append(class_weights_test, np.divide(TEST_SIZE, test_elements[0].size))
+    
+    class_weights_train = torch.from_numpy(class_weights_train)
+    class_weights_test = torch.from_numpy(class_weights_test)
+
+    return {"class_weights_train":class_weights_train, "class_weights_test":class_weights_test}

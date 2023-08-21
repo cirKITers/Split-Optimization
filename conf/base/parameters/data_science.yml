@@ -1,6 +1,6 @@
 data_science:
   wires: ${wires}
-  loss_func: MSELoss
+  loss_func: CrossEntropyLoss
   epochs: 2
   learning_rate: 0.03
   two_optimizers: True
