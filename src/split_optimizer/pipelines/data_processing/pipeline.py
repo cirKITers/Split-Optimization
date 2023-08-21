@@ -56,14 +56,11 @@ def create_pipeline(**kwargs) -> Pipeline:
                 calculate_class_weights,
                 inputs=[
                     "y_train_full",
-                    "y_test_full",
                     "params:number_classes",
                     "params:TRAINING_SIZE",
-                    "params:TEST_SIZE"
                 ],
                 outputs={
                     "class_weights_train":"class_weights_train",
-                    "class_weights_test":"class_weights_test",
 
                 },
                 name="calculate_class_weights"
@@ -74,7 +71,6 @@ def create_pipeline(**kwargs) -> Pipeline:
             "train_dataloader": "train_dataloader",
             "test_dataloader": "test_dataloader",
             "class_weights_train":"class_weights_train",
-            "class_weights_test":"class_weights_test",
         },
         namespace="data_processing",
     )

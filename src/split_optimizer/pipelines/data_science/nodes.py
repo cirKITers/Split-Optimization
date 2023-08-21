@@ -25,14 +25,13 @@ def train_model(
     two_optimizers: bool,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
-    class_weights_train: List,
-    class_weights_test: List
+    class_weights_train: List
 ) -> Dict:
 
     model = Net().float()
     if loss_func == "CrossEntropyLoss":
         calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
-        calculate_test_loss = nn.CrossEntropyLoss(weight=class_weights_test)
+        calculate_test_loss = nn.CrossEntropyLoss()
 
 
 
@@ -79,11 +78,11 @@ def train_model(
 
 
 def test_model(
-    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader, class_weights_test
+    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader,
 ) -> Dict:
     model.eval()
     if loss_func == "CrossEntropyLoss":
-        calculate_test_loss = nn.CrossEntropyLoss(weight=class_weights_test)
+        calculate_test_loss = nn.CrossEntropyLoss()
 
     with torch.no_grad():
         correct = 0
