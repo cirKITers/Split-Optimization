@@ -47,6 +47,6 @@ which will open Kedro`s dashboard in you browser.
 ## Literature :books:
 
 [1]: [Hybrid Quantum Classical Graph Neural Networks for Particle Track Reconstruction](https://arxiv.org/abs/2109.12636)\
-[2]: [Quantum-classical convolutional neural networks in radiological image classification](https://arxiv.org/abs/2204.12390)\ 
+[2]: [Quantum-classical convolutional neural networks in radiological image classification](https://arxiv.org/abs/2204.12390)\
 [3]: [Quantum classical hybrid neural networks for continuous variable prediction](https://doi.org/10.48550/arXiv.2212.04209)\
 [4]: [Simultaneous Perturbation Stochastic Approximation of the Quantum Fisher Information](https://quantum-journal.org/papers/q-2021-10-20-567/)\
