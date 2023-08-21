@@ -25,9 +25,11 @@ def train_model(
     two_optimizers: bool,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
+    n_qubits: int,
+    number_classes: int,
 ) -> Dict:
 
-    model = Net()
+    model = Net(n_qubits, number_classes)
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()
 

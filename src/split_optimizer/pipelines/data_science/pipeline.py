@@ -22,6 +22,8 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "params:two_optimizers",
                     "train_dataloader",
                     "test_dataloader",
+                    "params:n_qubits",
+                    "params:number_classes"
                 ],
                 outputs={
                     "model": "model",

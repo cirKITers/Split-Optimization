@@ -1,5 +1,5 @@
 data_science:
-  n_qubits: 10
+  n_qubits: ${n_qubits}
   loss_func: MSELoss
   epochs: 2
   learning_rate: 0.03
