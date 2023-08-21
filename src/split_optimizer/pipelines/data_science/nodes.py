@@ -27,7 +27,7 @@ def train_model(
     test_dataloader: DataLoader,
 ) -> Dict:
 
-    model = Net().float()
+    model = Net()
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()
 
