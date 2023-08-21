@@ -11,7 +11,7 @@ The output of this network is then embedded onto a Variational Quantum Circuit w
 ![Architecture Overview](docs/overview.png)
 
 Both parts have individual optimisers, of which the following types are planned to be tested:
-- Adam (as a baseline comparison; shouldn't perform different as a single Adam instance)
+- Adam (as a baseline comparison; shouldn't perform much different compared to a single Adam instance)
 - SGD (different learning rates)
 - NGD / QNG
 - SPSA / QNSPSA [4]
