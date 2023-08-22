@@ -22,14 +22,14 @@ Besides the overall performance, the convergence speed should be considered in e
 
 This project is built using the [Kedro Framework](https://docs.kedro.org).
 
-### Install Dependencies
+### Install Dependencies :floppy_disk:
 
 Using pip:
 ```
 pip install -r src/requirements.txt
 ```
 
-### Running Experiments
+### Running Experiments :running:
 
 Without further configuration you can execute
 ```
@@ -43,6 +43,22 @@ kedro viz
 ```
 which will open Kedro`s dashboard in you browser.
 
+
+### Configuration :wrench:
+
+The following parameters can be adjusted:
+- Data Preprocessing Parameters: `conf/base/parameters/data_processing.yml`
+  - Batch size
+  - Seed
+- Training Parameters: `conf/base/parameters/data_science.yml`
+  - Loss function
+  - Learning rate
+  - Number of epochs
+  - Optimizer approach
+- Global Parameters: `conf/base/globals.yml`
+  - Training/ Test Size
+  - Number of classes
+  - Number of qubits
 
 ## Literature :books:
 
