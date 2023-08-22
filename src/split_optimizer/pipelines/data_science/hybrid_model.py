@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class QLayers:
     def __init__(self, n_qubits, number_classes):
         self.n_qubits = n_qubits
