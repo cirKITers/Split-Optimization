@@ -1,0 +1,9 @@
+torch -i https://download.pytorch.org/whl/cpu
+torchvision -i https://download.pytorch.org/whl/cpu
+plotly
+kedro
+kedro-viz
+kedro-mlflow
+mlflow
+tensorflow
+pennylane
