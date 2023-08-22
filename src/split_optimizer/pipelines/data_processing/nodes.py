@@ -6,7 +6,7 @@ import tensorflow as tf
 
 def load_data():
     data = tf.keras.datasets.mnist.load_data(
-        path="/Users/mona/Documents/quantengruppe_hiwi/split_optimizer/data/01_raw/mnist.npz"
+        path="mnist.npz"
     )
     # daten sind bereits geshuffelt
     (x_train_full, y_train_full), (x_test_full, y_test_full) = data

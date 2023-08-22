@@ -25,15 +25,15 @@ def train_model(
     two_optimizers: bool,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
-    class_weights_train: List
+    n_qubits: int,
+    number_classes: int,
+    class_weights_train: List,
 ) -> Dict:
 
-    model = Net().float()
+    model = Net(n_qubits, number_classes)
     if loss_func == "CrossEntropyLoss":
         calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
         calculate_test_loss = nn.CrossEntropyLoss()
-
-
 
     if two_optimizers:
         optimizer = Split_optimizer(model, learning_rate)
