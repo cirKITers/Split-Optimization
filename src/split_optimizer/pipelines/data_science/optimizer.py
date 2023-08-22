@@ -1,11 +1,40 @@
 import torch.optim as optim
 
+def initialize_optimizer(model, lr, optimizer_list):
+    if len(optimizer_list) == 2:
+        return SplitOptimizer(model, lr, optimizer_list)
+    elif optimizer_list[0] == "Adam":
+        return Adam(model.parameters(), lr)
+    elif optimizer_list[0] == "SGD":
+        momentum = 0.9
+        return SGD(model.parameters(), lr, momentum)
+    else:
+        raise Exception(f"{optimizer_list} is not a valid")
 
 class SplitOptimizer:
-    def __init__(self, model, lr):
-        self.classical_optimizer = optim.Adam(model.clayer.parameters(), lr)
-        self.quantum_optimizer = optim.Adam(model.qlayer.parameters(), lr)
-
+    def __init__(self, model, lr, optimizer_list):
+        if optimizer_list[0] == "Adam":
+            self.classical_optimizer = Adam(model.clayer.parameters(), lr)
+        elif optimizer_list[0] == "SGD":
+            momentum = 0.9
+            self.classical_optimizer = SGD(model.clayer.parameters(), lr, momentum)
+        else:
+            raise Exception(f"{optimizer_list[0]} is not a valid optimizer for the classical part")
+        
+        if optimizer_list[1] == "NGD":
+            self.quantum_optimizer = NGD(model.qlayer.parameters(), lr)
+        elif optimizer_list[1] == "QNG":
+            self.quantum_optimizer = QNG(model.qlayer.parameters(), lr)   
+        elif optimizer_list[1] == "SPSA":
+            self.quantum_optimizer = SPSA(model.qlayer.parameters(), lr)
+        elif optimizer_list[1] == "Adam":
+            self.quantum_optimizer = Adam(model.qlayer.parameters(), lr)
+        elif optimizer_list[1] == "SGD":
+            momentum = 0.9
+            self.quantum_optimizer = SGD(model.qlayer.parameters(), lr, momentum)
+        else:
+            raise Exception(f"{optimizer_list[1]} is not a valid optimizer for the quantum part")
+        
     def zero_grad(self):
         self.classical_optimizer.zero_grad()
         self.quantum_optimizer.zero_grad()
@@ -13,3 +42,26 @@ class SplitOptimizer:
     def step(self):
         self.classical_optimizer.step()
         self.quantum_optimizer.step()
+
+
+class Adam(optim.Adam):
+    def __init__(self, model_params, lr):
+        super(Adam, self).__init__(model_params, lr)
+
+class SGD(optim.SGD):
+    def __init__(self, model_params, lr, momentum):
+        super(SGD, self).__init__(model_params, lr, momentum)
+
+class NGD():
+    def __init__(self, model_params, lr):
+        raise NotImplementedError("NGD is not implemented yet")
+
+class QNG():
+    def __init__(self, model_params, lr):
+        raise NotImplementedError("QNG is not implemented yet")
+
+class SPSA():
+    def __init__(self, model_params, lr):
+        raise NotImplementedError("SPSA is not implemented yet")
+
+

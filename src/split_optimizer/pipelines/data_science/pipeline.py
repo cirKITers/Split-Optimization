@@ -19,7 +19,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "params:epochs",
                     "params:loss_func",
                     "params:learning_rate",
-                    "params:two_optimizers",
+                    "params:optimizer_list",
                     "train_dataloader",
                     "test_dataloader",
                     "params:n_qubits",

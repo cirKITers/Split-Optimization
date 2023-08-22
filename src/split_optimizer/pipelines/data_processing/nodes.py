@@ -5,12 +5,10 @@ import tensorflow as tf
 
 
 def load_data():
-    data = tf.keras.datasets.mnist.load_data(
-        path="mnist.npz"
-    )
+    data = tf.keras.datasets.mnist.load_data()
     # daten sind bereits geshuffelt
     (x_train_full, y_train_full), (x_test_full, y_test_full) = data
-    
+
     return {
         "x_train_full": x_train_full,
         "y_train_full": y_train_full,
@@ -48,6 +46,7 @@ def format_data(
     x_train = np.divide(x_train, 255)
     x_test = np.divide(x_test, 255)
     return {"x_train": x_train, "y_train": y_train, "x_test": x_test, "y_test": y_test}
+
 
 def create_dataloader(
     x_train: np.array,

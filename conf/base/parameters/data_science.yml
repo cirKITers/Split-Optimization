@@ -3,7 +3,7 @@ data_science:
   loss_func: MSELoss
   epochs: 2
   learning_rate: 0.03
-  two_optimizers: True
+  optimizer_list: [SGD]
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   number_classes: ${number_classes}

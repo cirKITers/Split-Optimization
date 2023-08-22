@@ -10,7 +10,7 @@ from sklearn import metrics
 import plotly.figure_factory as ff
 from typing import Any, Dict, List, Tuple
 import plotly.express as px
-from .optimizer import SplitOptimizer
+from .optimizer import initialize_optimizer
 import mlflow
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
@@ -22,7 +22,7 @@ def train_model(
     epochs: int,
     loss_func: str,
     learning_rate: float,
-    two_optimizers: bool,
+    optimizer_list: List,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
     n_qubits: int,
@@ -33,10 +33,7 @@ def train_model(
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()
 
-    if two_optimizers:
-        optimizer = SplitOptimizer(model, learning_rate)
-    else:
-        optimizer = optim.Adam(model.parameters(), learning_rate)
+    optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
 
     train_loss_list = []
     val_loss_list = []
