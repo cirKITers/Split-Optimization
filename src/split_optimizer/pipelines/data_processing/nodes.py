@@ -92,7 +92,7 @@ def calculate_class_weights(
     class_weights_train = np.array(())
     for i in range(number_classes):
         train_elements = np.where(y_train == i)
-        class_weights_train = np.append(class_weights_train, np.divide(TRAINING_SIZE, train_elements[0].size))
+        class_weights_train = np.append(class_weights_train,(1-np.divide(train_elements[0].size, TRAINING_SIZE)))
 
     
     class_weights_train = torch.from_numpy(class_weights_train)
