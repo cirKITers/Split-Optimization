@@ -4,7 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class Q_layers:
+
+class QLayers:
     def __init__(self, n_qubits, number_classes):
         self.n_qubits = n_qubits
         self.number_classes = number_classes
@@ -16,9 +17,9 @@ class Q_layers:
         return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
 
 
-class C_layers(nn.Module):
+class CLayers(nn.Module):
     def __init__(self, n_qubits):
-        super(C_layers, self).__init__()
+        super(CLayers, self).__init__()
         self.classical_net = nn.Sequential(
             nn.Conv2d(
                 1, 8, 3, stride=1, padding=1
@@ -53,10 +54,10 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.n_qubits = n_qubits
         self.number_classes = number_classes
-        self.clayer = C_layers(self.n_qubits)
+        self.clayer = CLayers(self.n_qubits)
         weight_shapes = {"weights": (1, 10, 3)}
         dev = qml.device("default.qubit", wires=self.n_qubits)
-        vqc = Q_layers(self.n_qubits, number_classes)
+        vqc = QLayers(self.n_qubits, number_classes)
         self.qnode = qml.QNode(vqc.quantum_circuit, dev, interface="torch")
         self.qlayer = qml.qnn.TorchLayer(self.qnode, weight_shapes)
 
