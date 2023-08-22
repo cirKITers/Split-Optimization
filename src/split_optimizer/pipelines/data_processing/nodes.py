@@ -5,7 +5,7 @@ import tensorflow as tf
 
 
 def load_data():
-    data = tf.keras.datasets.mnist.load_data(path="mnist.npz")
+    data = tf.keras.datasets.mnist.load_data()
     # daten sind bereits geshuffelt
     (x_train_full, y_train_full), (x_test_full, y_test_full) = data
 
