@@ -10,7 +10,7 @@ from sklearn import metrics
 import plotly.figure_factory as ff
 from typing import Any, Dict, List, Tuple
 import plotly.express as px
-from .optimizer import Split_optimizer
+from .optimizer import SplitOptimizer
 import mlflow
 
 # epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
@@ -34,7 +34,7 @@ def train_model(
         calculate_loss = nn.MSELoss()
 
     if two_optimizers:
-        optimizer = Split_optimizer(model, learning_rate)
+        optimizer = SplitOptimizer(model, learning_rate)
     else:
         optimizer = optim.Adam(model.parameters(), learning_rate)
 
@@ -118,7 +118,7 @@ def test_model(
             "pred": label_predictions,
         }
 
-    return {"test_output":test_output}
+    return {"test_output": test_output}
 
 
 def mlflow_tracking(model_history, test_output):
@@ -130,7 +130,7 @@ def mlflow_tracking(model_history, test_output):
     for i, e in enumerate(model_history["val_loss_list"]):
         val_loss.append({"value": e, "step": i})
 
-    predictions =[]
+    predictions = []
     for i, e in enumerate(test_output["pred"]):
         predictions.append({"value": e, "step": i})
 
@@ -142,7 +142,7 @@ def mlflow_tracking(model_history, test_output):
         "accuracy": {"value": test_output["accuracy"], "step": 1},
     }
 
-    return {"metrics":metrics}
+    return {"metrics": metrics}
 
 
 def plot_loss(model_history: dict) -> plt.figure:
@@ -169,7 +169,7 @@ def plot_loss(model_history: dict) -> plt.figure:
         title="Training and Validation Loss", xaxis_title="Epochs", yaxis_title="Loss"
     )
     mlflow.log_figure(plt, "loss_curve.html")
-    return {"loss_curve":plt}
+    return {"loss_curve": plt}
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
@@ -202,4 +202,4 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
         yaxis_title="Predicted Label",
     )
     mlflow.log_figure(fig, "confusion_matrix.html")
-    return {"confusionmatrix":fig}
+    return {"confusionmatrix": fig}
