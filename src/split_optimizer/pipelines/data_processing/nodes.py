@@ -5,12 +5,10 @@ import tensorflow as tf
 
 
 def load_data():
-    data = tf.keras.datasets.mnist.load_data(
-        path="mnist.npz"
-    )
+    data = tf.keras.datasets.mnist.load_data(path="mnist.npz")
     # daten sind bereits geshuffelt
     (x_train_full, y_train_full), (x_test_full, y_test_full) = data
-    
+
     return {
         "x_train_full": x_train_full,
         "y_train_full": y_train_full,
@@ -49,6 +47,7 @@ def format_data(
     x_test = np.divide(x_test, 255)
     return {"x_train": x_train, "y_train": y_train, "x_test": x_test, "y_test": y_test}
 
+
 def create_dataloader(
     x_train: np.array,
     y_train: np.array,
@@ -83,6 +82,7 @@ def create_dataloader(
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}
 
+
 def calculate_class_weights(
     y_train_full: np.array,
     number_classes: int,
@@ -92,10 +92,11 @@ def calculate_class_weights(
     class_weights_train = np.array(())
     for i in range(number_classes):
         train_elements = np.where(y_train == i)
-        class_weights_train = np.append(class_weights_train,(1-np.divide(train_elements[0].size, TRAINING_SIZE)))
+        class_weights_train = np.append(
+            class_weights_train,
+            np.divide(TRAINING_SIZE, train_elements[0].size * number_classes),
+        )
 
-    
     class_weights_train = torch.from_numpy(class_weights_train)
 
-
-    return {"class_weights_train":class_weights_train}
+    return {"class_weights_train": class_weights_train}
