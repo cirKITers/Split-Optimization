@@ -7,8 +7,7 @@ def initialize_optimizer(model, lr, optimizer_list):
     elif optimizer_list[0] == "Adam":
         return Adam(model.parameters(), lr)
     elif optimizer_list[0] == "SGD":
-        momentum = 0.9
-        return SGD(model.parameters(), lr, momentum)
+        return SGD(model.parameters(), lr) #TODO: Add momentum as Kedro parameter
     else:
         raise ValueError(f"{optimizer_list} is not an optimizer in [Adam, SGD]")
 
@@ -56,7 +55,7 @@ class Adam(optim.Adam):
 
 
 class SGD(optim.SGD):
-    def __init__(self, model_params, lr, momentum):
+    def __init__(self, model_params, lr, momentum=0.9):
         super(SGD, self).__init__(model_params, lr, momentum)
 
 
