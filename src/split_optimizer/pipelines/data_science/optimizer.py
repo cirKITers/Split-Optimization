@@ -1,5 +1,5 @@
 import torch.optim as optim
-
+from .ngd import NGD
 
 def initialize_optimizer(model, lr, optimizer_list):
     if len(optimizer_list) == 2:
@@ -59,9 +59,9 @@ class SGD(optim.SGD):
         super(SGD, self).__init__(model_params, lr, momentum)
 
 
-class NGD:
-    def __init__(self, model_params, lr):
-        raise NotImplementedError("NGD is not implemented yet")
+class NGD(NGD):
+    def __init__(self, model_params, lr, momentum=0.9, dampening=0, weight_decay=0, nesterov=False):
+        super(NGD, self).__init__(model_params, lr, momentum, dampening, weight_decay, nesterov)
 
 
 class QNG:
