@@ -19,15 +19,15 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 format_data,
-                inputs=[
-                    "x_train_full",
-                    "y_train_full",
-                    "x_test_full",
-                    "y_test_full",
-                    "params:TRAINING_SIZE",
-                    "params:TEST_SIZE",
-                    "params:number_classes",
-                ],
+                inputs={
+                    "x_train_full":"x_train_full",
+                    "y_train_full":"y_train_full",
+                    "x_test_full":"x_test_full",
+                    "y_test_full":"y_test_full",
+                    "TRAINING_SIZE":"params:TRAINING_SIZE",
+                    "TEST_SIZE":"params:TEST_SIZE",
+                    "number_classes":"params:number_classes",
+                },
                 outputs={
                     "x_train": "x_train",
                     "y_train": "y_train",
@@ -38,14 +38,14 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 create_dataloader,
-                inputs=[
-                    "x_train",
-                    "y_train",
-                    "x_test",
-                    "y_test",
-                    "params:batch_size",
-                    "params:seed",
-                ],
+                inputs={
+                    "x_train":"x_train",
+                    "y_train":"y_train",
+                    "x_test":"x_test",
+                    "y_test":"y_test",
+                    "batch_size":"params:batch_size",
+                    "seed":"params:seed",
+                },
                 outputs={
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
