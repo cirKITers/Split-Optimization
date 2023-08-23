@@ -27,12 +27,20 @@ def train_model(
     test_dataloader: DataLoader,
     n_qubits: int,
     number_classes: int,
+    class_weights_train: List,
 ) -> Dict:
     model = Net(n_qubits, number_classes)
-    if loss_func == "MSELoss":
-        calculate_loss = nn.MSELoss()
 
-    optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
+    if loss_func == "CrossEntropyLoss":
+        calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
+        calculate_test_loss = nn.CrossEntropyLoss()
+    else: 
+        raise ValueError(f"{loss_func} is not a loss function in [CrossEntropyLoss]") # TODO: shall we actually add more loss functions?
+    
+    if two_optimizers:
+        optimizer = SplitOptimizer(model, learning_rate)
+    else:
+        optimizer = optim.Adam(model.parameters(), learning_rate)
 
     train_loss_list = []
     val_loss_list = []
@@ -41,7 +49,7 @@ def train_model(
         for batch_idx, (data, target) in enumerate(train_dataloader):
             optimizer.zero_grad()
             output = model(data)
-            loss = calculate_loss(output, target)
+            loss = calculate_train_loss(output, target)
             loss.backward()
             optimizer.step()
             total_loss.append(loss.item())
@@ -57,7 +65,7 @@ def train_model(
             epoch_loss = []
             for data, target in test_dataloader:
                 output = model(data)
-                loss = calculate_loss(output, target)
+                loss = calculate_test_loss(output, target)
 
                 epoch_loss.append(loss.item())
 
@@ -72,11 +80,11 @@ def train_model(
 
 
 def test_model(
-    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader
+    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader,
 ) -> Dict:
     model.eval()
-    if loss_func == "MSELoss":
-        calculate_loss = nn.MSELoss()
+    if loss_func == "CrossEntropyLoss":
+        calculate_test_loss = nn.CrossEntropyLoss()
 
     with torch.no_grad():
         correct = 0
@@ -92,7 +100,7 @@ def test_model(
                 if pred == target.argmax():
                     correct += 1
 
-            loss = calculate_loss(output, target)
+            loss = calculate_test_loss(output, target)
             test_loss.append(loss.item())
 
         accuracy = correct / TEST_SIZE

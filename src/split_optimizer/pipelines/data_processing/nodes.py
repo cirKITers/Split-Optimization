@@ -81,3 +81,24 @@ def create_dataloader(
         test_data, shuffle=False, batch_size=1
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}
+
+
+def calculate_class_weights(
+    y_train_full: np.array,
+    number_classes: int,
+    TRAINING_SIZE: int,
+):
+    y_train = y_train_full[:TRAINING_SIZE]
+    class_weights_train = np.array(())
+    for i in range(number_classes):
+        train_elements = np.where(y_train == i)
+        class_weights_train = np.append(
+            class_weights_train,
+            np.divide(TRAINING_SIZE, train_elements[0].size * number_classes),
+        )
+        # class weight formula source:
+        # https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html
+
+    class_weights_train = torch.from_numpy(class_weights_train)
+
+    return {"class_weights_train": class_weights_train}
