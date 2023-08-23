@@ -28,7 +28,6 @@ def train_model(
     n_qubits: int,
     number_classes: int,
 ) -> Dict:
-
     model = Net(n_qubits, number_classes)
     if loss_func == "MSELoss":
         calculate_loss = nn.MSELoss()
@@ -143,7 +142,6 @@ def mlflow_tracking(model_history, test_output):
 
 
 def plot_loss(model_history: dict) -> plt.figure:
-
     epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
 
     plt = go.Figure(
@@ -170,7 +168,6 @@ def plot_loss(model_history: dict) -> plt.figure:
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
-
     test_labels_onehot = []
     for _, target in test_dataloader:
         test_labels_onehot.append(target)

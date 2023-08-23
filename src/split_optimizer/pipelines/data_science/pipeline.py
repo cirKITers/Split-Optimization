@@ -23,7 +23,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "train_dataloader",
                     "test_dataloader",
                     "params:n_qubits",
-                    "params:number_classes"
+                    "params:number_classes",
                 ],
                 outputs={
                     "model": "model",
@@ -39,19 +39,21 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "params:TEST_SIZE",
                     "test_dataloader",
                 ],
-                outputs={"test_output":"test_output"},
+                outputs={"test_output": "test_output"},
                 name="test_model",
             ),
-            node(plot_loss, inputs="model_history", outputs={"loss_curve":"loss_curve"}),
+            node(
+                plot_loss, inputs="model_history", outputs={"loss_curve": "loss_curve"}
+            ),
             node(
                 plot_confusionmatrix,
                 inputs=["test_output", "test_dataloader"],
-                outputs={"confusionmatrix":"confusionmatrix"},
+                outputs={"confusionmatrix": "confusionmatrix"},
             ),
             node(
                 mlflow_tracking,
                 inputs=["model_history", "test_output"],
-                outputs={"metrics":"metrics"},
+                outputs={"metrics": "metrics"},
             ),
         ],
         inputs={
