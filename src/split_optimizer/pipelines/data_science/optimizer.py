@@ -1,5 +1,6 @@
 import torch.optim as optim
 from .ngd import NGD
+from .qng import QNG
 
 def initialize_optimizer(model, lr, optimizer_list):
     if len(optimizer_list) == 2:
@@ -27,7 +28,7 @@ class SplitOptimizer:
         if optimizer_list[1] == "NGD":
             self.quantum_optimizer = NGD(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "QNG":
-            self.quantum_optimizer = QNG(model.qlayer.parameters(), lr)
+            self.quantum_optimizer = QNG(model.qlayer.parameters(), model.closure, lr)
         elif optimizer_list[1] == "SPSA":
             self.quantum_optimizer = SPSA(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "Adam":
@@ -60,13 +61,13 @@ class SGD(optim.SGD):
 
 
 class NGD(NGD):
-    def __init__(self, model_params, lr, momentum=0.9, dampening=0, weight_decay=0, nesterov=False):
+    def __init__(self, model_params, lr, momentum=0, dampening=0, weight_decay=0, nesterov=False):
         super(NGD, self).__init__(model_params, lr, momentum, dampening, weight_decay, nesterov)
 
 
-class QNG:
-    def __init__(self, model_params, lr):
-        raise NotImplementedError("QNG is not implemented yet")
+class QNG(QNG):
+    def __init__(self, model_params, closure, lr, approx="block_diag", dampening=0):
+        super(QNG, self).__init__(model_params, closure, lr, approx, dampening)
 
 
 class SPSA:
