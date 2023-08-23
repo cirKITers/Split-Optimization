@@ -9,7 +9,7 @@ def initialize_optimizer(model, lr, optimizer_list):
         momentum = 0.9
         return SGD(model.parameters(), lr, momentum)
     else:
-        raise Exception(f"{optimizer_list} is not a valid")
+        raise ValueError(f"{optimizer_list} is not an optimizer in [Adam, SGD]")
 
 class SplitOptimizer:
     def __init__(self, model, lr, optimizer_list):
@@ -19,7 +19,7 @@ class SplitOptimizer:
             momentum = 0.9
             self.classical_optimizer = SGD(model.clayer.parameters(), lr, momentum)
         else:
-            raise Exception(f"{optimizer_list[0]} is not a valid optimizer for the classical part")
+            raise ValueError(f"{optimizer_list[0]} is not an optimizer for the classical part in [Adam, SGD]")
         
         if optimizer_list[1] == "NGD":
             self.quantum_optimizer = NGD(model.qlayer.parameters(), lr)
@@ -33,7 +33,7 @@ class SplitOptimizer:
             momentum = 0.9
             self.quantum_optimizer = SGD(model.qlayer.parameters(), lr, momentum)
         else:
-            raise Exception(f"{optimizer_list[1]} is not a valid optimizer for the quantum part")
+            raise ValueError(f"{optimizer_list[1]} is not an optimizer for the quantum part in [Adam, SGD, NGD, QNG, SPSA]")
         
     def zero_grad(self):
         self.classical_optimizer.zero_grad()
