@@ -35,7 +35,7 @@ def train_model(
         calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
         calculate_test_loss = nn.CrossEntropyLoss()
     else: 
-        raise Exception(f"{loss_func} is not a valid loss function")
+        raise ValueError(f"{loss_func} is not a loss function in [CrossEntropyLoss]") # TODO: shall we actually add more loss functions?
     
     if two_optimizers:
         optimizer = SplitOptimizer(model, learning_rate)
