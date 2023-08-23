@@ -1,6 +1,6 @@
 data_science:
+  loss_func: CrossEntropyLoss
   n_qubits: ${n_qubits}
-  loss_func: MSELoss
   epochs: 2
   learning_rate: 0.03
   two_optimizers: True
