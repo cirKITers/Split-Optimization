@@ -37,10 +37,7 @@ def train_model(
     else: 
         raise ValueError(f"{loss_func} is not a loss function in [CrossEntropyLoss]") # TODO: shall we actually add more loss functions?
     
-    if two_optimizers:
-        optimizer = SplitOptimizer(model, learning_rate)
-    else:
-        optimizer = optim.Adam(model.parameters(), learning_rate)
+    optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
 
     train_loss_list = []
     val_loss_list = []
