@@ -45,9 +45,9 @@ class SplitOptimizer:
         self.classical_optimizer.zero_grad()
         self.quantum_optimizer.zero_grad()
 
-    def step(self):
-        self.classical_optimizer.step()
-        self.quantum_optimizer.step()
+    def step(self, cclosure=None, qclosure=None):
+        self.classical_optimizer.step(cclosure)
+        self.quantum_optimizer.step(qclosure)
 
 
 class Adam(optim.Adam):
