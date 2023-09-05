@@ -12,10 +12,17 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
         dampening: Float for metric tensor regularization
     """
 
-    def __init__(self, params, lr=0.01, dampening=0):
+    def __init__(self, params, qnode, argnum, lr=0.01, dampening=0, approx="block-diag"):
         # Initialize a default dictionary, we utilize this to store any optimizer related hyperparameters
         # Note that this just follows the torch optimizer approach and is not mandatory
-        defaults = dict(stepsize=0.01, lam=0)
+        defaults = dict(stepsize=0.01, dampening=0)
+
+        self.argnum=argnum
+
+        # Initialize the metric tensor
+        # Note the argnum argument which specifies the parameter indices of which we want to calculate the metric tensor
+        # Also important is hybrid=False as it forces the returned metric tensor being only calculated w.r.t. the gate arguments and not w.r.t. the QNode arguments (which would include the input of the classical layer)
+        self.metric_tensor_fn = qml.metric_tensor(qnode, approx=approx, argnum=argnum, hybrid=False)
 
         # Initialize the QNG optimizer
         qml.QNGOptimizer.__init__(self, lr, dampening)
@@ -47,7 +54,7 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
 
                 # now we call the closure (which is in fact the metric tensor function) to obtain the actual metric tensor, given the current parameter configuration.
                 # note that this will cause the circuit function being calles with inputs=None and therefore the inputs from the previous forward path will be used.
-                _metric_tensor = closure(p)
+                _metric_tensor = self.metric_tensor_fn(p)
 
                 # Reshape metric tensor to be square
                 shape = qml.math.shape(_metric_tensor)
@@ -60,6 +67,10 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
 
                 # the apply_grad method requires to have only numpy arrays, that's why we have to call .detach().numpy() on our torch tensors here and in the following lines
                 self.metric_tensor = self.metric_tensor.detach().numpy()
+
+                # this cuts the metric tensor such that it results in the size of n_weights x n_weights
+                # therefore, we assume that the first rows and cols are reserved for the input which is reasonable as they are all-zero
+                self.metric_tensor = self.metric_tensor[self.argnum[0]:, self.argnum[0]:]
 
                 # with the current parameters p and their gradients g, we can call the apply_grad method from the Pennylane optimizer which returns the updated parameter configuration. This will overwrite the current parameter configuration which the model will use in the next iteration. Remember, the parameters here are just references to the actual parameters within our model.
                 # again, we have to first convert to numpy and then back to torch tensors due to the incompability with Pennylane's implementation. This should be fixed in future.
