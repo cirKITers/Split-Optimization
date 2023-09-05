@@ -186,7 +186,7 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
 
     confusion_matrix = metrics.confusion_matrix(test_labels, label_predictions)
     confusion_matrix = confusion_matrix.transpose()
-    labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    labels = [f"{l}" for l in np.unique(test_labels)]
     fig = px.imshow(
         confusion_matrix,
         x=labels,
