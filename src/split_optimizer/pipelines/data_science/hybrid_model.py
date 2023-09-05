@@ -6,9 +6,12 @@ import torch.nn.functional as F
 
 
 class QLayers:
-    def __init__(self, n_qubits, number_classes):
+    def __init__(self, n_qubits, n_layers, number_classes):
         self.n_qubits = n_qubits
         self.number_classes = number_classes
+
+        self.argnum = range(self.n_qubits, self.n_qubits+self.n_qubits*n_layers)
+
 
     def quantum_circuit(self, weights, inputs=None):
         if inputs is None:
