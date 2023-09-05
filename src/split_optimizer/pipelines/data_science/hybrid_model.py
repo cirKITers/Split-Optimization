@@ -17,7 +17,7 @@ class QLayers:
             self._inputs = inputs
         qml.templates.AngleEmbedding(inputs, wires=range(self.n_qubits))
         # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
-        qml.templates.StronglyEntanglingLayers(weights, wires=range(self.n_qubits))
+        qml.templates.BasicEntanglerLayers(weights, wires=range(self.n_qubits))
         return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
 
     
