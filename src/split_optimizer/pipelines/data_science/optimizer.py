@@ -28,7 +28,7 @@ class SplitOptimizer:
         if optimizer_list[1] == "NGD":
             self.quantum_optimizer = NGD(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "QNG":
-            self.quantum_optimizer = QNG(model.qlayer.parameters(), model.closure, lr)
+            self.quantum_optimizer = QNG(model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr)
         elif optimizer_list[1] == "SPSA":
             self.quantum_optimizer = SPSA(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "Adam":
@@ -66,8 +66,8 @@ class NGD(NGD):
 
 
 class QNG(QNG):
-    def __init__(self, model_params, lr, dampening=0):
-        super(QNG, self).__init__(model_params, lr, dampening)
+    def __init__(self, *args, **kwargs):
+        super(QNG, self).__init__(*args, **kwargs)
 
 
 class SPSA:
