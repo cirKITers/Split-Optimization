@@ -7,9 +7,11 @@ import torch.nn.functional as F
 
 class QLayers:
     def __init__(self, n_qubits, n_layers, number_classes):
+        if not number_classes <= n_qubits:
+            raise ValueError(f"Number of classes {number_classes} may not be higher than number of qubits {n_qubits}")
+
         self.n_qubits = n_qubits
         self.number_classes = number_classes
-
         self.argnum = range(self.n_qubits, self.n_qubits+self.n_qubits*n_layers)
 
 
