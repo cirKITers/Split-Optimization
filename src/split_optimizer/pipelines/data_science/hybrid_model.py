@@ -64,12 +64,13 @@ class Net(nn.Module):
         self.n_qubits = n_qubits
         self.number_classes = number_classes
         self.clayer = CLayers(self.n_qubits)
-        weight_shapes = {"weights": (1, 10, 3)}
+        weight_shapes = {"weights": (n_layers, self.n_qubits)}
         dev = qml.device("default.qubit", wires=self.n_qubits)
-        vqc = QLayers(self.n_qubits, number_classes)
-        self.qnode = qml.QNode(vqc.quantum_circuit, dev, interface="torch")
+        self.vqc = QLayers(self.n_qubits, n_layers, number_classes)
+        self.qnode = qml.QNode(self.vqc.quantum_circuit, dev, interface="torch")
         self.qlayer = qml.qnn.TorchLayer(self.qnode, weight_shapes)
-        self.closure = qml.metric_tensor(self.qnode, argnum=[1])
+        # self.closure = qml.metric_tensor(self.qnode, argnum=[1])
+
 
     def forward(self, x):
         x = self.clayer(x)
