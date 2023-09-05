@@ -10,11 +10,11 @@ class QLayers:
         self.n_qubits = n_qubits
         self.number_classes = number_classes
 
-    def quantum_circuit(self, inputs, weights=None):
-        if weights is None:
-            weights = self._weights
+    def quantum_circuit(self, weights, inputs=None):
+        if inputs is None:
+            inputs = self._inputs
         else:
-            self._weights = weights
+            self._inputs = inputs
         qml.templates.AngleEmbedding(inputs, wires=range(self.n_qubits))
         # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
         qml.templates.StronglyEntanglingLayers(weights, wires=range(self.n_qubits))
@@ -66,17 +66,9 @@ class Net(nn.Module):
         vqc = QLayers(self.n_qubits, number_classes)
         self.qnode = qml.QNode(vqc.quantum_circuit, dev, interface="torch")
         self.qlayer = qml.qnn.TorchLayer(self.qnode, weight_shapes)
-
+        self.closure = qml.metric_tensor(self.qnode, argnum=[1])
 
     def forward(self, x):
         x = self.clayer(x)
-        self._bp_info = x
         x = self.qlayer(x)
         return F.softmax(torch.Tensor(x))
-
-    def closure(self, opt, params):
-        inputs = self._bp_info
-        opt.zero_grad()
-        loss = self.qnode(inputs, params)
-        # loss.backward()
-        return loss, qml.metric_tensor(self.qnode)(inputs)

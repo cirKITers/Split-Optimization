@@ -45,9 +45,9 @@ class SplitOptimizer:
         self.classical_optimizer.zero_grad()
         self.quantum_optimizer.zero_grad()
 
-    def step(self, cclosure=None, qclosure=None):
-        self.classical_optimizer.step(cclosure)
-        self.quantum_optimizer.step(qclosure)
+    def step(self, cclosure=None, qclosure=None, **kwargs):
+        self.classical_optimizer.step(cclosure, **kwargs)
+        self.quantum_optimizer.step(qclosure, **kwargs)
 
 
 class Adam(optim.Adam):
@@ -66,8 +66,8 @@ class NGD(NGD):
 
 
 class QNG(QNG):
-    def __init__(self, model_params, closure, lr, approx="block_diag", dampening=0):
-        super(QNG, self).__init__(model_params, closure, lr, approx, dampening)
+    def __init__(self, model_params, lr, dampening=0):
+        super(QNG, self).__init__(model_params, lr, dampening)
 
 
 class SPSA:

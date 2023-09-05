@@ -48,7 +48,8 @@ def train_model(
             output = model(data)
             loss = calculate_train_loss(output, target)
             loss.backward()
-            optimizer.step()
+
+            optimizer.step(qclosure=model.closure)
             total_loss.append(loss.item())
         train_loss_list.append(sum(total_loss) / len(total_loss))
         print(
