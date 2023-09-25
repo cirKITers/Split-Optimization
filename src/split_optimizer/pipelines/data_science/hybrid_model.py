@@ -8,12 +8,13 @@ import torch.nn.functional as F
 class QLayers:
     def __init__(self, n_qubits, n_layers, number_classes):
         if not number_classes <= n_qubits:
-            raise ValueError(f"Number of classes {number_classes} may not be higher than number of qubits {n_qubits}")
+            raise ValueError(
+                f"Number of classes {number_classes} may not be higher than number of qubits {n_qubits}"
+            )
 
         self.n_qubits = n_qubits
         self.number_classes = number_classes
-        self.argnum = range(self.n_qubits, self.n_qubits+self.n_qubits*n_layers)
-
+        self.argnum = range(self.n_qubits, self.n_qubits + self.n_qubits * n_layers)
 
     def quantum_circuit(self, weights, inputs=None):
         if inputs is None:
@@ -24,8 +25,6 @@ class QLayers:
         # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
         qml.templates.BasicEntanglerLayers(weights, wires=range(self.n_qubits))
         return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
-
-    
 
 
 class CLayers(nn.Module):
@@ -61,7 +60,9 @@ class CLayers(nn.Module):
 
 
 class Net(nn.Module):
-    def __init__(self, n_qubits, number_classes, n_layers=1): #TODO: propagate parameter to kedro params file
+    def __init__(
+        self, n_qubits, number_classes, n_layers=1
+    ):  # TODO: propagate parameter to kedro params file
         super(Net, self).__init__()
         self.n_qubits = n_qubits
         self.number_classes = number_classes
@@ -72,7 +73,6 @@ class Net(nn.Module):
         self.qnode = qml.QNode(self.vqc.quantum_circuit, dev, interface="torch")
         self.qlayer = qml.qnn.TorchLayer(self.qnode, weight_shapes)
         # self.closure = qml.metric_tensor(self.qnode, argnum=[1])
-
 
     def forward(self, x):
         x = self.clayer(x)

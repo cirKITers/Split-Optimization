@@ -37,10 +37,10 @@ def format_data(
     y_test = np.zeros((TEST_SIZE, number_classes))
 
     for c in classes:
-        y_train[np.where(y_train_full[:TRAINING_SIZE]==c)[0], c] = 1
+        y_train[np.where(y_train_full[:TRAINING_SIZE] == c)[0], c] = 1
 
     for c in classes:
-        y_test[np.where(y_test_full[:TEST_SIZE]==c)[0], c] = 1
+        y_test[np.where(y_test_full[:TEST_SIZE] == c)[0], c] = 1
 
     # for i in range(TRAINING_SIZE):
     #     y_train_[i, classes.index(y_train_full[i])] = 1

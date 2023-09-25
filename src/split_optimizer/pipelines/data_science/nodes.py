@@ -34,9 +34,11 @@ def train_model(
     if loss_func == "CrossEntropyLoss":
         calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
         calculate_test_loss = nn.CrossEntropyLoss()
-    else: 
-        raise ValueError(f"{loss_func} is not a loss function in [CrossEntropyLoss]") # TODO: shall we actually add more loss functions?
-    
+    else:
+        raise ValueError(
+            f"{loss_func} is not a loss function in [CrossEntropyLoss]"
+        )  # TODO: shall we actually add more loss functions?
+
     optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
 
     train_loss_list = []
@@ -78,7 +80,10 @@ def train_model(
 
 
 def test_model(
-    model: nn.Module, loss_func: str, TEST_SIZE: int, test_dataloader: DataLoader,
+    model: nn.Module,
+    loss_func: str,
+    TEST_SIZE: int,
+    test_dataloader: DataLoader,
 ) -> Dict:
     model.eval()
     if loss_func == "CrossEntropyLoss":

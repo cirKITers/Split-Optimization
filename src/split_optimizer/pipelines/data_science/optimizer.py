@@ -2,13 +2,14 @@ import torch.optim as optim
 from .ngd import NGD
 from .qng import QNG
 
+
 def initialize_optimizer(model, lr, optimizer_list):
     if len(optimizer_list) == 2:
         return SplitOptimizer(model, lr, optimizer_list)
     elif optimizer_list[0] == "Adam":
         return Adam(model.parameters(), lr)
     elif optimizer_list[0] == "SGD":
-        return SGD(model.parameters(), lr) #TODO: Add momentum as Kedro parameter
+        return SGD(model.parameters(), lr)  # TODO: Add momentum as Kedro parameter
     else:
         raise ValueError(f"{optimizer_list} is not an optimizer in [Adam, SGD]")
 
@@ -28,7 +29,9 @@ class SplitOptimizer:
         if optimizer_list[1] == "NGD":
             self.quantum_optimizer = NGD(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "QNG":
-            self.quantum_optimizer = QNG(model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr)
+            self.quantum_optimizer = QNG(
+                model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr
+            )
         elif optimizer_list[1] == "SPSA":
             self.quantum_optimizer = SPSA(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "Adam":
@@ -61,8 +64,12 @@ class SGD(optim.SGD):
 
 
 class NGD(NGD):
-    def __init__(self, model_params, lr, momentum=0, dampening=0, weight_decay=0, nesterov=False):
-        super(NGD, self).__init__(model_params, lr, momentum, dampening, weight_decay, nesterov)
+    def __init__(
+        self, model_params, lr, momentum=0, dampening=0, weight_decay=0, nesterov=False
+    ):
+        super(NGD, self).__init__(
+            model_params, lr, momentum, dampening, weight_decay, nesterov
+        )
 
 
 class QNG(QNG):

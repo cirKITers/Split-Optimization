@@ -60,7 +60,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
         inputs={
             "train_dataloader": "train_dataloader",
             "test_dataloader": "test_dataloader",
-            "class_weights_train":"class_weights_train",
+            "class_weights_train": "class_weights_train",
         },
         outputs={},
         namespace="data_science",

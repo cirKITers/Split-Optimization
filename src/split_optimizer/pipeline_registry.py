@@ -16,7 +16,7 @@ def register_pipelines() -> dict[str, Pipeline]:
     """
     data_processing_pipeline = data_processing.create_pipeline()
     data_science_pipeline = data_science.create_training_pipeline()
-  
+
     return {
         "debug_pipeline": data_processing_pipeline + data_science_pipeline,
         "data_processing_pipeline": data_processing_pipeline,
