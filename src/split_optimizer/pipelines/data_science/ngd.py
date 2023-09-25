@@ -20,54 +20,52 @@ class OnlineNaturalGradient:
     parameter object as if they were the minibatch dimension.
     """
 
-    def __init__(self, params, axis, alpha=4.0,
-                 rank=-1, update_period=4,
-                 eta=0.1):
+    def __init__(self, params, axis, alpha=4.0, rank=-1, update_period=4, eta=0.1):
         r"""
-      Constructor.
-    Arguments:
-        params:       The parameters we are going to operating on. Used
-                      to get the device, dtype and shape; the parameter
-                      values do not matter at this point.
-        axis:         A value in the range [0, len(param_shape) - 1],
-                      saying which axis of the parameters this object
-                      operates on.  The dimension of the low-rank matrix
-                      that we are learning will be equal to params.shape[axis].
-        alpha:        A smoothing constant which determines how much
-                      we smooth the Fisher matrix with the identity;
-                      the scale on the identity is the average diagonal
-                      element of the un-smoothed Fisher matrix multiplied by
-                      alpha.  The value alpha=4.0 tends to work well
-                      experimentally in a wide range of conditions (when
-                      measured in terms of classification performance
-                      on validation data, not as an optimiser), although
-                      perhaps alpha=4.0 represents a perhaps larger-than-expected
-                      amount of smoothing.
-        rank:         The rank of the structured matrix that we will be
-                      updating.  If a value <0 is passed in, it
-                      will be set to the smaller of (dim+1) / 2, or 80,
-                      where dim = params.shape[axis].
-        update_period: Determines how frequently (on how many minibatches
-                      we update the natural-gradient matrix; the default
-                      of 4 is reasonable.
-        eta           A Python float strictly between 0 and 1, that determines how fast
-                      we update the Fisher-matrix factor. 
-                      i.e. F_t = \eta * S_t + (1 - \eta) F_{t-1}, where S_t is the emperical
-                      Fisher estimated from the current minibatch.
+          Constructor.
+        Arguments:
+            params:       The parameters we are going to operating on. Used
+                          to get the device, dtype and shape; the parameter
+                          values do not matter at this point.
+            axis:         A value in the range [0, len(param_shape) - 1],
+                          saying which axis of the parameters this object
+                          operates on.  The dimension of the low-rank matrix
+                          that we are learning will be equal to params.shape[axis].
+            alpha:        A smoothing constant which determines how much
+                          we smooth the Fisher matrix with the identity;
+                          the scale on the identity is the average diagonal
+                          element of the un-smoothed Fisher matrix multiplied by
+                          alpha.  The value alpha=4.0 tends to work well
+                          experimentally in a wide range of conditions (when
+                          measured in terms of classification performance
+                          on validation data, not as an optimiser), although
+                          perhaps alpha=4.0 represents a perhaps larger-than-expected
+                          amount of smoothing.
+            rank:         The rank of the structured matrix that we will be
+                          updating.  If a value <0 is passed in, it
+                          will be set to the smaller of (dim+1) / 2, or 80,
+                          where dim = params.shape[axis].
+            update_period: Determines how frequently (on how many minibatches
+                          we update the natural-gradient matrix; the default
+                          of 4 is reasonable.
+            eta           A Python float strictly between 0 and 1, that determines how fast
+                          we update the Fisher-matrix factor.
+                          i.e. F_t = \eta * S_t + (1 - \eta) F_{t-1}, where S_t is the emperical
+                          Fisher estimated from the current minibatch.
         """
         assert axis >= 0 and axis < len(params.shape)
         self.axis = axis
         self.dim = params.shape[axis]
-        assert(self.dim > 0)
+        assert self.dim > 0
         self.device = params.device
         self.dtype = params.dtype
         self.alpha = alpha
         if rank >= 0:
-            assert(rank > 0 and rank < self.dim)
+            assert rank > 0 and rank < self.dim
         else:
             rank = min((self.dim + 1) // 2, 80)
         self.rank = rank
-        assert(update_period > 0)
+        assert update_period > 0
         self.update_period = update_period
         assert eta > 0 and eta < 1
         self.eta = eta
@@ -159,8 +157,11 @@ class OnlineNaturalGradient:
         # we operate on (of dim self.dim) is the last one, call
         # self._precondition_directions1, and then switch the axes back.  All
         # this would be done without changing the underlying data.
-        return torch.transpose(self._precondition_directions1(deriv.transpose(-1, self.axis)),
-                               -1, self.axis)
+        return torch.transpose(
+            self._precondition_directions1(deriv.transpose(-1, self.axis)),
+            -1,
+            self.axis,
+        )
 
     def _precondition_directions1(self, deriv):
         r"""
@@ -178,31 +179,38 @@ class OnlineNaturalGradient:
         # so that _preconditions2 can operate on a tensor of shape
         # (remaining_dims_product, dim), calls _precondition_directions2 and
         # then switches back to the shape this function was called with.
-        return self._precondition_directions2(deriv.view(-1, self.dim)).view(deriv.shape)
+        return self._precondition_directions2(deriv.view(-1, self.dim)).view(
+            deriv.shape
+        )
 
     def _precondition_directions2(self, deriv):
-        r""" This corresponds to PreconditionDirections() in the C++ code,
+        r"""This corresponds to PreconditionDirections() in the C++ code,
         except rather than modifying deriv in-place and returning a separate
         scaling factor, it returns the modified deriv with the scaling factor
         already applied.
         """
         # The following assert documents the format requirements on 'deriv'.
-        assert (len(deriv.shape) == 2 and deriv.shape[1] == self.dim and
-                deriv.dtype == self.dtype and deriv.device == self.device)
+        assert (
+            len(deriv.shape) == 2
+            and deriv.shape[1] == self.dim
+            and deriv.dtype == self.dtype
+            and deriv.device == self.device
+        )
 
         if self.t == 0:
             self._init(deriv)
 
         initial_product = (deriv * deriv).sum()
 
-        deriv_out = self._precondition_directions3(
-            deriv, initial_product)
+        deriv_out = self._precondition_directions3(deriv, initial_product)
 
         final_product = (deriv_out * deriv_out).sum()
 
         if math.isnan(final_product):
-            print("Warning: nan generated in NG computation, returning derivs unchanged",
-                  file=sys.stderr)
+            print(
+                "Warning: nan generated in NG computation, returning derivs unchanged",
+                file=sys.stderr,
+            )
             # If there are NaNs in our class members now, it would be a problem; in
             # future we might want to add code to detect this an re-initialize,
             # but for now just detect the problem and crash.
@@ -255,7 +263,7 @@ class OnlineNaturalGradient:
         # In the paper, N would be the number of rows in the matrix being
         # multiplied (would be related to the minibatch size).
         # In this version, it would be 1
-        #N = 1
+        # N = 1
         N = X_t.shape[0]
         # we choose the fastest way to compute L_t, which depends
         # on the dimension.
@@ -265,8 +273,8 @@ class OnlineNaturalGradient:
             L_t = torch.mm(H_t.transpose(0, 1), H_t)  # L_t = H_t^T H_t
         K_t = torch.mm(J_t, J_t.transpose(0, 1))  # K_t = J_t J_t^T
 
-        K_t_cpu = K_t.to('cpu')
-        L_t_cpu = L_t.to('cpu')
+        K_t_cpu = K_t.to("cpu")
+        L_t_cpu = L_t.to("cpu")
 
         # d_t_sum and beta_t are python floats.
         # in the math, d_t_sum corresponds to tr(D_t).
@@ -297,14 +305,18 @@ class OnlineNaturalGradient:
 
         d_t_plus_rho_t = d_t_cpu + rho_t
         # Note: torch.ger gives the outer product of vectors.
-        inv_sqrt_e_t_outer = ((eta / N)**2 / z_t_scale) * \
-            torch.ger(inv_sqrt_e_t_cpu,  inv_sqrt_e_t_cpu)
-        outer_product1 = ((eta / N) * (1 - eta) / z_t_scale) * \
-            torch.ger(inv_sqrt_e_t_cpu, inv_sqrt_e_t_cpu * d_t_plus_rho_t)
+        inv_sqrt_e_t_outer = ((eta / N) ** 2 / z_t_scale) * torch.ger(
+            inv_sqrt_e_t_cpu, inv_sqrt_e_t_cpu
+        )
+        outer_product1 = ((eta / N) * (1 - eta) / z_t_scale) * torch.ger(
+            inv_sqrt_e_t_cpu, inv_sqrt_e_t_cpu * d_t_plus_rho_t
+        )
 
-        Z_t_cpu = (K_t_cpu * inv_sqrt_e_t_outer +
-                   L_t_cpu * (outer_product1 + outer_product1.transpose(0, 1)) +
-                   (((1 - eta)**2 / z_t_scale) * (d_t_plus_rho_t * d_t_plus_rho_t)).diag())
+        Z_t_cpu = (
+            K_t_cpu * inv_sqrt_e_t_outer
+            + L_t_cpu * (outer_product1 + outer_product1.transpose(0, 1))
+            + (((1 - eta) ** 2 / z_t_scale) * (d_t_plus_rho_t * d_t_plus_rho_t)).diag()
+        )
 
         # do the symmetric eigenvalue decomposition Z_t = U_t C_t U_t^T; we do this
         # on the CPU as this kind of algorithm is normally super slow on GPUs, at least
@@ -316,28 +328,33 @@ class OnlineNaturalGradient:
         U_t_cpu = U.flip(dims=(1,))
 
         if self.debug:
-            error = torch.mm(U_t_cpu * c_t_cpu.unsqueeze(0),
-                             U_t_cpu.transpose(0, 1)) - Z_t_cpu
-            assert (error * error).sum() < 0.001 * \
-                (Z_t_cpu * Z_t_cpu).sum()
-        condition_threshold = 1.0e+06
+            error = (
+                torch.mm(U_t_cpu * c_t_cpu.unsqueeze(0), U_t_cpu.transpose(0, 1))
+                - Z_t_cpu
+            )
+            assert (error * error).sum() < 0.001 * (Z_t_cpu * Z_t_cpu).sum()
+        condition_threshold = 1.0e06
         c_t_floor = ((rho_t * (1.0 - eta)) ** 2) / z_t_scale
-        c_t_cpu = torch.max(c_t_cpu, torch.Tensor(
-            [c_t_floor]))  # c_t_cpu.floor_(c_t_floor)
+        c_t_cpu = torch.max(
+            c_t_cpu, torch.Tensor([c_t_floor])
+        )  # c_t_cpu.floor_(c_t_floor)
         # sqrt_c_t_cpu no longer has the `1/z_t_scale` factor, i.e. it is now
         # the same value as in the math.
         sqrt_c_t = c_t_cpu.to(self.device).sqrt() * math.sqrt(z_t_scale)
-        inv_sqrt_c_t = (1.0 / sqrt_c_t)
+        inv_sqrt_c_t = 1.0 / sqrt_c_t
         # \rho_{t+1} = 1/(D - R) (\eta/N tr(X_t X_t^T) + (1-\eta)(D \rho_t + tr(D_t)) - tr(C_t^{0.5})).
-        rho_t1 = (1.0 / (dim - rank)) * ((eta / N) * tr_X_Xt.item() +
-                                         (1.0 - eta) * (dim * rho_t + d_t_sum) -
-                                         sqrt_c_t.sum().item())
+        rho_t1 = (1.0 / (dim - rank)) * (
+            (eta / N) * tr_X_Xt.item()
+            + (1.0 - eta) * (dim * rho_t + d_t_sum)
+            - sqrt_c_t.sum().item()
+        )
 
         floor_val = max(self.epsilon, self.delta * sqrt_c_t.max().item())
         # D_{t+1} = C_t^{0.5} - \rho_{t+1} I,  with diagonal elements floored to floor_val.
         # we store only the diagonal.
-        d_t1_cpu = torch.max(sqrt_c_t.to('cpu') - rho_t1,
-                             torch.tensor(floor_val, dtype=self.dtype))
+        d_t1_cpu = torch.max(
+            sqrt_c_t.to("cpu") - rho_t1, torch.tensor(floor_val, dtype=self.dtype)
+        )
         if rho_t1 < floor_val:
             rho_t1 = floor_val
 
@@ -352,16 +369,19 @@ class OnlineNaturalGradient:
         e_t1_cpu = 1.0 / (beta_t1 / d_t1_cpu + 1.0)
         sqrt_e_t1 = torch.sqrt(e_t1_cpu.to(self.device))
 
-        w_t_coeff = (((1.0 - eta) / (eta / N)) *
-                     (d_t_cpu + rho_t)).to(self.device)
+        w_t_coeff = (((1.0 - eta) / (eta / N)) * (d_t_cpu + rho_t)).to(self.device)
         # B_t = J_t + (1-\eta)/(\eta/N) (D_t + \rho_t I) W_t
         B_t = torch.addcmul(J_t, w_t_coeff.unsqueeze(1), W_t)
 
         # A_t = (\eta/N) E_{t+1}^{0.5} C_t^{-0.5} U_t^T E_t^{-0.5}
-        left_product = torch.tensor(
-            eta / N, device=self.device, dtype=self.dtype) * sqrt_e_t1 * inv_sqrt_c_t
-        A_t = U_t_cpu.to(self.device).transpose(0, 1) * torch.ger(left_product,
-                                                                  inv_sqrt_e_t_cpu.to(self.device))
+        left_product = (
+            torch.tensor(eta / N, device=self.device, dtype=self.dtype)
+            * sqrt_e_t1
+            * inv_sqrt_c_t
+        )
+        A_t = U_t_cpu.to(self.device).transpose(0, 1) * torch.ger(
+            left_product, inv_sqrt_e_t_cpu.to(self.device)
+        )
         # W_{t+1} = A_t B_t
         W_t1 = torch.mm(A_t, B_t)
         # End the part of the code that in the C++ version was called ComputeWt1.
@@ -380,19 +400,22 @@ class OnlineNaturalGradient:
         d_t_min = self.d_t_cpu.min().item()
         assert d_t_min >= self.epsilon and d_t_min > self.delta * d_t_max * 0.9
         assert self.rho_t > self.delta * d_t_max * 0.9
-        beta_t = self.rho_t * (1.0 + self.alpha) + \
-            self.alpha * self.d_t_cpu.sum().item() / self.dim
+        beta_t = (
+            self.rho_t * (1.0 + self.alpha)
+            + self.alpha * self.d_t_cpu.sum().item() / self.dim
+        )
 
         e_t = (1.0 / (beta_t / self.d_t_cpu + 1.0)).to(self.device)
         sqrt_e_t = torch.sqrt(e_t)
         inv_sqrt_e_t = 1.0 / sqrt_e_t
 
-        should_be_zero = (torch.mm(self.W_t, self.W_t.transpose(0, 1)) *
-                          torch.ger(inv_sqrt_e_t, inv_sqrt_e_t) - torch.eye(self.rank, device=self.device))
+        should_be_zero = torch.mm(self.W_t, self.W_t.transpose(0, 1)) * torch.ger(
+            inv_sqrt_e_t, inv_sqrt_e_t
+        ) - torch.eye(self.rank, device=self.device)
         assert should_be_zero.abs().max().item() < 0.1
 
     def _updating(self):
-        r""" Returns true if, on this iteration, we are updating the Fisher
+        r"""Returns true if, on this iteration, we are updating the Fisher
         matrix."""
         num_initial_iters = 10
         if self.t < num_initial_iters:
@@ -432,8 +455,7 @@ class OnlineNaturalGradient:
         self.rho_t = self.epsilon
         # d_t will be on the CPU, as we need to do some sequential operations
         # on it.
-        self.d_t_cpu = self.epsilon * \
-            torch.ones((self.rank,), dtype=self.dtype)
+        self.d_t_cpu = self.epsilon * torch.ones((self.rank,), dtype=self.dtype)
         # W_t is on self.device (possibly a GPU).
 
         # E_tii is a scalar here, since it's the same for all i.
@@ -462,22 +484,22 @@ class OnlineNaturalGradient:
         first_elem = 1.1
         num_cols = self.dim // self.rank
         remainder = self.dim % self.rank
-        k = torch.ones(self.rank, dtype=self.dtype, device=self.device) * \
-            (1.0 / math.sqrt(first_elem * first_elem + num_cols - 1))
-        k[:remainder] = torch.ones(
-            remainder, dtype=self.dtype, device=self.device) * (1.0 / math.sqrt(first_elem * first_elem + num_cols))
-        diag_v = torch.ones(self.rank, dtype=self.dtype,
-                            device=self.device) * k
+        k = torch.ones(self.rank, dtype=self.dtype, device=self.device) * (
+            1.0 / math.sqrt(first_elem * first_elem + num_cols - 1)
+        )
+        k[:remainder] = torch.ones(remainder, dtype=self.dtype, device=self.device) * (
+            1.0 / math.sqrt(first_elem * first_elem + num_cols)
+        )
+        diag_v = torch.ones(self.rank, dtype=self.dtype, device=self.device) * k
         diag = torch.diag(diag_v)
         first_diag_v = diag_v * first_elem
         first_diag = torch.diag(first_diag_v)
-        ans = torch.cat((first_diag, diag.repeat(
-            1, num_cols + 1)), 1)[:, :self.dim]
+        ans = torch.cat((first_diag, diag.repeat(1, num_cols + 1)), 1)[:, : self.dim]
 
         if self.debug:
-            should_be_zero = (torch.mm(ans, ans.transpose(0, 1)) -
-                              torch.eye(self.rank, dtype=self.dtype,
-                                        device=self.device))
+            should_be_zero = torch.mm(ans, ans.transpose(0, 1)) - torch.eye(
+                self.rank, dtype=self.dtype, device=self.device
+            )
             s = should_be_zero.abs().max().item()
             assert s < 0.1
         return ans
@@ -506,33 +528,50 @@ class NGD(Optimizer):
     TODO: more information
     """
 
-    def __init__(self, params, lr=required, momentum=0, dampening=0,
-                 weight_decay=0, nesterov=False,
-                 ngd=True, alpha=4, rank=-1, update_period=4, eta=0.1):
+    def __init__(
+        self,
+        params,
+        lr=required,
+        momentum=0,
+        dampening=0,
+        weight_decay=0,
+        nesterov=False,
+        ngd=True,
+        alpha=4,
+        rank=-1,
+        update_period=4,
+        eta=0.1,
+    ):
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if momentum < 0.0:
             raise ValueError("Invalid momentum value: {}".format(momentum))
         if weight_decay < 0.0:
-            raise ValueError(
-                "Invalid weight_decay value: {}".format(weight_decay))
+            raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
 
-        defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
-                        weight_decay=weight_decay, nesterov=nesterov,
-                        ngd=ngd, alpha=alpha, rank=rank,
-                        update_period=update_period, eta=eta)
+        defaults = dict(
+            lr=lr,
+            momentum=momentum,
+            dampening=dampening,
+            weight_decay=weight_decay,
+            nesterov=nesterov,
+            ngd=ngd,
+            alpha=alpha,
+            rank=rank,
+            update_period=update_period,
+            eta=eta,
+        )
 
         if nesterov and (momentum <= 0 or dampening != 0):
-            raise ValueError(
-                "Nesterov momentum requires a momentum and zero dampening")
+            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
 
         super(NGD, self).__init__(params, defaults)
 
     def __setstate__(self, state):
         super(NGD, self).__setstate__(state)
         for group in self.param_groups:
-            group.setdefault('nesterov', False)
-            group.setdefault('ngd', True)
+            group.setdefault("nesterov", False)
+            group.setdefault("ngd", True)
 
     def step(self, closure=None):
         """Performs a single optimization step.
@@ -546,18 +585,18 @@ class NGD(Optimizer):
             loss = closure()
 
         for group in self.param_groups:
-            weight_decay = group['weight_decay']
-            momentum = group['momentum']
-            dampening = group['dampening']
-            nesterov = group['nesterov']
-            ngd = group['ngd']
-            alpha = group['alpha']
-            rank = group['rank']
-            update_period = group['update_period']
-            eta = group['eta']
-            lr = group['lr']
+            weight_decay = group["weight_decay"]
+            momentum = group["momentum"]
+            dampening = group["dampening"]
+            nesterov = group["nesterov"]
+            ngd = group["ngd"]
+            alpha = group["alpha"]
+            rank = group["rank"]
+            update_period = group["update_period"]
+            eta = group["eta"]
+            lr = group["lr"]
 
-            for p in group['params']:
+            for p in group["params"]:
                 if p.grad is None:
                     continue
                 d_p = p.grad.data
@@ -566,24 +605,24 @@ class NGD(Optimizer):
 
                 if ngd:
                     param_state = self.state[p]
-                    if 'ngd_dict' not in param_state:
-                        ngd_dict = param_state['ngd_dict'] = dict()
+                    if "ngd_dict" not in param_state:
+                        ngd_dict = param_state["ngd_dict"] = dict()
                         for axis in range(len(p.shape)):
                             ngd_dict[axis] = OnlineNaturalGradient(
-                                p, axis, alpha, rank, update_period, eta)
+                                p, axis, alpha, rank, update_period, eta
+                            )
 
-                    ngd_dict = param_state['ngd_dict']
+                    ngd_dict = param_state["ngd_dict"]
                     for axis in range(len(p.shape)):
                         d_p = ngd_dict[axis].precondition_directions(d_p)
 
                 if momentum != 0:
                     param_state = self.state[p]
-                    if 'momentum_buffer' not in param_state:
-                        buf = param_state['momentum_buffer'] = torch.zeros_like(
-                            p.data)
+                    if "momentum_buffer" not in param_state:
+                        buf = param_state["momentum_buffer"] = torch.zeros_like(p.data)
                         buf.mul_(momentum).add_(d_p)
                     else:
-                        buf = param_state['momentum_buffer']
+                        buf = param_state["momentum_buffer"]
                         buf.mul_(momentum).add_(1 - dampening, d_p)
                     if nesterov:
                         d_p = d_p.add(momentum, buf)
