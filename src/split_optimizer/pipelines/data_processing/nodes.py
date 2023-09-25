@@ -28,26 +28,32 @@ def format_data(
 ):
     classes = range(number_classes)
 
+    # reduce to samples from the chosen classes
+    train_class_mask = np.isin(y_train_full, classes)
+    test_class_mask = np.isin(y_test_full, classes)
+
+    y_train_selected = y_train_full[train_class_mask]
+    x_train_selected = x_train_full[train_class_mask]
+
+    y_test_selected = y_test_full[test_class_mask]
+    x_test_selected = x_test_full[test_class_mask]
+
+
     # reduce number of samples
-    x_train = x_train_full[:TRAINING_SIZE]
-    x_test = x_test_full[:TEST_SIZE]
+    x_train = x_train_selected[:TRAINING_SIZE]
+    x_test = x_test_selected[:TEST_SIZE]
 
     # one-hot-encoding for the labels
     y_train = np.zeros((TRAINING_SIZE, number_classes))
     y_test = np.zeros((TEST_SIZE, number_classes))
 
     for c in classes:
-        y_train[np.where(y_train_full[:TRAINING_SIZE] == c)[0], c] = 1
+        y_train[np.where(y_train_selected[:TRAINING_SIZE] == c)[0], c] = 1
 
     for c in classes:
-        y_test[np.where(y_test_full[:TEST_SIZE] == c)[0], c] = 1
+        y_test[np.where(y_test_selected[:TEST_SIZE] == c)[0], c] = 1
 
-    # for i in range(TRAINING_SIZE):
-    #     y_train_[i, classes.index(y_train_full[i])] = 1
-
-    # for i in range(TEST_SIZE):
-    #     y_test[i, classes.index(y_test_full[i])] = 1
-
+    
     # normalization
     x_train = np.divide(x_train, 255)
     x_test = np.divide(x_test, 255)
