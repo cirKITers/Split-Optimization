@@ -5,18 +5,18 @@ import tensorflow as tf
 from torchvision.transforms import ToTensor, Lambda
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import OneHotEncoder
-from split_optimizer.helpers.dataset import OnehotMNIST
+from split_optimizer.helpers.dataset import OneHotMNIST
 
 def load_data():
 
-    train_dataset_full = OnehotMNIST(
+    train_dataset_full = OneHotMNIST(
         root="mnist",
         train=True,
         download=True,
         transform=ToTensor(),
     )
 
-    test_dataset_full = OnehotMNIST(
+    test_dataset_full = OneHotMNIST(
         root="mnist",
         train=False,
         download=True,

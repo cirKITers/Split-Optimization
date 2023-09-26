@@ -71,9 +71,9 @@ class TorchLocalModel(AbstractDataSet):
     def _exists(self) -> bool:
         return isfile(self._filepath)
 
-class OnehotMNIST(torchvision.datasets.MNIST):
+class OneHotMNIST(torchvision.datasets.MNIST):
     def __init__(self, root, train, download, transform):
-        super(OnehotMNIST, self).__init__(root=root, train=train, download=download, transform=transform)
+        super(OneHotMNIST, self).__init__(root=root, train=train, download=download, transform=transform)
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """
         Args:
