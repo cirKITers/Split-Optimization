@@ -2,7 +2,7 @@ import torch
 import pennylane as qml
 
 
-class SPSA(qml.QNGOptimizer, torch.optim.Optimizer):
+class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
     """Implementation of the Quantum Natural Gradient Optimizer
 
     Args:
