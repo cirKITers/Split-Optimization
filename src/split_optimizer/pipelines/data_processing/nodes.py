@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import OneHotEncoder
 from split_optimizer.helpers.dataset import OneHotMNIST
 
-def load_data():
 
+def load_data():
     train_dataset_full = OneHotMNIST(
         root="mnist",
         train=True,
@@ -30,7 +30,6 @@ def load_data():
 
 
 def select_classes(train_dataset_full, test_dataset_full, classes):
-
     train_class_mask = np.isin(train_dataset_full.targets, classes)
     test_class_mask = np.isin(test_dataset_full.targets, classes)
 
@@ -60,7 +59,9 @@ def reduce_size(
     }
 
 
-def onehot(test_dataset_reduced, train_dataset_reduced, classes, TRAINING_SIZE, TEST_SIZE):
+def onehot(
+    test_dataset_reduced, train_dataset_reduced, classes, TRAINING_SIZE, TEST_SIZE
+):
     # one-hot-encoding for the labels
     y_train = torch.zeros((TRAINING_SIZE, len(classes)))
     y_test = torch.zeros((TEST_SIZE, len(classes)))
@@ -106,7 +107,6 @@ def create_dataloader(
 
 
 def calculate_class_weights(train_dataset_reduced, classes, TRAINING_SIZE):
-
     y_train = train_dataset_reduced.targets
     class_weights_train = np.array(())
     for i in classes:

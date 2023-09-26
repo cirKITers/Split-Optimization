@@ -12,6 +12,7 @@ from split_optimizer.pipelines.data_science.hybrid_model import Net
 import torchvision
 from PIL import Image
 from typing import Any, Callable, Dict, List, Optional, Tuple
+
 models = {
     "model": Net,
 }
@@ -71,9 +72,13 @@ class TorchLocalModel(AbstractDataSet):
     def _exists(self) -> bool:
         return isfile(self._filepath)
 
+
 class OneHotMNIST(torchvision.datasets.MNIST):
     def __init__(self, root, train, download, transform):
-        super(OneHotMNIST, self).__init__(root=root, train=train, download=download, transform=transform)
+        super(OneHotMNIST, self).__init__(
+            root=root, train=train, download=download, transform=transform
+        )
+
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """
         Args:

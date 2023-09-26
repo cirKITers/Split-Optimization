@@ -2,7 +2,7 @@ from .nodes import (
     load_data,
     select_classes,
     reduce_size,
-    onehot, 
+    onehot,
     normalize,
     create_dataloader,
     calculate_class_weights,
@@ -52,7 +52,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 onehot,
-                inputs = {
+                inputs={
                     "train_dataset_reduced": "train_dataset_reduced",
                     "test_dataset_reduced": "test_dataset_reduced",
                     "TRAINING_SIZE": "params:TRAINING_SIZE",
@@ -63,18 +63,19 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "test_dataset_onehot": "test_dataset_onehot",
                     "train_dataset_onehot": "train_dataset_onehot",
                 },
-                name="onehot"
+                name="onehot",
             ),
             node(
                 normalize,
-                inputs = {"test_dataset_onehot": "test_dataset_onehot",
+                inputs={
+                    "test_dataset_onehot": "test_dataset_onehot",
                     "train_dataset_onehot": "train_dataset_onehot",
                 },
                 outputs={
                     "test_dataset": "test_dataset",
                     "train_dataset": "train_dataset",
                 },
-                name = "normalize"
+                name="normalize",
             ),
             node(
                 create_dataloader,
