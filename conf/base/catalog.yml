@@ -19,7 +19,6 @@ data_science.loss_curve:
     type: kedro.extras.datasets.plotly.JSONDataSet
     filepath: data/08_reporting/loss_curve.json
 
-
 data_science.confusionmatrix:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
   data_set:

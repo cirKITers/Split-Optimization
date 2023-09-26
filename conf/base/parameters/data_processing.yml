@@ -4,3 +4,4 @@ data_processing:
   TEST_SIZE: ${TEST_SIZE}
   seed: 32
   number_classes: ${number_classes}
+  classes: ${classes}
