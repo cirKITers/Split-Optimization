@@ -2,6 +2,8 @@ from .nodes import (
     load_data,
     select_classes,
     reduce_size,
+    onehot, 
+    normalize,
     create_dataloader,
     calculate_class_weights,
 )
@@ -43,10 +45,36 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "TEST_SIZE": "params:TEST_SIZE",
                 },
                 outputs={
-                    "train_dataset": "train_dataset",
-                    "test_dataset": "test_dataset",
+                    "train_dataset_reduced": "train_dataset_reduced",
+                    "test_dataset_reduced": "test_dataset_reduced",
                 },
                 name="reduce_size",
+            ),
+            node(
+                onehot,
+                inputs = {
+                    "train_dataset_reduced": "train_dataset_reduced",
+                    "test_dataset_reduced": "test_dataset_reduced",
+                    "TRAINING_SIZE": "params:TRAINING_SIZE",
+                    "TEST_SIZE": "params:TEST_SIZE",
+                    "classes": "params:classes",
+                },
+                outputs={
+                    "test_dataset_onehot": "test_dataset_onehot",
+                    "train_dataset_onehot": "train_dataset_onehot",
+                },
+                name="onehot"
+            ),
+            node(
+                normalize,
+                inputs = {"test_dataset_onehot": "test_dataset_onehot",
+                    "train_dataset_onehot": "train_dataset_onehot",
+                },
+                outputs={
+                    "test_dataset": "test_dataset",
+                    "train_dataset": "train_dataset",
+                },
+                name = "normalize"
             ),
             node(
                 create_dataloader,
@@ -65,7 +93,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 calculate_class_weights,
                 inputs={
-                    "train_dataset": "train_dataset",
+                    "train_dataset_reduced": "train_dataset_reduced",
                     "classes": "params:classes",
                     "TRAINING_SIZE": "params:TRAINING_SIZE",
                 },
