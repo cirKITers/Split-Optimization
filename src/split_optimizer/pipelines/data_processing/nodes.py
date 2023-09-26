@@ -1,10 +1,6 @@
 import numpy as np
 import torch
-from typing import Any, Dict, Tuple
-import tensorflow as tf
-from torchvision.transforms import ToTensor, Lambda
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import OneHotEncoder
+from torchvision.transforms import ToTensor
 from split_optimizer.helpers.dataset import OneHotMNIST
 
 
