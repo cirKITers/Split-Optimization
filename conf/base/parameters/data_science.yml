@@ -6,5 +6,5 @@ data_science:
   optimizer_list: [SGD, QNG]
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
-  number_classes: ${number_classes}
+  classes: ${classes}
   

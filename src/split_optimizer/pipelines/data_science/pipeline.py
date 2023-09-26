@@ -23,7 +23,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "train_dataloader",
                     "test_dataloader",
                     "params:n_qubits",
-                    "params:number_classes",
+                    "params:classes",
                     "class_weights_train",
                 ],
                 outputs={
