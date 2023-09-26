@@ -1,5 +1,5 @@
 TRAINING_SIZE: 1000
 TEST_SIZE: 250
 save: True
-number_classes: 3
+classes: [1,6,9]
 n_qubits: 4

@@ -26,10 +26,10 @@ def train_model(
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
     n_qubits: int,
-    number_classes: int,
+    classes: int,
     class_weights_train: List,
 ) -> Dict:
-    model = Net(n_qubits, number_classes)
+    model = Net(n_qubits, classes)
 
     if loss_func == "CrossEntropyLoss":
         calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
