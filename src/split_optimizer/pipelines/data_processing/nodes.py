@@ -76,8 +76,8 @@ def onehot(
 
 
 def normalize(test_dataset_onehot, train_dataset_onehot):
-    test_dataset_onehot.data = np.divide(test_dataset_onehot.data, 255)
-    train_dataset_onehot.data = np.divide(train_dataset_onehot.data, 255)
+    test_dataset_onehot.data = np.divide(test_dataset_onehot.data, test_dataset_onehot.data.max())
+    train_dataset_onehot.data = np.divide(train_dataset_onehot.data, train_dataset_onehot.data.max())
     return {
         "test_dataset": test_dataset_onehot,
         "train_dataset": train_dataset_onehot,
