@@ -65,18 +65,18 @@ def create_pipeline(**kwargs) -> Pipeline:
                 },
                 name="onehot",
             ),
-            node(
-                normalize,
-                inputs={
-                    "test_dataset_onehot": "test_dataset_onehot",
-                    "train_dataset_onehot": "train_dataset_onehot",
-                },
-                outputs={
-                    "test_dataset": "test_dataset",
-                    "train_dataset": "train_dataset",
-                },
-                name="normalize",
-            ),
+            # node(
+            #     normalize,
+            #     inputs={
+            #         "test_dataset_onehot": "test_dataset_onehot",
+            #         "train_dataset_onehot": "train_dataset_onehot",
+            #     },
+            #     outputs={
+            #         "test_dataset": "test_dataset",
+            #         "train_dataset": "train_dataset",
+            #     },
+            #     name="normalize",
+            # ),
             node(
                 create_dataloader,
                 inputs={
