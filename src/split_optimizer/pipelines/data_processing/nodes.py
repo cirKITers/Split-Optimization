@@ -26,6 +26,7 @@ def load_data():
 
 
 def select_classes(train_dataset_full, test_dataset_full, classes):
+    #TODO: somehow those datasets contains both train and test data
     train_class_mask = np.isin(train_dataset_full.targets, classes)
     test_class_mask = np.isin(test_dataset_full.targets, classes)
 
