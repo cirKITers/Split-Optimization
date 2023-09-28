@@ -41,7 +41,7 @@ def train_model(
     
     optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
     
-    def qclosure(params, data, target):
+    def objective_function(params=None, data=None, target=None):
         output = model(data)
         loss = calculate_train_loss(output, target)
         return loss
@@ -52,11 +52,10 @@ def train_model(
         total_loss = []
         for batch_idx, (data, target) in enumerate(train_dataloader):
             optimizer.zero_grad()
-            output = model(data)
-            loss = calculate_train_loss(output, target)
+            loss = objective_function(data=data, target=target)
             loss.backward()
 
-            optimizer.step(data, target, qclosure)
+            optimizer.step(data, target, objective_function)
             total_loss.append(loss.item())
 
         train_loss_list.append(sum(total_loss) / len(total_loss))

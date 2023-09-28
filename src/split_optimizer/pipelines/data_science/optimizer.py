@@ -3,6 +3,7 @@ from .ngd import NGD
 from .qng import QNG
 from .spsa import SPSA
 
+
 def initialize_optimizer(model, lr, optimizer_list):
     if len(optimizer_list) == 2:
         return SplitOptimizer(model, lr, optimizer_list)
@@ -33,7 +34,9 @@ class SplitOptimizer:
                 model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr
             )
         elif optimizer_list[1] == "SPSA":
-            self.quantum_optimizer = SPSA(model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr)
+            self.quantum_optimizer = SPSA(
+                model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr
+            )
         elif optimizer_list[1] == "Adam":
             self.quantum_optimizer = Adam(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "SGD":
@@ -48,23 +51,24 @@ class SplitOptimizer:
         self.classical_optimizer.zero_grad()
         self.quantum_optimizer.zero_grad()
 
-    def step(self, data, target, qclosure, cclosure=None):
+    def step(self, data, target, qclosure=None, cclosure=None):
         self.classical_optimizer.step(cclosure)
         self.quantum_optimizer.step(qclosure, data, target)
-    
-    """ def step(self, data, target, cclosure=None, qclosure=None, **kwargs):
-        self.classical_optimizer.step(cclosure, **kwargs)
-        self.quantum_optimizer.step(qclosure, data, target, **kwargs) """
+
 
 class Adam(optim.Adam):
     def __init__(self, model_params, lr):
         super(Adam, self).__init__(model_params, lr)
 
+    def step(self, *args, **kwargs):
+        return super().step()
+
 
 class SGD(optim.SGD):
     def __init__(self, model_params, lr, momentum=0.9):
         super(SGD, self).__init__(model_params, lr, momentum)
-
+    def step(self, *args, **kwargs):
+        return super().step()
 
 class NGD(NGD):
     def __init__(
@@ -73,13 +77,20 @@ class NGD(NGD):
         super(NGD, self).__init__(
             model_params, lr, momentum, dampening, weight_decay, nesterov
         )
-
+    def step(self, *args, **kwargs):
+        return super().step()
 
 class QNG(QNG):
     def __init__(self, *args, **kwargs):
         super(QNG, self).__init__(*args, **kwargs)
 
+    def step(self, *args, **kwargs):
+        return super().step()
+
 
 class SPSA(SPSA):
-    def __init__(self, *args,**kwargs):
+    def __init__(self, *args, **kwargs):
         super(SPSA, self).__init__(*args, **kwargs)
+
+    def step(self, *args, **kwargs):
+        return super().step(*args, **kwargs)

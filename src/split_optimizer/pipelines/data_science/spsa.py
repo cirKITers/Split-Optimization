@@ -100,4 +100,3 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
 
         return tuple(grad)
     
-#[0].detach().numpy()
