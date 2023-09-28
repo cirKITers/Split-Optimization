@@ -80,8 +80,8 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 create_dataloader,
                 inputs={
-                    "train_dataset": "train_dataset",
-                    "test_dataset": "test_dataset",
+                    "train_dataset": "train_dataset_onehot",
+                    "test_dataset": "test_dataset_onehot",
                     "batch_size": "params:batch_size",
                     "seed": "params:seed",
                 },
