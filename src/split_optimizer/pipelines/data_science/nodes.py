@@ -49,12 +49,13 @@ def train_model(
     train_loss_list = []
     val_loss_list = []
     for epoch in range(epochs):
+        model.train()
         total_loss = []
         for batch_idx, (data, target) in enumerate(train_dataloader):
-            optimizer.zero_grad()
             loss = objective_function(data=data, target=target)
-            loss.backward()
 
+            optimizer.zero_grad()
+            loss.backward()
             optimizer.step(data, target, objective_function)
             total_loss.append(loss.item())
 
