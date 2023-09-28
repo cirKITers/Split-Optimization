@@ -115,6 +115,6 @@ def calculate_class_weights(train_dataset_reduced, classes, TRAINING_SIZE):
         # class weight formula source:
         # https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html
 
-    class_weights_train = torch.from_numpy(class_weights_train)
+    class_weights_train = torch.tensor(class_weights_train, dtype=torch.float32)
 
     return {"class_weights_train": class_weights_train}
