@@ -64,7 +64,7 @@ def onehot(
 
     for i, c in enumerate(classes):
         y_train[torch.where(train_dataset_reduced.targets == c)[0], i] = 1
-        y_test[torch.where(test_dataset_reduced.targets[:TEST_SIZE] == c)[0], i] = 1
+        y_test[torch.where(test_dataset_reduced.targets == c)[0], i] = 1
 
     test_dataset_reduced.targets = y_test
     train_dataset_reduced.targets = y_train
