@@ -1,5 +1,6 @@
 import torch
 import pennylane as qml
+import pennylane.numpy as np
 
 
 class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
@@ -29,7 +30,7 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
 
         self.requires_closure = True
 
-    def step(self, closure=None, *args, **kwargs):
+    def step(self, closure, data, target, *args, **kwargs):
         """Step method implementation. We call this to update the parameter values
 
         Args:
@@ -45,18 +46,58 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
             # Each group is a dictionary where the actual parameters can be accessed using the "params" key
             for p in pg["params"]:
                 # p is now a set of parameters (i.e. the weights of the VQC)
-
+                params = p.detach().numpy()
                 # we can get the gradients of those parameters using the following line
-                g = self.compute_grad(closure, args, kwargs)
+                g = self.compute_grad(closure, args=p, kwargs=dict(data=data, target=target))
+                #g = p.grad.data
+                
+                p.data = torch.stack(self.apply_grad(g, torch.tensor(params, requires_grad=True)))
 
-
-                p.data = torch.tensor(
-                    self.apply_grad(g.detach().numpy(), p.detach().numpy()),
-                    requires_grad=True,
-                )
 
         # unwrap from list if one argument, cleaner return
         if len(p) == 1:
             return p[0]
 
         return p
+    
+    def compute_grad(self, objective_fn, args, kwargs):
+        r"""Approximate the gradient of the objective function at the
+        given point.
+
+        Args:
+            objective_fn (function): The objective function for optimization
+            args (tuple): tuple of NumPy array containing the current parameters
+                for objective function
+            kwargs (dict): keyword arguments for the objective function
+
+        Returns:
+            tuple (array): NumPy array containing the gradient
+                :math:`\hat{g}_k(\hat{\theta}_k)`
+        """
+        ck = self.c / self.k**self.gamma
+
+        delta = []
+        thetaplus = list(args)
+        thetaminus = list(args)
+
+        for index, arg in enumerate(args):
+            if getattr(arg, "requires_grad", False):
+                # Use the symmetric Bernoulli distribution to generate
+                # the coordinates of delta. Note that other distributions
+                # may also be used (they need to satisfy certain conditions).
+                # Refer to the paper linked in the class docstring for more info.
+                di = torch.bernoulli(torch.ones(arg.shape)*0.5)*2-1
+                multiplier = ck * di
+                thetaplus[index] = arg + multiplier
+                thetaminus[index] = arg - multiplier
+                delta.append(di)
+        args.data = torch.stack(thetaplus)
+        yplus = objective_fn(*thetaplus, **kwargs)
+        args.data = torch.stack(thetaminus)
+        yminus = objective_fn(*thetaminus, **kwargs)
+        #TODO was passierte hier mit SHOTS
+        grad = [(yplus - yminus) / (2 * ck * di) for di in delta]
+
+        return tuple(grad)
+    
+#[0].detach().numpy()

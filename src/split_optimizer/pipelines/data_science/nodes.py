@@ -38,8 +38,13 @@ def train_model(
         raise ValueError(
             f"{loss_func} is not a loss function in [CrossEntropyLoss]"
         )  # TODO: shall we actually add more loss functions?
-
+    
     optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
+    
+    def qclosure(params, data, target):
+        output = model(data)
+        loss = calculate_train_loss(output, target)
+        return loss
 
     train_loss_list = []
     val_loss_list = []
@@ -51,8 +56,9 @@ def train_model(
             loss = calculate_train_loss(output, target)
             loss.backward()
 
-            optimizer.step()
+            optimizer.step(data, target, qclosure)
             total_loss.append(loss.item())
+
         train_loss_list.append(sum(total_loss) / len(total_loss))
         print(
             "Training [{:.0f}%]\tLoss: {:.4f}".format(

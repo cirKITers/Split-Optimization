@@ -77,7 +77,7 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
                 self.metric_tensor = self.metric_tensor[
                     self.argnum[0] :, self.argnum[0] :
                 ]
-
+                
                 # with the current parameters p and their gradients g, we can call the apply_grad method from the Pennylane optimizer which returns the updated parameter configuration. This will overwrite the current parameter configuration which the model will use in the next iteration. Remember, the parameters here are just references to the actual parameters within our model.
                 # again, we have to first convert to numpy and then back to torch tensors due to the incompability with Pennylane's implementation. This should be fixed in future.
                 p.data = torch.tensor(

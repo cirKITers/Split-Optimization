@@ -1,9 +1,9 @@
 data_science:
   loss_func: CrossEntropyLoss
   n_qubits: ${n_qubits}
-  epochs: 1
+  epochs: 3
   learning_rate: 0.03
-  optimizer_list: [SGD, QNG]
+  optimizer_list: [SGD, SPSA]
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}

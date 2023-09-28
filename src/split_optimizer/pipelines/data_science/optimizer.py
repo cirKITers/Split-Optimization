@@ -1,7 +1,7 @@
 import torch.optim as optim
 from .ngd import NGD
 from .qng import QNG
-
+from .spsa import SPSA
 
 def initialize_optimizer(model, lr, optimizer_list):
     if len(optimizer_list) == 2:
@@ -33,7 +33,7 @@ class SplitOptimizer:
                 model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr
             )
         elif optimizer_list[1] == "SPSA":
-            self.quantum_optimizer = SPSA(model.qlayer.parameters(), lr)
+            self.quantum_optimizer = SPSA(model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr)
         elif optimizer_list[1] == "Adam":
             self.quantum_optimizer = Adam(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "SGD":
@@ -48,10 +48,13 @@ class SplitOptimizer:
         self.classical_optimizer.zero_grad()
         self.quantum_optimizer.zero_grad()
 
-    def step(self, cclosure=None, qclosure=None, **kwargs):
+    def step(self, data, target, qclosure, cclosure=None):
+        self.classical_optimizer.step(cclosure)
+        self.quantum_optimizer.step(qclosure, data, target)
+    
+    """ def step(self, data, target, cclosure=None, qclosure=None, **kwargs):
         self.classical_optimizer.step(cclosure, **kwargs)
-        self.quantum_optimizer.step(qclosure, **kwargs)
-
+        self.quantum_optimizer.step(qclosure, data, target, **kwargs) """
 
 class Adam(optim.Adam):
     def __init__(self, model_params, lr):
@@ -77,6 +80,6 @@ class QNG(QNG):
         super(QNG, self).__init__(*args, **kwargs)
 
 
-class SPSA:
-    def __init__(self, model_params, lr):
-        raise NotImplementedError("SPSA is not implemented yet")
+class SPSA(SPSA):
+    def __init__(self, *args,**kwargs):
+        super(SPSA, self).__init__(*args, **kwargs)
