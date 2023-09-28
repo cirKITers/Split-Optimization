@@ -60,15 +60,15 @@ def onehot(
     test_dataset_reduced, train_dataset_reduced, classes, TRAINING_SIZE, TEST_SIZE
 ):
     # one-hot-encoding for the labels
-    y_train = torch.zeros((TRAINING_SIZE, len(classes)))
-    y_test = torch.zeros((TEST_SIZE, len(classes)))
+    # y_train = torch.zeros((TRAINING_SIZE), dtype=torch.LongTensor)
+    # y_test = torch.zeros((TEST_SIZE), dtype=torch.LongTensor)
 
     for i, c in enumerate(classes):
-        y_train[torch.where(train_dataset_reduced.targets == c)[0], i] = 1
-        y_test[torch.where(test_dataset_reduced.targets == c)[0], i] = 1
+        train_dataset_reduced.targets[torch.where(train_dataset_reduced.targets == c)[0]] = i
+        test_dataset_reduced.targets[torch.where(test_dataset_reduced.targets == c)[0]] = i
 
-    test_dataset_reduced.targets = y_test
-    train_dataset_reduced.targets = y_train
+    # test_dataset_reduced.targets = y_test
+    # train_dataset_reduced.targets = y_train
 
     return {
         "test_dataset_onehot": test_dataset_reduced,
