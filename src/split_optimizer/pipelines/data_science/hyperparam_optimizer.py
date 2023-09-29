@@ -230,7 +230,7 @@ class Hyperparam_Optimizer:
         instructor_parameters["early_stop_callback"] = self.early_stop_callback
         instructor = self.create_instructor(**instructor_parameters)
 
-        metrics = self.objective(instructor=instructor, trial=trial)
+        metric = self.objective(instructor=instructor, trial=trial)
 
-        return metrics["accuracy"]
+        return metric
         # return [metrics["accuracy"], metrics["loss"], metrics["perfect_lcag"]]
