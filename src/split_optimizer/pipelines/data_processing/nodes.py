@@ -20,8 +20,7 @@ def load_data():
     )
 
     return {
-        "train_dataset_full": train_dataset,
-        "test_dataset_full": test_dataset,
+        "train_dataset": train_dataset,
         "test_dataset": test_dataset,
     }
 
