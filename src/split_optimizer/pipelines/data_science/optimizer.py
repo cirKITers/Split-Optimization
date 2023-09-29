@@ -41,8 +41,7 @@ class SplitOptimizer:
         elif optimizer_list[1] == "Adam":
             self.quantum_optimizer = Adam(model.qlayer.parameters(), lr)
         elif optimizer_list[1] == "SGD":
-            momentum = 0.9
-            self.quantum_optimizer = SGD(model.qlayer.parameters(), lr, momentum)
+            self.quantum_optimizer = SGD(model.qlayer.parameters(), lr)
         else:
             raise ValueError(
                 f"{optimizer_list[1]} is not an optimizer for the quantum part in [Adam, SGD, NGD, QNG, SPSA]"
@@ -67,6 +66,7 @@ class Adam(optim.Adam):
 
 class SGD(optim.SGD):
     def __init__(self, *args, **kwargs):
+        kwargs.setdefault("momentum", 0.9)
         super(SGD, self).__init__(*args, **kwargs)
 
     def step(self, *args, **kwargs):
