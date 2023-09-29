@@ -15,11 +15,17 @@ def register_pipelines() -> dict[str, Pipeline]:
         A mapping from pipeline names to ``Pipeline`` objects.
     """
     data_processing_pipeline = data_processing.create_pipeline()
-    data_science_pipeline = data_science.create_training_pipeline()
+    data_science_training_pipeline = data_science.create_training_pipeline()
+    data_science_hyperparam_opt_pipeline = data_science.create_hyperparam_opt_pipeline()
+
+    default_pipeline = data_processing_pipeline + data_science_training_pipeline
 
     return {
-        "debug_pipeline": data_processing_pipeline + data_science_pipeline,
-        "data_processing_pipeline": data_processing_pipeline,
-        "data_science_pipeline": data_science_pipeline,
-        "__default__": data_processing_pipeline + data_science_pipeline,
+        "__default__": data_processing_pipeline + data_science_training_pipeline,
+        "debug_pipeline": data_processing_pipeline + data_science_training_pipeline,
+        "optuna_pipeline": data_processing_pipeline
+        + data_science_hyperparam_opt_pipeline,
+        "preprocessing": data_processing_pipeline,
+        "training": data_science_training_pipeline,
+        "hyperparameter_opt": data_science_hyperparam_opt_pipeline,
     }
