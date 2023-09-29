@@ -160,8 +160,8 @@ def create_instructor(
     return {"instructor": instructor}
 
 
-def create_model(n_qubits: int, classes: List):
-    model = Net(n_qubits=n_qubits, classes=classes)
+def create_model(n_qubits: int, n_layers: int, classes: List):
+    model = Net(n_qubits=n_qubits, n_layers=n_layers, classes=classes)
 
     return {"model": model}
 

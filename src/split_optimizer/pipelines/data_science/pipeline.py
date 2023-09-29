@@ -19,6 +19,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 create_model,
                 inputs={
                     "n_qubits": "params:n_qubits",
+                    "n_layers": "params:n_layers",
                     "classes": "params:classes",
                 },
                 outputs={

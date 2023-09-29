@@ -3,3 +3,4 @@ TEST_SIZE: 250
 save: True
 classes: [1,6,9]
 n_qubits: 4
+n_layers: 1
