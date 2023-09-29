@@ -58,16 +58,16 @@ class SplitOptimizer:
 
 
 class Adam(optim.Adam):
-    def __init__(self, model_params, lr):
-        super(Adam, self).__init__(model_params, lr)
+    def __init__(self, *args, **kwargs):
+        super(Adam, self).__init__(*args, **kwargs)
 
     def step(self, *args, **kwargs):
         return super().step()
 
 
 class SGD(optim.SGD):
-    def __init__(self, model_params, lr, momentum=0.9):
-        super(SGD, self).__init__(model_params, lr, momentum)
+    def __init__(self, *args, **kwargs):
+        super(SGD, self).__init__(*args, **kwargs)
 
     def step(self, *args, **kwargs):
         return super().step()
@@ -75,10 +75,9 @@ class SGD(optim.SGD):
 
 class NGD(NGD):
     def __init__(
-        self, model_params, lr, momentum=0, dampening=0, weight_decay=0, nesterov=False
+        self, *args, **kwargs
     ):
-        super(NGD, self).__init__(
-            model_params, lr, momentum, dampening, weight_decay, nesterov
+        super(NGD, self).__init__(*args, **kwargs
         )
 
     def step(self, *args, **kwargs):
