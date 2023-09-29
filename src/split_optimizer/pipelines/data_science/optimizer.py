@@ -35,7 +35,7 @@ class SplitOptimizer:
             )
         elif optimizer_list[1] == "SPSA":
             self.quantum_optimizer = SPSA(
-                model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr
+                model.qlayer.parameters(), model.vqc.argnum, lr
             )
         elif optimizer_list[1] == "Adam":
             self.quantum_optimizer = Adam(model.qlayer.parameters(), lr)
