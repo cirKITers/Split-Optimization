@@ -39,7 +39,7 @@ def train_model(
 
     optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
 
-    def objective_function(params=None, data=None, target=None):
+    def objective_function(data, target):
         output = model(data)
         loss = calculate_train_loss(output, target)
         return loss
