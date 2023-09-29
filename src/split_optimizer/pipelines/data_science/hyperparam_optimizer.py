@@ -58,7 +58,7 @@ class Hyperparam_Optimizer:
                     pruner=pruner,
                     sampler=sampler,
                     # directions=["maximize", "minimize", "maximize"],
-                    direction="maximize",
+                    direction="minimize",
                     load_if_exists=resume_study,
                     study_name=name,
                     storage=f"sqlite:///{path}",
@@ -66,7 +66,7 @@ class Hyperparam_Optimizer:
             )
 
             # set_objective_names(self.studies[-1], ["Accuracy", "Loss", "Perfect LCAG"])
-            set_objective_names(self.studies[-1], ["Accuracy"])
+            set_objective_names(self.studies[-1], ["Loss"])
 
     def set_variable_parameters(self, model_parameters, instructor_parameters):
         assert isinstance(model_parameters, Dict)
