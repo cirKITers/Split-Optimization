@@ -32,8 +32,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 inputs={
                     "model": "model",
                     "loss_func": "params:loss_func",
-                    "learning_rate": "params:learning_rate",
-                    "optimizer_list": "params:optimizer_list",
+                    "optimizer": "params:optimizer",
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
                     "class_weights_train": "class_weights_train",

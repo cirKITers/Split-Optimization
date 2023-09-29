@@ -1,17 +1,16 @@
 import torch.nn as nn
 from typing import Dict, List
-from .optimizer import initialize_optimizer
 
 from torch.utils.data.dataloader import DataLoader
 
+from .optimizer import SplitOptimizer, Adam, SGD
 
 class Instructor:
     def __init__(
         self,
         model: nn.Module,
         loss_func: str,
-        learning_rate: float,
-        optimizer_list: List,
+        optimizer: List,
         train_dataloader: DataLoader,
         test_dataloader: DataLoader,
         class_weights_train: List,
@@ -28,7 +27,16 @@ class Instructor:
                 f"{loss_func} is not a loss function in [CrossEntropyLoss]"
             )  # TODO: shall we actually add more loss functions?
 
-        self.optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
+        if "combined" not in optimizer:
+            self.optimizer = SplitOptimizer(model, optimizer)
+        else:
+            if optimizer['combined']['name'] == 'Adam':
+                self.optimizer =  Adam(model.parameters(), optimizer['combined'])
+            elif optimizer['combined']['name'] == 'SGD':
+                self.optimizer =  SGD(model.parameters(), optimizer['combined'])
+            else:
+                raise ValueError(f"{optimizer['combined']['name']} is not an optimizer in [Adam, SGD]")
+                
 
     def objective_function(self, data, target, train=True):
         output = self.model(data)

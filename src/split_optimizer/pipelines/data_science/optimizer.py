@@ -4,47 +4,41 @@ from .qng import QNG
 from .spsa import SPSA
 
 
-def initialize_optimizer(model, lr, optimizer_list):
-    if len(optimizer_list) == 2:
-        return SplitOptimizer(model, lr, optimizer_list)
-    elif optimizer_list[0] == "Adam":
-        return Adam(model.parameters(), lr)
-    elif optimizer_list[0] == "SGD":
-        return SGD(model.parameters(), lr)  # TODO: Add momentum as Kedro parameter
-    else:
-        raise ValueError(f"{optimizer_list} is not an optimizer in [Adam, SGD]")
-
-
 class SplitOptimizer:
-    def __init__(self, model, lr, optimizer_list):
-        if optimizer_list[0] == "Adam":
-            self.classical_optimizer = Adam(model.clayer.parameters(), lr)
-        elif optimizer_list[0] == "SGD":
-            self.classical_optimizer = SGD(model.clayer.parameters(), lr)
-        elif optimizer_list[0] == "NGD":
-            self.classical_optimizer = NGD(model.clayer.parameters(), lr)
+    def __init__(self, model, optimizer):
+        classical_opt_name = optimizer['classical']['name']
+        quantum_opt_name = optimizer['quantum']['name']
+
+        del optimizer['classical']['name'], optimizer['quantum']['name']
+
+        if classical_opt_name == "Adam":
+            self.classical_optimizer = Adam(model.clayer.parameters(), **optimizer['classical'])
+        elif classical_opt_name == "SGD":
+            self.classical_optimizer = SGD(model.clayer.parameters(), **optimizer['classical'])
+        elif classical_opt_name == "NGD":
+            self.classical_optimizer = NGD(model.clayer.parameters(), **optimizer['classical'])
         else:
             raise ValueError(
-                f"{optimizer_list[0]} is not an optimizer for the classical part in [Adam, SGD]"
+                f"{classical_opt_name} is not an optimizer for the classical part in [Adam, SGD]"
             )
 
-        if optimizer_list[1] == "NGD":
-            self.quantum_optimizer = NGD(model.qlayer.parameters(), lr)
-        elif optimizer_list[1] == "QNG":
+        if quantum_opt_name == "NGD":
+            self.quantum_optimizer = NGD(model.qlayer.parameters(), **optimizer['quantum'])
+        elif quantum_opt_name == "QNG":
             self.quantum_optimizer = QNG(
-                model.qlayer.parameters(), model.qnode, model.vqc.argnum, lr
+                model.qlayer.parameters(), model.qnode, model.vqc.argnum, **optimizer['quantum']
             )
-        elif optimizer_list[1] == "SPSA":
+        elif quantum_opt_name == "SPSA":
             self.quantum_optimizer = SPSA(
-                model.qlayer.parameters(), model.vqc.argnum, lr
+                model.qlayer.parameters(), model.vqc.argnum, **optimizer['quantum']
             )
-        elif optimizer_list[1] == "Adam":
-            self.quantum_optimizer = Adam(model.qlayer.parameters(), lr)
-        elif optimizer_list[1] == "SGD":
-            self.quantum_optimizer = SGD(model.qlayer.parameters(), lr)
+        elif quantum_opt_name == "Adam":
+            self.quantum_optimizer = Adam(model.qlayer.parameters(), **optimizer['quantum'])
+        elif quantum_opt_name == "SGD":
+            self.quantum_optimizer = SGD(model.qlayer.parameters(), **optimizer['quantum'])
         else:
             raise ValueError(
-                f"{optimizer_list[1]} is not an optimizer for the quantum part in [Adam, SGD, NGD, QNG, SPSA]"
+                f"{quantum_opt_name} is not an optimizer for the quantum part in [Adam, SGD, NGD, QNG, SPSA]"
             )
 
     def zero_grad(self):
@@ -66,7 +60,7 @@ class Adam(optim.Adam):
 
 class SGD(optim.SGD):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("momentum", 0.9)
+        kwargs.setdefault("momentum", 0.9) # actually important as not converging otherwise
         super(SGD, self).__init__(*args, **kwargs)
 
     def step(self, *args, **kwargs):

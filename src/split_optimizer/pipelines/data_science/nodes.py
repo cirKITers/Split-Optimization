@@ -107,8 +107,7 @@ def test_model(
 def create_instructor(
     model: nn.Module,
     loss_func: str,
-    learning_rate: float,
-    optimizer_list: List,
+    optimizer,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
     class_weights_train: List,
@@ -116,8 +115,7 @@ def create_instructor(
     instructor = Instructor(
         model=model,
         loss_func=loss_func,
-        learning_rate=learning_rate,
-        optimizer_list=optimizer_list,
+        optimizer=optimizer,
         train_dataloader=train_dataloader,
         test_dataloader=test_dataloader,
         class_weights_train=class_weights_train,

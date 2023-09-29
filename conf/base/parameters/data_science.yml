@@ -3,8 +3,16 @@ data_science:
   n_qubits: ${n_qubits}
   n_layers: ${n_layers}
   epochs: 3
-  learning_rate: 0.03
-  optimizer_list: [SGD, SPSA]
+  optimizer:
+    # combined:
+    #   name: SGD
+    #   lr: 0.03
+    classical:
+      name: SGD
+      lr: 0.03
+    quantum:
+      name: Adam
+      lr: 0.04
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
