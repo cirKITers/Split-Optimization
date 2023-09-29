@@ -15,6 +15,14 @@ import plotly.graph_objects as go
 
 from .instructor import Instructor
 
+def train_model_optuna(trial, *args, **kwargs):
+    result = train_model(*args, **kwargs)
+
+    best_val_accuracy = max(result["model_history"]["val_loss_list"])
+
+    return best_val_accuracy
+
+
 def train_model(
     instructor: Instructor,
 ) -> Dict:
