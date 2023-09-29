@@ -41,7 +41,10 @@ class Instructor():
 
     def objective_function(self, data, target, train=True):
         output = self.model(data)
-        loss = self.train_loss(output, target)
+        if train:
+            loss = self.train_loss(output, target)
+        else:
+            loss = self.test_loss(output, target)
         return loss
 
         
