@@ -1,4 +1,4 @@
-from .hybrid_model import Net
+from .hybrid_model import Model
 
 import torch
 import numpy as np
@@ -14,6 +14,8 @@ from torch.utils.data.dataloader import DataLoader
 import plotly.graph_objects as go
 
 from .instructor import Instructor
+from .hyperparam_optimizer import Hyperparam_Optimizer
+
 
 def train_model_optuna(trial, *args, **kwargs):
     result = train_model(*args, **kwargs)
@@ -114,7 +116,8 @@ def test_model(
 def create_instructor(
     model: nn.Module,
     loss_func: str,
-    optimizer,
+    optimizer: Dict,
+    epochs: int,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
     class_weights_train: List,
@@ -123,6 +126,7 @@ def create_instructor(
         model=model,
         loss_func=loss_func,
         optimizer=optimizer,
+        epochs=epochs,
         train_dataloader=train_dataloader,
         test_dataloader=test_dataloader,
         class_weights_train=class_weights_train,
@@ -132,7 +136,7 @@ def create_instructor(
 
 
 def create_model(n_qubits: int, n_layers: int, classes: List):
-    model = Net(n_qubits=n_qubits, n_layers=n_layers, classes=classes)
+    model = Model(n_qubits=n_qubits, n_layers=n_layers, classes=classes)
 
     return {"model": model}
 
@@ -215,67 +219,7 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
     return {"confusionmatrix": fig}
 
 
-def train_optuna(training_node: callable, instructor: Instructor, trial, start_epoch=1, enabled_modes=["train", "val"]):
-
-    result = training_node(trial,
-        start_epoch=start_epoch, enabled_modes=enabled_modes
-    )  # returns a dict of e.g. the model, checkpoints and the gradients
-
-    return {
-        'metrics': result['metrics']
-    }
-
 def create_hyperparam_optimizer(
-    n_classes,
-    n_momenta,
-    model_sel,
-    n_blocks_range: List,
-    dim_feedforward_range: List,
-    n_layers_mlp_range: List,
-    n_additional_mlp_layers_range: List,
-    n_final_mlp_layers_range: List,
-    skip_block: bool,
-    skip_global: bool,
-    dropout_rate_range: List,
-    batchnorm: bool,
-    symmetrize: bool,
-    data_reupload_range_quant: bool,
-    n_layers_vqc_range_quant: List,
-    padding_dropout: bool,
-    predefined_vqc_range_quant: List,
-    predefined_iec: str,
-    measurement: str,
-    backend: str,
-    n_shots_range_quant: int,
-    n_fsps: int,
-
-    device: str,
-    initialization_constant: float,
-    initialization_offset: float,
-    parameter_seed:int, 
-    dataset_lca_and_leaves: Dict,
-    learning_rate_range: List,
-    learning_rate_decay_range: List,
-    decay_after: float,
-    batch_size_range: List,
-    epochs: int,
-    normalize: str,
-    normalize_individually: bool,
-    zero_mean: bool,
-    plot_mode: str,
-    plotting_rows: int,
-    log_gradients: bool,
-    gradients_clamp: int,
-    gradients_spreader: float,
-    torch_seed: int,
-    gradient_curvature_threshold_range_quant: float,
-    gradient_curvature_history_range_quant: int,
-    quantum_optimizer_range_quant: List,
-    quantum_momentum: float,
-    quantum_learning_rate_range_quant: List,
-    quantum_learning_rate_decay_range_quant: List,
-    classical_optimizer: str,
-    detectAnomaly: bool,
     n_trials: str,
     timeout: int,
     optuna_path: str,
@@ -289,13 +233,16 @@ def create_hyperparam_optimizer(
     resume_study: bool,
     n_jobs: int,
     run_id: str,
+    n_qubits_range_quant: int,
+    n_layers_range_quant: int,
+    classes: List,
+    loss_func: str,
+    optimizer_range: Dict,
+    epochs: List,
+    train_dataloader: DataLoader,
+    test_dataloader: DataLoader,
+    class_weights_train: List,
 ) -> Hyperparam_Optimizer:
-
-    if "q" in model_sel:
-        toggle_classical_quant = True
-    else:
-        toggle_classical_quant = False
-
     if run_id is None:
         name = mlflow.active_run().info.run_id
     else:
@@ -309,98 +256,46 @@ def create_hyperparam_optimizer(
         path=optuna_path,
         n_jobs=n_jobs,
         selective_optimization=selective_optimization,
-        toggle_classical_quant=toggle_classical_quant,
         resume_study=resume_study,
         pool_process=pool_process,
         pruner_startup_trials=pruner_startup_trials,
         pruner_warmup_steps=pruner_warmup_steps,
         pruner_interval_steps=pruner_interval_steps,
-        pruner_min_trials=pruner_min_trials
+        pruner_min_trials=pruner_min_trials,
     )
 
     hyperparam_optimizer.set_variable_parameters(
         {
-            "n_blocks_range": n_blocks_range,
-            "dim_feedforward_range": dim_feedforward_range,
-            "n_layers_mlp_range": n_layers_mlp_range,
-            "n_additional_mlp_layers_range": n_additional_mlp_layers_range,
-            "n_final_mlp_layers_range": n_final_mlp_layers_range,
-            "dropout_rate_range": dropout_rate_range,
-            "data_reupload_range_quant": data_reupload_range_quant,
-            "n_layers_vqc_range_quant": n_layers_vqc_range_quant,
-            "predefined_vqc_range_quant": predefined_vqc_range_quant,
-            # "initialization_constant_range_quant": initialization_constant_range_quant,
-            # "initialization_offset_range_quant": initialization_offset_range_quant,
-            "n_shots_range_quant": n_shots_range_quant,
+            "n_qubits_range_quant": n_qubits_range_quant,
+            "n_layers_range_quant": n_layers_range_quant,
         },
         {
-            "learning_rate_range": learning_rate_range,
-            "learning_rate_decay_range": learning_rate_decay_range,
-            "quantum_learning_rate_range_quant": quantum_learning_rate_range_quant,
-            "quantum_learning_rate_decay_range_quant": quantum_learning_rate_decay_range_quant,
-            "batch_size_range": batch_size_range,
-            "gradient_curvature_history_range_quant": gradient_curvature_history_range_quant,
-            "quantum_optimizer_range_quant": quantum_optimizer_range_quant,
-            "gradient_curvature_threshold_range_quant": gradient_curvature_threshold_range_quant,
+            "optimizer_range": optimizer_range,
         },
     )
 
     hyperparam_optimizer.set_fixed_parameters(
-        {
-            "n_classes": n_classes,
-            "n_momenta": n_momenta,
-            "model_sel": model_sel,
-            "skip_block":skip_block,
-            "skip_global":skip_global,
-            "batchnorm": batchnorm,
-            "symmetrize": symmetrize,
-            "padding_dropout": padding_dropout,
-            "predefined_iec": predefined_iec,
-            "measurement": measurement,
-            "backend": backend,
-            "n_fsps": n_fsps,
-            "device": device,
-            "initialization_constant": initialization_constant,
-            "initialization_offset": initialization_offset,
-            "parameter_seed": parameter_seed,
-        },
+        {"classes": classes},
         {
             "model": None,  # this must be overwritten later in the optimization step and just indicates the difference in implementation here
-            "dataset_lca_and_leaves": dataset_lca_and_leaves,
-            "n_classes": n_classes,
+            "loss_func": loss_func,
             "epochs": epochs,
-            "normalize": normalize,
-            "normalize_individually": normalize_individually,
-            "zero_mean": zero_mean,
-            "plot_mode": plot_mode,
-            "plotting_rows": plotting_rows,
-            "detectAnomaly": detectAnomaly,
-            "log_gradients": log_gradients,
-            "device": device,
-            "n_fsps": n_fsps,
-            "decay_after": decay_after,
-            "gradients_clamp": gradients_clamp,
-            "gradients_spreader": gradients_spreader,
-            "torch_seed": torch_seed,
-            "quantum_momentum": quantum_momentum,
-            "classical_optimizer": classical_optimizer,
-            "logging": False
+            "train_dataloader": train_dataloader,
+            "test_dataloader": test_dataloader,
+            "class_weights_train": class_weights_train,
         },
     )
 
-    hyperparam_optimizer.create_model = create_model
-    hyperparam_optimizer.create_instructor = create_instructor
-    hyperparam_optimizer.objective = train_optuna
+    hyperparam_optimizer.create_model = Model
+    hyperparam_optimizer.create_instructor = Instructor
+    hyperparam_optimizer.objective = train_model_optuna
 
     return {"hyperparam_optimizer": hyperparam_optimizer}
 
 
 def run_optuna(hyperparam_optimizer: Hyperparam_Optimizer):
-
     hyperparam_optimizer.minimize()
 
     # artifacts = hyperparam_optimizer.log_study()
 
     return {}
-
-
