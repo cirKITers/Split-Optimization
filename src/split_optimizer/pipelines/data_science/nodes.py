@@ -20,9 +20,9 @@ from .hyperparam_optimizer import Hyperparam_Optimizer
 def train_model_optuna(trial, *args, **kwargs):
     result = train_model(*args, **kwargs)
 
-    best_val_accuracy = max(result["model_history"]["val_loss_list"])
+    # best_val_accuracy = max(result["model_history"]["val_loss_list"])
 
-    return best_val_accuracy
+    return min(result["model_history"]["val_loss_list"])
 
 
 def train_model(
