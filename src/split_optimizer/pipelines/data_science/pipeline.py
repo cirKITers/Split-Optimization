@@ -2,6 +2,8 @@ from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import (
+    create_model,
+    create_instructor,
     train_model,
     test_model,
     plot_loss,
@@ -14,32 +16,49 @@ def create_training_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
             node(
-                train_model,
-                inputs=[
-                    "params:epochs",
-                    "params:loss_func",
-                    "params:learning_rate",
-                    "params:optimizer_list",
-                    "train_dataloader",
-                    "test_dataloader",
-                    "params:n_qubits",
-                    "params:classes",
-                    "class_weights_train",
-                ],
+                create_model,
+                inputs={
+                    "n_qubits":"params:n_qubits",
+                    "classes":"params:classes",
+                },
                 outputs={
                     "model": "model",
+                },
+                name="create_model",
+            ),
+            node(
+                create_instructor,
+                inputs={
+                    "model":"model",
+                    "loss_func":"params:loss_func",
+                    "learning_rate":"params:learning_rate",
+                    "optimizer_list":"params:optimizer_list",
+                    "train_dataloader":"train_dataloader",
+                    "test_dataloader":"test_dataloader",
+                    "class_weights_train":"class_weights_train",
+                },
+                outputs={
+                    "instructor": "instructor",
+                },
+                name="create_instructor",
+            ),
+            node(
+                train_model,
+                inputs={
+                    "instructor":"instructor",
+                    "epochs":"params:epochs",
+                },
+                outputs={
+                    "model": "trained_model",
                     "model_history": "model_history",
                 },
                 name="train_model",
             ),
             node(
                 test_model,
-                inputs=[
-                    "model",
-                    "params:loss_func",
-                    "params:TEST_SIZE",
-                    "test_dataloader",
-                ],
+                inputs={
+                    "instructor":"instructor",
+                },
                 outputs={"test_output": "test_output"},
                 name="test_model",
             ),
