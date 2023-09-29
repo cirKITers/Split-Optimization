@@ -25,4 +25,6 @@ data_science.confusionmatrix:
     type: kedro.extras.datasets.plotly.JSONDataSet
     filepath: data/08_reporting/confusionmatrix.json
 
-    
+data_science.instructor:
+  type: kedro.io.MemoryDataset
+  copy_mode: "assign"
