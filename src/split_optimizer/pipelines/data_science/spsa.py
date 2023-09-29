@@ -1,6 +1,5 @@
 import torch
 import pennylane as qml
-import pennylane.numpy as np
 
 
 class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):

@@ -4,11 +4,9 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
-import torch.optim as optim
 import torch.nn as nn
 from sklearn import metrics
-import plotly.figure_factory as ff
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List
 import plotly.express as px
 from .optimizer import initialize_optimizer
 import mlflow
