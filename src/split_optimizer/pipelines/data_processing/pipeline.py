@@ -2,7 +2,7 @@ from .nodes import (
     load_data,
     select_classes,
     reduce_size,
-    onehot,
+    shift_labels,
     normalize,
     create_dataloader,
     calculate_class_weights,
@@ -18,16 +18,16 @@ def create_pipeline(**kwargs) -> Pipeline:
                 load_data,
                 inputs=[],
                 outputs={
-                    "train_dataset_full": "train_dataset_full",
-                    "test_dataset_full": "test_dataset_full",
+                    "train_dataset": "train_dataset_full",
+                    "test_dataset": "test_dataset_full",
                 },
                 name="load_data",
             ),
             node(
                 select_classes,
                 inputs={
-                    "train_dataset_full": "train_dataset_full",
-                    "test_dataset_full": "test_dataset_full",
+                    "train_dataset": "train_dataset_full",
+                    "test_dataset": "test_dataset_full",
                     "classes": "params:classes",
                 },
                 outputs={
@@ -39,49 +39,47 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 reduce_size,
                 inputs={
-                    "train_dataset_selected": "train_dataset_selected",
-                    "test_dataset_selected": "test_dataset_selected",
+                    "train_dataset": "train_dataset_selected",
+                    "test_dataset": "test_dataset_selected",
                     "TRAINING_SIZE": "params:TRAINING_SIZE",
                     "TEST_SIZE": "params:TEST_SIZE",
                 },
                 outputs={
-                    "train_dataset_reduced": "train_dataset_reduced",
-                    "test_dataset_reduced": "test_dataset_reduced",
+                    "train_dataset_size_reduced": "train_dataset_size_reduced",
+                    "test_dataset_size_reduced": "test_dataset_size_reduced",
                 },
                 name="reduce_size",
             ),
             node(
-                onehot,
+                shift_labels,
                 inputs={
-                    "train_dataset_reduced": "train_dataset_reduced",
-                    "test_dataset_reduced": "test_dataset_reduced",
-                    "TRAINING_SIZE": "params:TRAINING_SIZE",
-                    "TEST_SIZE": "params:TEST_SIZE",
+                    "train_dataset": "train_dataset_size_reduced",
+                    "test_dataset": "test_dataset_size_reduced",
                     "classes": "params:classes",
                 },
                 outputs={
-                    "test_dataset_onehot": "test_dataset_onehot",
-                    "train_dataset_onehot": "train_dataset_onehot",
+                    "test_dataset_class_reduced": "test_dataset_class_reduced",
+                    "train_dataset_class_reduced": "train_dataset_class_reduced",
                 },
-                name="onehot",
+                name="shift_labels",
             ),
-            node(
-                normalize,
-                inputs={
-                    "test_dataset_onehot": "test_dataset_onehot",
-                    "train_dataset_onehot": "train_dataset_onehot",
-                },
-                outputs={
-                    "test_dataset": "test_dataset",
-                    "train_dataset": "train_dataset",
-                },
-                name="normalize",
-            ),
+            # node(
+            #     normalize,
+            #     inputs={
+            #         "test_dataset_onehot": "test_dataset_onehot",
+            #         "train_dataset_onehot": "train_dataset_onehot",
+            #     },
+            #     outputs={
+            #         "test_dataset": "test_dataset",
+            #         "train_dataset": "train_dataset",
+            #     },
+            #     name="normalize",
+            # ),
             node(
                 create_dataloader,
                 inputs={
-                    "train_dataset": "train_dataset",
-                    "test_dataset": "test_dataset",
+                    "train_dataset": "train_dataset_class_reduced",
+                    "test_dataset": "test_dataset_class_reduced",
                     "batch_size": "params:batch_size",
                     "seed": "params:seed",
                 },
@@ -94,7 +92,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 calculate_class_weights,
                 inputs={
-                    "train_dataset_reduced": "train_dataset_reduced",
+                    "train_dataset": "train_dataset_size_reduced",
                     "classes": "params:classes",
                     "TRAINING_SIZE": "params:TRAINING_SIZE",
                 },

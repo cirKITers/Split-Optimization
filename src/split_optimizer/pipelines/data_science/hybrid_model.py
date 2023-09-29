@@ -55,7 +55,7 @@ class CLayers(nn.Module):
         )
 
     def forward(self, x):
-        x = self.classical_net(x.float())
+        x = self.classical_net(x)
         return x
 
 
@@ -77,4 +77,4 @@ class Net(nn.Module):
     def forward(self, x):
         x = self.clayer(x)
         x = self.qlayer(x)
-        return F.softmax(torch.Tensor(x))
+        return F.softmax(x)
