@@ -3,7 +3,7 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
-data_science.model:
+data_science.trained_model:
   type: split_optimizer.helpers.dataset.TorchLocalModel
   filepath: data/06_models/model.pt
   model: model
