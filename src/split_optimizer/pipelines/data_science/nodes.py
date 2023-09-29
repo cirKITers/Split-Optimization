@@ -49,7 +49,7 @@ def train_model(
     for epoch in range(epochs):
         model.train()
         total_loss = []
-        for batch_idx, (data, target) in enumerate(train_dataloader):
+        for data, target in train_dataloader:
             loss = objective_function(data=data, target=target)
 
             optimizer.zero_grad()
