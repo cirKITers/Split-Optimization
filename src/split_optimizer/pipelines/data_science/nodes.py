@@ -15,8 +15,10 @@ import mlflow
 from torch.utils.data.dataloader import DataLoader
 import plotly.graph_objects as go
 
-class Instructor():
-    def __init__(self,
+
+class Instructor:
+    def __init__(
+        self,
         model: nn.Module,
         loss_func: str,
         learning_rate: float,
@@ -47,12 +49,11 @@ class Instructor():
             loss = self.test_loss(output, target)
         return loss
 
-        
+
 def train_model(
-    instructor:Instructor,
+    instructor: Instructor,
     epochs: int,
 ) -> Dict:
-
     train_loss_list = []
     val_loss_list = []
     for epoch in range(epochs):
@@ -77,7 +78,9 @@ def train_model(
         with torch.no_grad():
             val_loss = []
             for data, target in instructor.test_dataloader:
-                loss = instructor.objective_function(data=data, target=target, train=False)
+                loss = instructor.objective_function(
+                    data=data, target=target, train=False
+                )
 
                 val_loss.append(loss.item())
 
@@ -92,7 +95,7 @@ def train_model(
 
 
 def test_model(
-    instructor:Instructor,
+    instructor: Instructor,
 ) -> Dict:
     instructor.model.eval()
 
@@ -134,6 +137,7 @@ def test_model(
 
     return {"test_output": test_output}
 
+
 def create_instructor(
     model: nn.Module,
     loss_func: str,
@@ -153,21 +157,13 @@ def create_instructor(
         class_weights_train=class_weights_train,
     )
 
-    return {
-        "instructor":instructor
-    }
+    return {"instructor": instructor}
 
-def create_model(
-        n_qubits:int,
-        classes:List
-):
-    model = Net(n_qubits=n_qubits,
-    classes=classes)
 
-    return {
-        "model":model
-    }
+def create_model(n_qubits: int, classes: List):
+    model = Net(n_qubits=n_qubits, classes=classes)
 
+    return {"model": model}
 
 
 def mlflow_tracking(model_history, test_output):
