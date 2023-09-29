@@ -59,11 +59,11 @@ class CLayers(nn.Module):
         return x
 
 
-class Net(nn.Module):
+class Model(nn.Module):
     def __init__(
         self, n_qubits, classes, n_layers=1
     ):  # TODO: propagate parameter to kedro params file
-        super(Net, self).__init__()
+        super(Model, self).__init__()
         self.n_qubits = n_qubits
         self.number_classes = len(classes)
         self.clayer = CLayers(self.n_qubits)
