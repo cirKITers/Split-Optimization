@@ -185,13 +185,9 @@ def plot_loss(model_history: dict) -> plt.figure:
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
-    test_labels_onehot = []
-    for _, target in test_dataloader:
-        test_labels_onehot.append(target)
-
     test_labels = []
-    for i in test_labels_onehot:
-        test_labels.append(np.argmax(i).item())
+    for _, target in test_dataloader:
+        test_labels.append(target.item())
 
     label_predictions = test_output["pred"]
 
