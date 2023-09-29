@@ -74,11 +74,8 @@ class SGD(optim.SGD):
 
 
 class NGD(NGD):
-    def __init__(
-        self, *args, **kwargs
-    ):
-        super(NGD, self).__init__(*args, **kwargs
-        )
+    def __init__(self, *args, **kwargs):
+        super(NGD, self).__init__(*args, **kwargs)
 
     def step(self, *args, **kwargs):
         return super().step()

@@ -58,7 +58,7 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
 
                 # we detach the params from the computation graph to preserve their value
                 params = p.detach()
-                params.requires_grad=True
+                params.requires_grad = True
 
                 # we can get the gradients of those parameters using the following line
                 # note that in there, p gets altered (that's why we had to detach it in the line above)
@@ -67,9 +67,7 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
                 )
 
                 # here we reuse the params from above and apply the calculated gradients
-                p.data = torch.stack(
-                    self.apply_grad(g, params)
-                )
+                p.data = torch.stack(self.apply_grad(g, params))
 
         # unwrap from list if one argument, cleaner return
         if len(p) == 1:
