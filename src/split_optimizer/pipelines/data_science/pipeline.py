@@ -9,6 +9,8 @@ from .nodes import (
     plot_loss,
     plot_confusionmatrix,
     mlflow_tracking,
+    create_hyperparam_optimizer,
+    run_optuna,
 )
 
 
@@ -33,6 +35,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "model": "model",
                     "loss_func": "params:loss_func",
                     "optimizer": "params:optimizer",
+                    "epochs": "params:epochs",
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
                     "class_weights_train": "class_weights_train",
@@ -46,7 +49,6 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 train_model,
                 inputs={
                     "instructor": "instructor",
-                    "epochs": "params:epochs",
                 },
                 outputs={
                     "model": "trained_model",
@@ -75,6 +77,59 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 mlflow_tracking,
                 inputs=["model_history", "test_output"],
                 outputs={"metrics": "metrics"},
+            ),
+        ],
+        inputs={
+            "train_dataloader": "train_dataloader",
+            "test_dataloader": "test_dataloader",
+            "class_weights_train": "class_weights_train",
+        },
+        outputs={},
+        namespace="data_science",
+    )
+
+
+def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
+    return pipeline(
+        [
+            node(
+                create_hyperparam_optimizer,
+                inputs={
+                    "n_trials": "params:n_trials",
+                    "timeout": "params:timeout",
+                    "optuna_path": "params:optuna_path",
+                    "optuna_sampler_seed": "params:optuna_sampler_seed",
+                    "pool_process": "params:pool_process",
+                    "pruner_startup_trials": "params:pruner_startup_trials",
+                    "pruner_warmup_steps": "params:pruner_warmup_steps",
+                    "pruner_interval_steps": "params:pruner_interval_steps",
+                    "pruner_min_trials": "params:pruner_min_trials",
+                    "selective_optimization": "params:selective_optimization",
+                    "resume_study": "params:resume_study",
+                    "n_jobs": "params:n_jobs",
+                    "run_id": "params:run_id",
+                    "n_qubits_range_quant": "params:n_qubits_range_quant",
+                    "n_layers_range_quant": "params:n_layers_range_quant",
+                    "classes": "params:classes",
+                    "loss_func": "params:loss_func",
+                    "epochs": "params:epochs",
+                    "optimizer_range": "params:optimizer_range",
+                    "train_dataloader": "train_dataloader",
+                    "test_dataloader": "test_dataloader",
+                    "class_weights_train": "class_weights_train",
+                },
+                outputs={
+                    "hyperparam_optimizer": "hyperparam_optimizer",
+                },
+                name="create_hyperparam_optimizer",
+            ),
+            node(
+                run_optuna,
+                inputs={
+                    "hyperparam_optimizer": "hyperparam_optimizer",
+                },
+                outputs={},
+                name="run_optuna",
             ),
         ],
         inputs={
