@@ -29,3 +29,19 @@ data_science:
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
   
+
+  # Optuna
+  n_trials: 20
+  timeout: 10800 #30h
+  optuna_path: "studies/split_optimizer.db"
+  optuna_sampler_seed:  # should be None, if n_jobs=1 and separate processes are triggered from console
+  selective_optimization: False # if true, only optimize classical params
+  resume_study: True
+  n_jobs: 1
+  run_id: "OptunaOptimization#001"
+
+  pool_process: True # alternative pool processing
+  pruner_startup_trials: 10
+  pruner_warmup_steps: 5
+  pruner_interval_steps: 1
+  pruner_min_trials: 10
