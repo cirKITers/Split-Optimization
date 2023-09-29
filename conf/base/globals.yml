@@ -3,4 +3,6 @@ TEST_SIZE: 250
 save: True
 classes: [1,6,9]
 n_qubits: 4
+n_qubits_range_quant: [3, 6, "linear"] #make sure the lowest number is higher than n_classes
 n_layers: 1
+n_layers_range_quant: [1, 2, "linear"]
