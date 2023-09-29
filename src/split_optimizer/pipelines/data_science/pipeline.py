@@ -18,8 +18,9 @@ def create_training_pipeline(**kwargs) -> Pipeline:
             node(
                 create_model,
                 inputs={
-                    "n_qubits":"params:n_qubits",
-                    "classes":"params:classes",
+                    "n_qubits": "params:n_qubits",
+                    "n_layers": "params:n_layers",
+                    "classes": "params:classes",
                 },
                 outputs={
                     "model": "model",
@@ -29,13 +30,13 @@ def create_training_pipeline(**kwargs) -> Pipeline:
             node(
                 create_instructor,
                 inputs={
-                    "model":"model",
-                    "loss_func":"params:loss_func",
-                    "learning_rate":"params:learning_rate",
-                    "optimizer_list":"params:optimizer_list",
-                    "train_dataloader":"train_dataloader",
-                    "test_dataloader":"test_dataloader",
-                    "class_weights_train":"class_weights_train",
+                    "model": "model",
+                    "loss_func": "params:loss_func",
+                    "learning_rate": "params:learning_rate",
+                    "optimizer_list": "params:optimizer_list",
+                    "train_dataloader": "train_dataloader",
+                    "test_dataloader": "test_dataloader",
+                    "class_weights_train": "class_weights_train",
                 },
                 outputs={
                     "instructor": "instructor",
@@ -45,8 +46,8 @@ def create_training_pipeline(**kwargs) -> Pipeline:
             node(
                 train_model,
                 inputs={
-                    "instructor":"instructor",
-                    "epochs":"params:epochs",
+                    "instructor": "instructor",
+                    "epochs": "params:epochs",
                 },
                 outputs={
                     "model": "trained_model",
@@ -57,7 +58,8 @@ def create_training_pipeline(**kwargs) -> Pipeline:
             node(
                 test_model,
                 inputs={
-                    "instructor":"instructor",
+                    "instructor": "instructor",
+                    "model": "trained_model",
                 },
                 outputs={"test_output": "test_output"},
                 name="test_model",
