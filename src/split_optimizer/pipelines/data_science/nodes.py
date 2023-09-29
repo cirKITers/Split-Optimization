@@ -8,110 +8,82 @@ import torch.nn as nn
 from sklearn import metrics
 from typing import Dict, List
 import plotly.express as px
-from .optimizer import initialize_optimizer
 import mlflow
 
-# epochs: int, TRAINING_SIZE: int, dataset: list[np.ndarray]
 from torch.utils.data.dataloader import DataLoader
 import plotly.graph_objects as go
 
+from .instructor import Instructor
 
 def train_model(
+    instructor: Instructor,
     epochs: int,
-    loss_func: str,
-    learning_rate: float,
-    optimizer_list: List,
-    train_dataloader: DataLoader,
-    test_dataloader: DataLoader,
-    n_qubits: int,
-    classes: int,
-    class_weights_train: List,
 ) -> Dict:
-    model = Net(n_qubits, classes)
-
-    if loss_func == "CrossEntropyLoss":
-        calculate_train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
-        calculate_test_loss = nn.CrossEntropyLoss()
-    else:
-        raise ValueError(
-            f"{loss_func} is not a loss function in [CrossEntropyLoss]"
-        )  # TODO: shall we actually add more loss functions?
-
-    optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
-
-    def objective_function(data, target):
-        output = model(data)
-        loss = calculate_train_loss(output, target)
-        return loss
-
     train_loss_list = []
     val_loss_list = []
     for epoch in range(epochs):
-        model.train()
-        total_loss = []
-        for data, target in train_dataloader:
-            loss = objective_function(data=data, target=target)
+        instructor.model.train()
+        train_loss = []
+        for data, target in instructor.train_dataloader:
+            loss = instructor.objective_function(data=data, target=target)
 
-            optimizer.zero_grad()
+            instructor.optimizer.zero_grad()
             loss.backward()
-            optimizer.step(data, target, objective_function)
-            total_loss.append(loss.item())
+            instructor.optimizer.step(data, target, instructor.objective_function)
+            train_loss.append(loss.item())
 
-        train_loss_list.append(sum(total_loss) / len(total_loss))
+        train_loss_list.append(np.mean(train_loss))
         print(
             "Training [{:.0f}%]\tLoss: {:.4f}".format(
                 100.0 * (epoch + 1) / epochs, train_loss_list[-1]
             )
         )
 
-        model.eval()
+        instructor.model.eval()
         with torch.no_grad():
-            epoch_loss = []
-            for data, target in test_dataloader:
-                output = model(data)
-                loss = calculate_test_loss(output, target)
+            val_loss = []
+            for data, target in instructor.test_dataloader:
+                loss = instructor.objective_function(
+                    data=data, target=target, train=False
+                )
 
-                epoch_loss.append(loss.item())
+                val_loss.append(loss.item())
 
-        val_loss_list.append(np.mean(epoch_loss))
+        val_loss_list.append(np.mean(val_loss))
 
     model_history = {"train_loss_list": train_loss_list, "val_loss_list": val_loss_list}
 
     return {
-        "model": model,
+        "model": instructor.model,
         "model_history": model_history,
     }
 
 
 def test_model(
+    instructor: Instructor,
     model: nn.Module,
-    loss_func: str,
-    TEST_SIZE: int,
-    test_dataloader: DataLoader,
 ) -> Dict:
-    model.eval()
-    if loss_func == "CrossEntropyLoss":
-        calculate_test_loss = nn.CrossEntropyLoss()
+    instructor.model.eval()
 
     with torch.no_grad():
         correct = 0
-        test_loss = []
-        predictions_onehot = []
-        for data, target in test_dataloader:
+        test_loss_list = []
+        predictions = []
+        for data, target in instructor.test_dataloader:
             output = model(data)
 
-            predictions_onehot.append(output)
+            predictions.append(output)
 
             for i in output:
                 pred = i.argmax()
                 if pred == target.argmax():
                     correct += 1
 
-            loss = calculate_test_loss(output, target)
-            test_loss.append(loss.item())
+            loss = instructor.test_loss(output, target)
+            test_loss_list.append(loss.item())
 
-        accuracy = correct / TEST_SIZE
-        average_test_loss = sum(test_loss) / len(test_loss)
+        accuracy = correct / len(test_loss_list)
+        average_test_loss = sum(test_loss_list) / len(test_loss_list)
 
         print(
             "Performance on test data:\n\tLoss: {:.4f}\n\tAccuracy: {:.1f}".format(
@@ -120,7 +92,7 @@ def test_model(
         )
 
         label_predictions = []
-        for i in predictions_onehot:
+        for i in predictions:
             label_predictions.append(np.argmax(i).item())
 
         test_output = {
@@ -130,6 +102,34 @@ def test_model(
         }
 
     return {"test_output": test_output}
+
+
+def create_instructor(
+    model: nn.Module,
+    loss_func: str,
+    learning_rate: float,
+    optimizer_list: List,
+    train_dataloader: DataLoader,
+    test_dataloader: DataLoader,
+    class_weights_train: List,
+):
+    instructor = Instructor(
+        model=model,
+        loss_func=loss_func,
+        learning_rate=learning_rate,
+        optimizer_list=optimizer_list,
+        train_dataloader=train_dataloader,
+        test_dataloader=test_dataloader,
+        class_weights_train=class_weights_train,
+    )
+
+    return {"instructor": instructor}
+
+
+def create_model(n_qubits: int, n_layers: int, classes: List):
+    model = Net(n_qubits=n_qubits, n_layers=n_layers, classes=classes)
+
+    return {"model": model}
 
 
 def mlflow_tracking(model_history, test_output):
