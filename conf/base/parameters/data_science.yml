@@ -23,7 +23,7 @@ data_science:
       name: [SGD, Adam, NGD]
       lr: [0.01, 0.1, 'log']
     quantum:
-      name: [SGD, Adam, NGD, QNG, SPSA]
+      name: [SGD, Adam, NGD, QNG] #SPSA
       lr: [0.01, 0.1, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
@@ -40,7 +40,7 @@ data_science:
   n_jobs: 1
   run_id: "OptunaOptimization#001"
 
-  pool_process: True # alternative pool processing
+  pool_process: False # alternative pool processing
   pruner_startup_trials: 10
   pruner_warmup_steps: 5
   pruner_interval_steps: 1
