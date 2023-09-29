@@ -20,8 +20,9 @@ class SplitOptimizer:
         if optimizer_list[0] == "Adam":
             self.classical_optimizer = Adam(model.clayer.parameters(), lr)
         elif optimizer_list[0] == "SGD":
-            momentum = 0.9
-            self.classical_optimizer = SGD(model.clayer.parameters(), lr, momentum)
+            self.classical_optimizer = SGD(model.clayer.parameters(), lr)
+        elif optimizer_list[0] == "NGD":
+            self.classical_optimizer = NGD(model.clayer.parameters(), lr)
         else:
             raise ValueError(
                 f"{optimizer_list[0]} is not an optimizer for the classical part in [Adam, SGD]"
