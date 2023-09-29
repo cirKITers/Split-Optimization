@@ -107,7 +107,6 @@ class Hyperparam_Optimizer:
 
                 mlflow.log_metric(f"trial_{trial.number}_accuracy", trial.values[0])
                 mlflow.log_metric(f"trial_{trial.number}_loss", trial.values[1])
-                mlflow.log_metric(f"trial_{trial.number}_perfect_lcag", trial.values[2])
 
     def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()
