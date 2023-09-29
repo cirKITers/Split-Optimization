@@ -38,9 +38,9 @@ def train_model(
         raise ValueError(
             f"{loss_func} is not a loss function in [CrossEntropyLoss]"
         )  # TODO: shall we actually add more loss functions?
-    
+
     optimizer = initialize_optimizer(model, learning_rate, optimizer_list)
-    
+
     def objective_function(params=None, data=None, target=None):
         output = model(data)
         loss = calculate_train_loss(output, target)

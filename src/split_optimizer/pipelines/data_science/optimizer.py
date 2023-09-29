@@ -67,8 +67,10 @@ class Adam(optim.Adam):
 class SGD(optim.SGD):
     def __init__(self, model_params, lr, momentum=0.9):
         super(SGD, self).__init__(model_params, lr, momentum)
+
     def step(self, *args, **kwargs):
         return super().step()
+
 
 class NGD(NGD):
     def __init__(
@@ -77,8 +79,10 @@ class NGD(NGD):
         super(NGD, self).__init__(
             model_params, lr, momentum, dampening, weight_decay, nesterov
         )
+
     def step(self, *args, **kwargs):
         return super().step()
+
 
 class QNG(QNG):
     def __init__(self, *args, **kwargs):

@@ -14,7 +14,16 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
     """
 
     def __init__(
-        self, params, qnode, argnum, maxiter=None, alpha=0.602, gamma=0.101, c=0.2, A=None, a=None
+        self,
+        params,
+        qnode,
+        argnum,
+        maxiter=None,
+        alpha=0.602,
+        gamma=0.101,
+        c=0.2,
+        A=None,
+        a=None,
     ):
         # Initialize a default dictionary, we utilize this to store any optimizer related hyperparameters
         # Note that this just follows the torch optimizer approach and is not mandatory
@@ -23,7 +32,9 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
         self.argnum = argnum
 
         # Initialize the QNG optimizer
-        qml.SPSAOptimizer.__init__(self, maxiter=maxiter, alpha=alpha, gamma=gamma, c=c, A=A, a=a)
+        qml.SPSAOptimizer.__init__(
+            self, maxiter=maxiter, alpha=alpha, gamma=gamma, c=c, A=A, a=a
+        )
 
         # Initialize the Torch Optimizer Base Class
         torch.optim.Optimizer.__init__(self, params, defaults)
@@ -48,18 +59,21 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
                 # p is now a set of parameters (i.e. the weights of the VQC)
                 params = p.detach().numpy()
                 # we can get the gradients of those parameters using the following line
-                g = self.compute_grad(closure, args=p, kwargs=dict(data=data, target=target))
-                #g = p.grad.data
-                
-                p.data = torch.stack(self.apply_grad(g, torch.tensor(params, requires_grad=True)))
+                g = self.compute_grad(
+                    closure, args=p, kwargs=dict(data=data, target=target)
+                )
+                # g = p.grad.data
 
+                p.data = torch.stack(
+                    self.apply_grad(g, torch.tensor(params, requires_grad=True))
+                )
 
         # unwrap from list if one argument, cleaner return
         if len(p) == 1:
             return p[0]
 
         return p
-    
+
     def compute_grad(self, objective_fn, args, kwargs):
         r"""Approximate the gradient of the objective function at the
         given point.
@@ -86,7 +100,7 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
                 # the coordinates of delta. Note that other distributions
                 # may also be used (they need to satisfy certain conditions).
                 # Refer to the paper linked in the class docstring for more info.
-                di = torch.bernoulli(torch.ones(arg.shape)*0.5)*2-1
+                di = torch.bernoulli(torch.ones(arg.shape) * 0.5) * 2 - 1
                 multiplier = ck * di
                 thetaplus[index] = arg + multiplier
                 thetaminus[index] = arg - multiplier
@@ -95,8 +109,7 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
         yplus = objective_fn(*thetaplus, **kwargs)
         args.data = torch.stack(thetaminus)
         yminus = objective_fn(*thetaminus, **kwargs)
-        #TODO was passierte hier mit SHOTS
+        # TODO was passierte hier mit SHOTS
         grad = [(yplus - yminus) / (2 * ck * di) for di in delta]
 
         return tuple(grad)
-    

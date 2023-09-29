@@ -41,9 +41,7 @@ def select_classes(train_dataset, test_dataset, classes):
     }
 
 
-def reduce_size(
-    train_dataset, test_dataset, TRAINING_SIZE, TEST_SIZE
-):
+def reduce_size(train_dataset, test_dataset, TRAINING_SIZE, TEST_SIZE):
     train_dataset.targets = train_dataset.targets[:TRAINING_SIZE]
     train_dataset.data = train_dataset.data[:TRAINING_SIZE]
     test_dataset.targets = test_dataset.targets[:TEST_SIZE]
@@ -55,10 +53,7 @@ def reduce_size(
     }
 
 
-def shift_labels(
-    test_dataset, train_dataset, classes
-):
-
+def shift_labels(test_dataset, train_dataset, classes):
     for i, c in enumerate(classes):
         train_dataset.targets[torch.where(train_dataset.targets == c)[0]] = i
         test_dataset.targets[torch.where(test_dataset.targets == c)[0]] = i
