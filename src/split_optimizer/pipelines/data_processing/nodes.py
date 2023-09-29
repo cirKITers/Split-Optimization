@@ -56,19 +56,13 @@ def reduce_size(
     }
 
 
-def reduce_classes(
+def shift_labels(
     test_dataset, train_dataset, classes, TRAINING_SIZE, TEST_SIZE
 ):
-    # one-hot-encoding for the labels
-    # y_train = torch.zeros((TRAINING_SIZE), dtype=torch.LongTensor)
-    # y_test = torch.zeros((TEST_SIZE), dtype=torch.LongTensor)
 
     for i, c in enumerate(classes):
         train_dataset.targets[torch.where(train_dataset.targets == c)[0]] = i
         test_dataset.targets[torch.where(test_dataset.targets == c)[0]] = i
-
-    # test_dataset_reduced.targets = y_test
-    # train_dataset_reduced.targets = y_train
 
     return {
         "test_dataset_class_reduced": test_dataset,
