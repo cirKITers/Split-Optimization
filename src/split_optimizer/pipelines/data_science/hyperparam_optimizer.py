@@ -185,6 +185,11 @@ class Hyperparam_Optimizer:
         return updated_variable_parameters
 
     def minimize(self):
+        self.studies[0].optimize(
+                    self.run_trial, n_trials=self.n_trials, n_jobs=self.n_jobs
+                )
+
+        return
         if self.pool_process:
             with ProcessPoolExecutor(max_workers=len(self.studies)) as pool:
                 futures = []
