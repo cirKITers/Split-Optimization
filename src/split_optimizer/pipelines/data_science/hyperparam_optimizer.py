@@ -143,11 +143,11 @@ class Hyperparam_Optimizer:
                 #
                 if isinstance(low, float) and isinstance(high, float):
                     updated_variable_parameters[param_name] = trial.suggest_float(
-                        param_name, value[0], value[1], step=step, log=log
+                        prefix + param_name, value[0], value[1], step=step, log=log
                     )
                 elif isinstance(low, int) and isinstance(high, int):
                     updated_variable_parameters[param_name] = trial.suggest_int(
-                        param_name, value[0], value[1], step=1, log=log
+                        prefix + param_name, value[0], value[1], step=1, log=log
                     )
                 else:
                     raise ValueError(
@@ -156,7 +156,7 @@ class Hyperparam_Optimizer:
 
             else:
                 updated_variable_parameters[param_name] = trial.suggest_categorical(
-                    param_name, value
+                    prefix + param_name, value
                 )
 
         return updated_variable_parameters
