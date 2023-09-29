@@ -1,3 +1,5 @@
+info.log*
+
 stats.json
 mlruns/**
 mnist
