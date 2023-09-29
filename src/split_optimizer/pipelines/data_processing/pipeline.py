@@ -55,8 +55,6 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs={
                     "train_dataset": "train_dataset_size_reduced",
                     "test_dataset": "test_dataset_size_reduced",
-                    "TRAINING_SIZE": "params:TRAINING_SIZE",
-                    "TEST_SIZE": "params:TEST_SIZE",
                     "classes": "params:classes",
                 },
                 outputs={

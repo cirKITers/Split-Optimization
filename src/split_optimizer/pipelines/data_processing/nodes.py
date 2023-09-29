@@ -57,7 +57,7 @@ def reduce_size(
 
 
 def shift_labels(
-    test_dataset, train_dataset, classes, TRAINING_SIZE, TEST_SIZE
+    test_dataset, train_dataset, classes
 ):
 
     for i, c in enumerate(classes):
