@@ -37,10 +37,13 @@ class Instructor:
         if "combined" not in optimizer:
             self.optimizer = SplitOptimizer(model, optimizer)
         else:
-            if optimizer["combined"]["name"] == "Adam":
-                self.optimizer = Adam(model.parameters(), optimizer["combined"])
-            elif optimizer["combined"]["name"] == "SGD":
-                self.optimizer = SGD(model.parameters(), optimizer["combined"])
+            opt_name = optimizer["combined"]["name"]
+            del optimizer["combined"]["name"]
+
+            if opt_name == "Adam":
+                self.optimizer = Adam(model.parameters(), **optimizer["combined"])
+            elif opt_name == "SGD":
+                self.optimizer = SGD(model.parameters(), **optimizer["combined"])
             else:
                 raise ValueError(
                     f"{optimizer['combined']['name']} is not an optimizer in [Adam, SGD]"
