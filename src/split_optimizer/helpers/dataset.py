@@ -13,10 +13,6 @@ import torchvision
 from PIL import Image
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-models = {
-    "model": Model,
-}
-
 
 from os.path import isfile
 from typing import Any, Union, Dict
