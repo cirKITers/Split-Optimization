@@ -1,104 +1,108 @@
 import numpy as np
 import torch
-from typing import Any, Dict, Tuple
-import tensorflow as tf
+from torchvision.transforms import ToTensor
+from split_optimizer.helpers.dataset import OneHotMNIST
 
 
 def load_data():
-    data = tf.keras.datasets.mnist.load_data()
-    # daten sind bereits geshuffelt
-    (x_train_full, y_train_full), (x_test_full, y_test_full) = data
+    train_dataset = OneHotMNIST(
+        root="mnist",
+        train=True,
+        download=True,
+        transform=ToTensor(),
+    )
+
+    test_dataset = OneHotMNIST(
+        root="mnist",
+        train=False,
+        download=True,
+        transform=ToTensor(),
+    )
 
     return {
-        "x_train_full": x_train_full,
-        "y_train_full": y_train_full,
-        "x_test_full": x_test_full,
-        "y_test_full": y_test_full,
+        "train_dataset": train_dataset,
+        "test_dataset": test_dataset,
     }
 
 
-def format_data(
-    x_train_full: np.array,
-    y_train_full: np.array,
-    x_test_full: np.array,
-    y_test_full: np.array,
-    TRAINING_SIZE: int,
-    TEST_SIZE: int,
-    number_classes: int,
-):
-    classes = range(number_classes)
+def select_classes(train_dataset, test_dataset, classes):
+    train_class_mask = np.isin(train_dataset.targets, classes)
+    test_class_mask = np.isin(test_dataset.targets, classes)
 
-    # reduce number of samples
-    x_train = x_train_full[:TRAINING_SIZE]
-    x_test = x_test_full[:TEST_SIZE]
+    train_dataset.targets = train_dataset.targets[train_class_mask]
+    train_dataset.data = train_dataset.data[train_class_mask]
 
-    # one-hot-encoding for the labels
-    y_train = np.zeros((TRAINING_SIZE, number_classes))
-    y_test = np.zeros((TEST_SIZE, number_classes))
+    test_dataset.targets = test_dataset.targets[test_class_mask]
+    test_dataset.data = test_dataset.data[test_class_mask]
 
-    for i in range(TRAINING_SIZE):
-        y_train[i, classes.index(y_train_full[i])] = 1
+    return {
+        "train_dataset_selected": train_dataset,
+        "test_dataset_selected": test_dataset,
+    }
 
-    for i in range(TEST_SIZE):
-        y_test[i, classes.index(y_test_full[i])] = 1
 
-    # normalization
-    x_train = np.divide(x_train, 255)
-    x_test = np.divide(x_test, 255)
-    return {"x_train": x_train, "y_train": y_train, "x_test": x_test, "y_test": y_test}
+def reduce_size(train_dataset, test_dataset, TRAINING_SIZE, TEST_SIZE):
+    train_dataset.targets = train_dataset.targets[:TRAINING_SIZE]
+    train_dataset.data = train_dataset.data[:TRAINING_SIZE]
+    test_dataset.targets = test_dataset.targets[:TEST_SIZE]
+    test_dataset.data = test_dataset.data[:TEST_SIZE]
+
+    return {
+        "test_dataset_size_reduced": test_dataset,
+        "train_dataset_size_reduced": train_dataset,
+    }
+
+
+def shift_labels(test_dataset, train_dataset, classes):
+    for i, c in enumerate(classes):
+        train_dataset.targets[torch.where(train_dataset.targets == c)[0]] = i
+        test_dataset.targets[torch.where(test_dataset.targets == c)[0]] = i
+
+    return {
+        "test_dataset_class_reduced": test_dataset,
+        "train_dataset_class_reduced": train_dataset,
+    }
+
+
+def normalize(test_dataset, train_dataset):
+    test_dataset.data = np.divide(test_dataset.data, test_dataset.data.max())
+    train_dataset.data = np.divide(train_dataset.data, train_dataset.data.max())
+    return {
+        "test_dataset_normed": test_dataset,
+        "train_dataset_normed": train_dataset,
+    }
 
 
 def create_dataloader(
-    x_train: np.array,
-    y_train: np.array,
-    x_test: np.array,
-    y_test: np.array,
+    train_dataset,
+    test_dataset,
     seed: int,
     batch_size: int,
 ):
     # set seed
     torch.manual_seed(seed)
-
-    # convert to tensor
-    x_train = torch.from_numpy(x_train)
-    y_train = torch.from_numpy(y_train).float()
-    x_test = torch.from_numpy(x_test)
-    y_test = torch.from_numpy(y_test).float()
-
-    # add channel for training
-    x_train = x_train.reshape(x_train.shape[0], 1, x_train.shape[1], x_train.shape[2])
-    x_test = x_test.reshape(x_test.shape[0], 1, x_test.shape[1], x_test.shape[2])
-
-    # create Tensor Dataset
-    train_data = torch.utils.data.TensorDataset(x_train, y_train)
-    test_data = torch.utils.data.TensorDataset(x_test, y_test)
-
     # create Data Loader
     train_dataloader = torch.utils.data.DataLoader(
-        train_data, shuffle=True, batch_size=batch_size
+        train_dataset, shuffle=True, batch_size=batch_size
     )
     test_dataloader = torch.utils.data.DataLoader(
-        test_data, shuffle=False, batch_size=1
+        test_dataset, shuffle=False, batch_size=1
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}
 
 
-def calculate_class_weights(
-    y_train_full: np.array,
-    number_classes: int,
-    TRAINING_SIZE: int,
-):
-    y_train = y_train_full[:TRAINING_SIZE]
+def calculate_class_weights(train_dataset, classes, TRAINING_SIZE):
+    y_train = train_dataset.targets
     class_weights_train = np.array(())
-    for i in range(number_classes):
+    for i in classes:
         train_elements = np.where(y_train == i)
         class_weights_train = np.append(
             class_weights_train,
-            np.divide(TRAINING_SIZE, train_elements[0].size * number_classes),
+            np.divide(TRAINING_SIZE, train_elements[0].size * len(classes)),
         )
         # class weight formula source:
         # https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html
 
-    class_weights_train = torch.from_numpy(class_weights_train)
+    class_weights_train = torch.tensor(class_weights_train, dtype=torch.float32)
 
     return {"class_weights_train": class_weights_train}

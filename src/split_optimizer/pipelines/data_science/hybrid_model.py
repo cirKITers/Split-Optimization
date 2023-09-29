@@ -6,14 +6,24 @@ import torch.nn.functional as F
 
 
 class QLayers:
-    def __init__(self, n_qubits, number_classes):
-        self.n_qubits = n_qubits
+    def __init__(self, n_qubits, n_layers, number_classes):
         self.number_classes = number_classes
+        if not self.number_classes <= n_qubits:
+            raise ValueError(
+                f"Number of classes {self.number_classes} may not be higher than number of qubits {n_qubits}"
+            )
 
-    def quantum_circuit(self, inputs, weights):
+        self.n_qubits = n_qubits
+        self.argnum = range(self.n_qubits, self.n_qubits + self.n_qubits * n_layers)
+
+    def quantum_circuit(self, weights, inputs=None):
+        if inputs is None:
+            inputs = self._inputs
+        else:
+            self._inputs = inputs
         qml.templates.AngleEmbedding(inputs, wires=range(self.n_qubits))
         # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
-        qml.templates.StronglyEntanglingLayers(weights, wires=range(self.n_qubits))
+        qml.templates.BasicEntanglerLayers(weights, wires=range(self.n_qubits))
         return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
 
 
@@ -45,23 +55,26 @@ class CLayers(nn.Module):
         )
 
     def forward(self, x):
-        x = self.classical_net(x.float())
+        x = self.classical_net(x)
         return x
 
 
 class Net(nn.Module):
-    def __init__(self, n_qubits, number_classes):
+    def __init__(
+        self, n_qubits, classes, n_layers=1
+    ):  # TODO: propagate parameter to kedro params file
         super(Net, self).__init__()
         self.n_qubits = n_qubits
-        self.number_classes = number_classes
+        self.number_classes = len(classes)
         self.clayer = CLayers(self.n_qubits)
-        weight_shapes = {"weights": (1, 10, 3)}
+        weight_shapes = {"weights": (n_layers, self.n_qubits)}
         dev = qml.device("default.qubit", wires=self.n_qubits)
-        vqc = QLayers(self.n_qubits, number_classes)
-        self.qnode = qml.QNode(vqc.quantum_circuit, dev, interface="torch")
+        self.vqc = QLayers(self.n_qubits, n_layers, self.number_classes)
+        self.qnode = qml.QNode(self.vqc.quantum_circuit, dev, interface="torch")
         self.qlayer = qml.qnn.TorchLayer(self.qnode, weight_shapes)
+        # self.closure = qml.metric_tensor(self.qnode, argnum=[1])
 
     def forward(self, x):
         x = self.clayer(x)
         x = self.qlayer(x)
-        return F.softmax(torch.Tensor(x))
+        return F.softmax(x)

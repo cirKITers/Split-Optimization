@@ -1,6 +1,6 @@
 data_processing:
-  batch_size: 10
+  batch_size: 2
   TRAINING_SIZE: ${TRAINING_SIZE}
   TEST_SIZE: ${TEST_SIZE}
   seed: 32
-  number_classes: ${number_classes}
+  classes: ${classes}

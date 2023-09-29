@@ -7,7 +7,7 @@ data_science.model:
   type: split_optimizer.helpers.dataset.TorchLocalModel
   filepath: data/06_models/model.pt
   model: model
-  load_args: {"n_qubits": "${n_qubits}", "number_classes": "${number_classes}"}
+  load_args: {"n_qubits": "${n_qubits}", "classes": "${classes}"}
 
 data_science.metrics:
   type: kedro_mlflow.io.metrics.MlflowMetricsDataSet
@@ -18,7 +18,6 @@ data_science.loss_curve:
   data_set:
     type: kedro.extras.datasets.plotly.JSONDataSet
     filepath: data/08_reporting/loss_curve.json
-
 
 data_science.confusionmatrix:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet

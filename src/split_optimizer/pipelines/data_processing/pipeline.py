@@ -1,4 +1,12 @@
-from .nodes import load_data, format_data, create_dataloader, calculate_class_weights
+from .nodes import (
+    load_data,
+    select_classes,
+    reduce_size,
+    shift_labels,
+    normalize,
+    create_dataloader,
+    calculate_class_weights,
+)
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
@@ -10,42 +18,71 @@ def create_pipeline(**kwargs) -> Pipeline:
                 load_data,
                 inputs=[],
                 outputs={
-                    "x_train_full": "x_train_full",
-                    "y_train_full": "y_train_full",
-                    "x_test_full": "x_test_full",
-                    "y_test_full": "y_test_full",
+                    "train_dataset": "train_dataset_full",
+                    "test_dataset": "test_dataset_full",
                 },
                 name="load_data",
             ),
             node(
-                format_data,
-                inputs=[
-                    "x_train_full",
-                    "y_train_full",
-                    "x_test_full",
-                    "y_test_full",
-                    "params:TRAINING_SIZE",
-                    "params:TEST_SIZE",
-                    "params:number_classes",
-                ],
-                outputs={
-                    "x_train": "x_train",
-                    "y_train": "y_train",
-                    "x_test": "x_test",
-                    "y_test": "y_test",
+                select_classes,
+                inputs={
+                    "train_dataset": "train_dataset_full",
+                    "test_dataset": "test_dataset_full",
+                    "classes": "params:classes",
                 },
-                name="format_data",
+                outputs={
+                    "train_dataset_selected": "train_dataset_selected",
+                    "test_dataset_selected": "test_dataset_selected",
+                },
+                name="select_classes",
             ),
             node(
+                reduce_size,
+                inputs={
+                    "train_dataset": "train_dataset_selected",
+                    "test_dataset": "test_dataset_selected",
+                    "TRAINING_SIZE": "params:TRAINING_SIZE",
+                    "TEST_SIZE": "params:TEST_SIZE",
+                },
+                outputs={
+                    "train_dataset_size_reduced": "train_dataset_size_reduced",
+                    "test_dataset_size_reduced": "test_dataset_size_reduced",
+                },
+                name="reduce_size",
+            ),
+            node(
+                shift_labels,
+                inputs={
+                    "train_dataset": "train_dataset_size_reduced",
+                    "test_dataset": "test_dataset_size_reduced",
+                    "classes": "params:classes",
+                },
+                outputs={
+                    "test_dataset_class_reduced": "test_dataset_class_reduced",
+                    "train_dataset_class_reduced": "train_dataset_class_reduced",
+                },
+                name="shift_labels",
+            ),
+            # node(
+            #     normalize,
+            #     inputs={
+            #         "test_dataset_onehot": "test_dataset_onehot",
+            #         "train_dataset_onehot": "train_dataset_onehot",
+            #     },
+            #     outputs={
+            #         "test_dataset": "test_dataset",
+            #         "train_dataset": "train_dataset",
+            #     },
+            #     name="normalize",
+            # ),
+            node(
                 create_dataloader,
-                inputs=[
-                    "x_train",
-                    "y_train",
-                    "x_test",
-                    "y_test",
-                    "params:batch_size",
-                    "params:seed",
-                ],
+                inputs={
+                    "train_dataset": "train_dataset_class_reduced",
+                    "test_dataset": "test_dataset_class_reduced",
+                    "batch_size": "params:batch_size",
+                    "seed": "params:seed",
+                },
                 outputs={
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
@@ -54,24 +91,22 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 calculate_class_weights,
-                inputs=[
-                    "y_train_full",
-                    "params:number_classes",
-                    "params:TRAINING_SIZE",
-                ],
-                outputs={
-                    "class_weights_train":"class_weights_train",
-
+                inputs={
+                    "train_dataset": "train_dataset_size_reduced",
+                    "classes": "params:classes",
+                    "TRAINING_SIZE": "params:TRAINING_SIZE",
                 },
-                name="calculate_class_weights"
-            )
+                outputs={
+                    "class_weights_train": "class_weights_train",
+                },
+                name="calculate_class_weights",
+            ),
         ],
         inputs={},
         outputs={
             "train_dataloader": "train_dataloader",
             "test_dataloader": "test_dataloader",
-            "class_weights_train":"class_weights_train",
+            "class_weights_train": "class_weights_train",
         },
         namespace="data_processing",
     )
-

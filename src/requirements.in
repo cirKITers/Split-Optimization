@@ -5,5 +5,4 @@ kedro
 kedro-viz
 kedro-mlflow
 mlflow
-tensorflow
 pennylane
