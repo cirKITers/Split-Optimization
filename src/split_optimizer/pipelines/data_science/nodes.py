@@ -17,11 +17,10 @@ from .instructor import Instructor
 
 def train_model(
     instructor: Instructor,
-    epochs: int,
 ) -> Dict:
     train_loss_list = []
     val_loss_list = []
-    for epoch in range(epochs):
+    for epoch in range(instructor.epochs):
         instructor.model.train()
         train_loss = []
         for data, target in instructor.train_dataloader:

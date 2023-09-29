@@ -11,9 +11,13 @@ class Instructor:
         model: nn.Module,
         loss_func: str,
         optimizer: List,
+        epochs: int,
         train_dataloader: DataLoader,
         test_dataloader: DataLoader,
         class_weights_train: List,
+        # Optuna
+        report_callback=None,
+        early_stop_callback=None,
     ) -> None:
         self.model = model
         self.train_dataloader = train_dataloader
