@@ -86,22 +86,38 @@ class Hyperparam_Optimizer:
                 mlflow.log_metric(f"trial_{trial.number}_loss", trial.values[1])
                 mlflow.log_metric(f"trial_{trial.number}_perfect_lcag", trial.values[2])
 
-
-    def update_variable_parameters(self, trial, parameters):
+    def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()
         for parameter, value in parameters.items():
-            if "_range_quant" in parameter:
-                if not self.toggle_classical_quant and self.selective_optimization:
-                    continue # continue if its a quantum parameter and we are classical
-                param_name = parameter.replace("_range_quant", "")
+            if (
+                prefix == ""
+            ):  # check the following only if there is no parent (=prefix) available
+                if "_range_quant" in parameter:
+                    if not self.toggle_classical_quant and self.selective_optimization:
+                        continue  # continue if its a quantum parameter and we are classical
+                    param_name = parameter.replace("_range_quant", "")
+                else:
+                    if self.toggle_classical_quant and self.selective_optimization:
+                        continue  # continue if its a classical parameter and we are quantum
+                    param_name = parameter.replace("_range", "")
             else:
-                if self.toggle_classical_quant and self.selective_optimization:
-                    continue # continue if its a classical parameter and we are quantum
-                param_name = parameter.replace("_range", "")
+                param_name = parameter
 
+            if isinstance(value, Dict):
+                updated_variable_parameters[param_name] = dict()
+                for sub_param, sub_value in value.items():
+                    updated_variable_parameters[param_name][
+                        sub_param
+                    ] = self.update_variable_parameters(
+                        trial, sub_value, prefix=f"{sub_param}_"
+                    )
 
-            assert isinstance(value, List)
+                continue
 
+            if not isinstance(value, List):
+                raise RuntimeError(
+                    "Provides parameter is not a dictionary or a list. Cannot infer hyperparameters."
+                )
             # if we have three values (-> no bool) and they are not categorical (str) and the last one is a str (linear/log)
             if (
                 len(value) == 3
