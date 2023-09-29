@@ -13,6 +13,16 @@ data_science:
     quantum:
       name: Adam
       lr: 0.04
+  optimizer_range:
+    combined:
+      name: [SGD, Adam, NGD]
+      lr: [0.01, 0.1, 'log']
+    classical:
+      name: [SGD, Adam, NGD]
+      lr: [0.01, 0.1, 'log']
+    quantum:
+      name: [SGD, Adam, NGD, QNG, SPSA]
+      lr: [0.01, 0.1, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
