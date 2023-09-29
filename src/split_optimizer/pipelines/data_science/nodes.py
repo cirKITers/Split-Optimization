@@ -96,6 +96,7 @@ def train_model(
 
 def test_model(
     instructor: Instructor,
+    model: nn.Module,
 ) -> Dict:
     instructor.model.eval()
 
@@ -104,7 +105,7 @@ def test_model(
         test_loss_list = []
         predictions = []
         for data, target in instructor.test_dataloader:
-            output = instructor.model(data)
+            output = model(data)
 
             predictions.append(output)
 

@@ -59,6 +59,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 test_model,
                 inputs={
                     "instructor": "instructor",
+                    "model": "trained_model",
                 },
                 outputs={"test_output": "test_output"},
                 name="test_model",
