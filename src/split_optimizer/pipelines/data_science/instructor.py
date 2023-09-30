@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from torch.utils.data.dataloader import DataLoader
 
-from .optimizer import SplitOptimizer, Adam, SGD
+from .optimizer import SplitOptimizer, Adam, SGD, NGD
 
 
 class Instructor:
@@ -44,9 +44,11 @@ class Instructor:
                 self.optimizer = Adam(model.parameters(), **optimizer["combined"])
             elif opt_name == "SGD":
                 self.optimizer = SGD(model.parameters(), **optimizer["combined"])
+            elif opt_name == "NGD":
+                self.optimizer = NGD(model.parameters(), **optimizer["combined"])
             else:
                 raise ValueError(
-                    f"{optimizer['combined']['name']} is not an optimizer in [Adam, SGD]"
+                    f"{opt_name} is not an optimizer in [Adam, SGD]"
                 )
 
     def objective_function(self, data, target, train=True):
