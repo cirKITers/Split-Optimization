@@ -73,7 +73,6 @@ class Model(nn.Module):
         self.vqc = QLayers(self.n_qubits, n_layers, self.number_classes)
         self.qnode = qml.QNode(self.vqc.quantum_circuit, dev, interface="torch")
         self.qlayer = qml.qnn.TorchLayer(self.qnode, weight_shapes)
-        # self.closure = qml.metric_tensor(self.qnode, argnum=[1])
 
     def forward(self, x):
         x = self.clayer(x)
