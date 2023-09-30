@@ -4,17 +4,17 @@ data_science:
   n_qubits_range_quant: ${n_qubits_range_quant}
   n_layers: ${n_layers}
   n_layers_range_quant: ${n_layers_range_quant}
-  epochs: 3
+  epochs: 40
   optimizer:
-    # combined:
+    combined:
+      name: Adam
+      lr: 0.01
+    # classical:
     #   name: SGD
     #   lr: 0.03
-    classical:
-      name: SGD
-      lr: 0.03
-    quantum:
-      name: Adam
-      lr: 0.04
+    # quantum:
+    #   name: Adam
+    #   lr: 0.04
   optimizer_range:
     # combined:
     #   name: [SGD, Adam, NGD]
