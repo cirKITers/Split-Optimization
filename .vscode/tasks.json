@@ -16,8 +16,8 @@
         {
             "label": "Kedro Viz",
             "type": "shell",
-            "command": "poetry",
-            "args": ["run", "kedro", "viz", "--autoreload"],
+            "command": "kedro",
+            "args": ["viz", "--autoreload"],
             "group": "none",
             "presentation": {
                 "reveal": "never",
@@ -31,8 +31,8 @@
         {
             "label": "MLFlow Dashboard",
             "type": "shell",
-            "command": "poetry",
-            "args": ["run", "mlflow", "ui"],
+            "command": "mlflow",
+            "args": ["mlflow", "ui"],
             "group": "none",
             "presentation": {
                 "reveal": "never",
@@ -46,8 +46,8 @@
         {
             "label": "Optuna Dashboard",
             "type": "shell",
-            "command": "poetry",
-            "args": ["run", "optuna-dashboard", "sqlite:///studies/split_optimizer.db"],
+            "command": "optuna-dashboard",
+            "args": ["sqlite:///studies/split_optimizer.db"],
             "group": "none",
             "presentation": {
                 "reveal": "never",
