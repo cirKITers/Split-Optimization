@@ -16,6 +16,10 @@ import plotly.graph_objects as go
 from .instructor import Instructor
 from .hyperparam_optimizer import Hyperparam_Optimizer
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 def train_model_optuna(trial, *args, **kwargs):
     result = train_model(*args, **kwargs)
@@ -42,7 +46,8 @@ def train_model(
             train_loss.append(loss.item())
 
         train_loss_list.append(np.mean(train_loss))
-        print(
+        
+        log.debug(
             "Training [{:.0f}%]\tLoss: {:.4f}".format(
                 100.0 * (epoch + 1) / instructor.epochs, train_loss_list[-1]
             )
