@@ -47,9 +47,7 @@ class Instructor:
             elif opt_name == "NGD":
                 self.optimizer = NGD(model.parameters(), **optimizer["combined"])
             else:
-                raise ValueError(
-                    f"{opt_name} is not an optimizer in [Adam, SGD]"
-                )
+                raise ValueError(f"{opt_name} is not an optimizer in [Adam, SGD]")
 
     def objective_function(self, data, target, train=True):
         output = self.model(data)

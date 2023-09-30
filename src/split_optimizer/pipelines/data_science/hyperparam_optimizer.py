@@ -185,8 +185,8 @@ class Hyperparam_Optimizer:
 
     def minimize(self):
         self.studies[0].optimize(
-                    self.run_trial, n_trials=self.n_trials, n_jobs=self.n_jobs
-                )
+            self.run_trial, n_trials=self.n_trials, n_jobs=self.n_jobs
+        )
 
         return
         if self.pool_process:

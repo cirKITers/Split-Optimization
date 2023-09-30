@@ -46,7 +46,7 @@ def train_model(
             train_loss.append(loss.item())
 
         train_loss_list.append(np.mean(train_loss))
-        
+
         log.debug(
             "Training [{:.0f}%]\tLoss: {:.4f}".format(
                 100.0 * (epoch + 1) / instructor.epochs, train_loss_list[-1]
