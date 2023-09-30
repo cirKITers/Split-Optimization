@@ -30,32 +30,33 @@ class QLayers:
 class CLayers(nn.Module):
     def __init__(self, n_qubits):
         super(CLayers, self).__init__()
-        self.classical_net = nn.Sequential(
+
+        self.conv1 = nn.Sequential(         
             nn.Conv2d(
-                1, 8, 3, stride=1, padding=1
-            ),  # input size = 1x28x28 -> hidden size = 8x28x28
-            nn.Dropout(p=0.5),
-            nn.ReLU(True),
-            nn.Conv2d(
-                8, 16, 3, stride=2, padding=1
-            ),  # input size = 8x28x28 -> hidden size = 16x14x14
-            nn.Dropout(p=0.3),
-            nn.ReLU(True),
-            nn.Conv2d(
-                16, 32, 3, stride=2, padding=1
-            ),  # hidden size = 16x14x14 -> hidden size = 32x7x7
-            nn.ReLU(True),
-            nn.Conv2d(32, 64, 7),  # hidden size = 32x7x7 -> hidden size = 64x1x1
-            nn.Tanh(),
-            nn.Flatten(),
-            nn.Linear(64, 16),  # hidden size = 64 -> hidden size = 16
-            nn.Tanh(),
-            nn.Linear(16, n_qubits),  # hidden size = 16 -> hidden size = 10x1x1
-            nn.Tanh(),
+                in_channels=1,              
+                out_channels=16,            
+                kernel_size=5,              
+                stride=1,                   
+                padding=2,                  
+            ),                              
+            nn.ReLU(),                      
+            nn.MaxPool2d(kernel_size=2),    
         )
+        self.conv2 = nn.Sequential(         
+            nn.Conv2d(16, 32, 5, 1, 2),     
+            nn.ReLU(),                      
+            nn.MaxPool2d(2),                
+        )
+        # fully connected layer, output 10 classes
+        self.out = nn.Linear(32 * 7 * 7, 3)
+
 
     def forward(self, x):
-        x = self.classical_net(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        # flatten the output of conv2 to (batch_size, 32 * 7 * 7)
+        x = x.view(x.size(0), -1)       
+        x = self.out(x)
         return x
 
 
