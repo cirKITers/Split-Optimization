@@ -77,4 +77,4 @@ class Model(nn.Module):
     def forward(self, x):
         x = self.clayer(x)
         x = self.qlayer(x)
-        return F.softmax(x)
+        return x
