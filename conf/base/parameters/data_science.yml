@@ -6,10 +6,11 @@ data_science:
   n_layers_range_quant: ${n_layers_range_quant}
   data_reupload: 1.0
   data_reupload_range_quant: [0.1, 1.0, 'lin']
+  epochs: 20
   optimizer:
     combined:
       name: Adam
-      lr: 0.01
+      lr: 0.02
     # classical:
     #   name: SGD
     #   lr: 0.03
@@ -17,22 +18,22 @@ data_science:
     #   name: Adam
     #   lr: 0.04
   optimizer_range:
-    # combined:
-    #   name: [SGD, Adam, NGD]
-    #   lr: [0.01, 0.1, 'log']
-    classical:
+    combined:
       name: [SGD, Adam, NGD]
       lr: [0.01, 0.1, 'log']
-    quantum:
-      name: [SGD, Adam, NGD, QNG] #SPSA
-      lr: [0.01, 0.1, 'log']
+    # classical:
+    #   name: [SGD, Adam, NGD]
+    #   lr: [0.01, 0.1, 'log']
+    # quantum:
+    #   name: [SGD, Adam, NGD, QNG] #SPSA
+    #   lr: [0.01, 0.1, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
   
 
   # Optuna
-  n_trials: 20
+  n_trials: 40
   timeout: 10800 #30h
   optuna_path: "studies/split_optimizer.db"
   optuna_sampler_seed:  # should be None, if n_jobs=1 and separate processes are triggered from console
