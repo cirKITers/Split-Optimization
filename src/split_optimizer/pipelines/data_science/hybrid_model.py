@@ -115,11 +115,10 @@ class Model(nn.Module):
         self.n_qubits = n_qubits
         self.number_classes = len(classes)
         self.clayer = CLayers(self.n_qubits)
-        weight_shapes = {"weights": (n_layers, self.n_qubits)}
         dev = qml.device("default.qubit", wires=self.n_qubits)
         self.vqc = QLayers(self.n_qubits, n_layers, self.number_classes)
         self.qnode = qml.QNode(self.vqc.quantum_circuit, dev, interface="torch")
-        self.qlayer = qml.qnn.TorchLayer(self.qnode, weight_shapes)
+        self.qlayer = qml.qnn.TorchLayer(self.qnode, self.vqc.weight_shape)
 
     def forward(self, x):
         x = self.clayer(x)
