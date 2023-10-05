@@ -32,40 +32,43 @@ def train_model_optuna(trial, *args, **kwargs):
 def train_model(
     instructor: Instructor,
 ) -> Dict:
-    train_loss_list = []
-    val_loss_list = []
+    train_metrics = {"Loss": [], "Accuracy": []}
+    val_metrics = {"Loss": [], "Accuracy": []}
     for epoch in range(instructor.epochs):
         instructor.model.train()
-        train_loss = []
+        train_metrics_batch = {"Loss": [], "Accuracy": []}
         for data, target in instructor.train_dataloader:
-            loss = instructor.objective_function(data=data, target=target)
+            loss, metrics = instructor.objective_function(data=data, target=target)
 
             instructor.optimizer.zero_grad()
             loss.backward()
             instructor.optimizer.step(data, target, instructor.objective_function)
-            train_loss.append(loss.item())
+            train_metrics_batch["Loss"].append(loss.item())
+            train_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
 
-        train_loss_list.append(np.mean(train_loss))
+        train_metrics["Loss"].append(np.mean(train_metrics_batch["Loss"]))
+        train_metrics["Accuracy"].append(np.mean(train_metrics_batch["Accuracy"]))
 
         log.debug(
-            "Training [{:.0f}%]\tLoss: {:.4f}".format(
-                100.0 * (epoch + 1) / instructor.epochs, train_loss_list[-1]
-            )
+            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{train_metrics['Accuracy'][-1]:.2f}"
         )
 
         instructor.model.eval()
         with torch.no_grad():
-            val_loss = []
+            val_metrics_batch = {"Loss": [], "Accuracy": []}
             for data, target in instructor.test_dataloader:
-                loss = instructor.objective_function(
-                    data=data, target=target, train=False
-                )
+                loss, metrics = instructor.objective_function(data=data, target=target)
 
-                val_loss.append(loss.item())
+                val_metrics_batch["Loss"].append(loss.item())
+                val_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
 
-        val_loss_list.append(np.mean(val_loss))
+        val_metrics["Loss"].append(np.mean(val_metrics_batch["Loss"]))
+        val_metrics["Accuracy"].append(np.mean(val_metrics_batch["Accuracy"]))
 
-    model_history = {"train_loss_list": train_loss_list, "val_loss_list": val_loss_list}
+    model_history = {
+        "train_loss_list": train_metrics["Loss"],
+        "val_loss_list": val_metrics["Loss"],
+    }
 
     return {
         "model": instructor.model,
@@ -141,7 +144,12 @@ def create_instructor(
 
 
 def create_model(n_qubits: int, n_layers: int, classes: List, data_reupload: int):
-    model = Model(n_qubits=n_qubits, n_layers=n_layers, classes=classes, data_reupload=data_reupload)
+    model = Model(
+        n_qubits=n_qubits,
+        n_layers=n_layers,
+        classes=classes,
+        data_reupload=data_reupload,
+    )
 
     return {"model": model}
 

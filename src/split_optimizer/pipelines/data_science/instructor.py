@@ -1,8 +1,9 @@
+import torch
 import torch.nn as nn
 from typing import Dict, List
 
 from torch.utils.data.dataloader import DataLoader
-
+from torchmetrics.functional.classification import multiclass_accuracy
 from .optimizer import SplitOptimizer, Adam, SGD, NGD
 
 
@@ -26,14 +27,6 @@ class Instructor:
 
         self.epochs = epochs
 
-        if loss_func == "CrossEntropyLoss":
-            self.train_loss = nn.CrossEntropyLoss(weight=class_weights_train)
-            self.test_loss = nn.CrossEntropyLoss()
-        else:
-            raise ValueError(
-                f"{loss_func} is not a loss function in [CrossEntropyLoss]"
-            )  # TODO: shall we actually add more loss functions?
-
         if "combined" not in optimizer:
             self.optimizer = SplitOptimizer(model, optimizer)
         else:
@@ -49,10 +42,45 @@ class Instructor:
             else:
                 raise ValueError(f"{opt_name} is not an optimizer in [Adam, SGD]")
 
-    def objective_function(self, data, target, train=True):
+        num_classes = len(
+            class_weights_train
+        )  # TODO: infering this could be risky, but currently, I cannot imagine a scenario where this wouldn't match
+
+        # this dictionary contains the available metrics as functionals (f) as well as any additional arguments that they might need for training and evaluation cases
+        # furthermore a 'sign' (s) is provided, that is multiplied with the value when the metric is being used as a loss
+        self.metrics = {
+            "CrossEntropy": {
+                "f": nn.functional.cross_entropy,
+                "train_kwargs": dict(weight=class_weights_train),
+                "eval_kwargs": dict(),
+                "s": 1,
+            },
+            "Accuracy": {
+                "f": multiclass_accuracy,
+                "train_kwargs": dict(num_classes=num_classes),
+                "eval_kwargs": dict(num_classes=num_classes),
+                "s": -1,
+            },
+        }
+        self.loss_func = loss_func
+
+        if loss_func not in self.metrics.keys():
+            raise KeyError(f"No loss {loss_func} in {self.metrics}")
+
+    def objective_function(self, data, target):
         output = self.model(data)
-        if train:
-            loss = self.train_loss(output, target)
-        else:
-            loss = self.test_loss(output, target)
-        return loss
+
+        metrics_val = {}
+        loss_val = torch.nan
+        for name, metric in self.metrics.items():
+            kwargs = (
+                metric["train_kwargs"] if self.model.training else metric["eval_kwargs"]
+            )
+
+            if name == self.loss_func:
+                loss_val = metric["s"] * metric["f"](output, target, **kwargs)
+            else:
+                # we don't apply the sign here as it is only relevant for optimization and could be confusing when a negative accuracy or so is displayed
+                metrics_val[name] = metric["f"](output, target, **kwargs)
+
+        return loss_val, metrics_val
