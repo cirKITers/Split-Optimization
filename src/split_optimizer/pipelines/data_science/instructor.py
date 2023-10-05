@@ -42,23 +42,25 @@ class Instructor:
             else:
                 raise ValueError(f"{opt_name} is not an optimizer in [Adam, SGD]")
 
-        num_classes = len(class_weights_train) #TODO: infering this could be risky, but currently, I cannot imagine a scenario where this wouldn't match
+        num_classes = len(
+            class_weights_train
+        )  # TODO: infering this could be risky, but currently, I cannot imagine a scenario where this wouldn't match
 
         # this dictionary contains the available metrics as functionals (f) as well as any additional arguments that they might need for training and evaluation cases
         # furthermore a 'sign' (s) is provided, that is multiplied with the value when the metric is being used as a loss
         self.metrics = {
-            "CrossEntropy":{
-                "f":nn.functional.cross_entropy,
-                "train_kwargs":dict(weight=class_weights_train),
-                "eval_kwargs":dict(),
-                "s":1
+            "CrossEntropy": {
+                "f": nn.functional.cross_entropy,
+                "train_kwargs": dict(weight=class_weights_train),
+                "eval_kwargs": dict(),
+                "s": 1,
             },
-            "Accuracy":{
-                "f":multiclass_accuracy,
-                "train_kwargs":dict(num_classes=num_classes),
-                "eval_kwargs":dict(num_classes=num_classes),
-                "s":-1
-            }
+            "Accuracy": {
+                "f": multiclass_accuracy,
+                "train_kwargs": dict(num_classes=num_classes),
+                "eval_kwargs": dict(num_classes=num_classes),
+                "s": -1,
+            },
         }
         self.loss_func = loss_func
 
@@ -71,7 +73,9 @@ class Instructor:
         metrics_val = {}
         loss_val = torch.nan
         for name, metric in self.metrics.items():
-            kwargs = metric["train_kwargs"] if self.model.training else metric["eval_kwargs"]
+            kwargs = (
+                metric["train_kwargs"] if self.model.training else metric["eval_kwargs"]
+            )
 
             if name == self.loss_func:
                 loss_val = metric["s"] * metric["f"](output, target, **kwargs)
