@@ -78,20 +78,28 @@ def train_model(
 
 def test_model(
     instructor: Instructor,
+    model: Model
 ) -> Dict:
+    instructor.model = model
     instructor.model.eval()
     with torch.no_grad():
         test_metrics_batch = {"Loss": [], "Accuracy": []}
+        predictions = []
         for data, target in instructor.test_dataloader:
-            loss, metrics = instructor.objective_function(data=data, target=target)
+            pred, loss, metrics = instructor.objective_function(data=data, target=target)
 
             test_metrics_batch["Loss"].append(loss.item())
             test_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
+            predictions.append(pred)
+
+        label_predictions = []
+        for i in predictions:
+            label_predictions.append(np.argmax(i).item())
 
     test_output = {
         "average_test_loss": np.mean(test_metrics_batch["Loss"]),
         "accuracy": np.mean(test_metrics_batch["Accuracy"]),
-        # "pred": label_predictions,
+        "pred": label_predictions,
     }
 
     return {"test_output": test_output}
