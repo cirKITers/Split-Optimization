@@ -4,9 +4,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from .ansaetze import ansaetze
 
 class QLayers:
-    def __init__(self, n_qubits, n_layers, number_classes):
+    def __init__(self, n_qubits, n_layers, number_classes, data_reuploading=True):
         self.number_classes = number_classes
         if not self.number_classes <= n_qubits:
             raise ValueError(
@@ -14,17 +15,44 @@ class QLayers:
             )
 
         self.n_qubits = n_qubits
+
+        self.data_reupload = 1
+
+
+        self.iec = qml.templates.AngleEmbedding
+        self.vqc = ansaetze.circuit_19
+
         self.argnum = range(self.n_qubits, self.n_qubits + self.n_qubits * n_layers)
+        self.weight_shape = {"weights": [n_layers, n_qubits, self.vqc(None)]}
+    # def quantum_circuit(self, weights, inputs=None):
+    #     if inputs is None:
+    #         inputs = self._inputs
+    #     else:
+    #         self._inputs = inputs
+        
+    #     # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
+    #     qml.templates.BasicEntanglerLayers(weights, wires=range(self.n_qubits))
+    #     return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
 
     def quantum_circuit(self, weights, inputs=None):
         if inputs is None:
             inputs = self._inputs
         else:
             self._inputs = inputs
-        qml.templates.AngleEmbedding(inputs, wires=range(self.n_qubits))
-        # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
-        qml.templates.BasicEntanglerLayers(weights, wires=range(self.n_qubits))
+            
+        dru = torch.zeros(len(weights))
+        dru[:: int(1 / self.data_reupload)] = 1
+
+        for l, l_params in enumerate(weights):
+            if l == 0 or dru[l] == 1:
+                self.iec(
+                    inputs, wires=range(self.n_qubits)
+                )  # half because the coordinates already have 2 dims
+
+            self.vqc(l_params)
+
         return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
+        # return qml.probs(wires=range(self.number_classes))
 
 
 class CLayers(nn.Module):
