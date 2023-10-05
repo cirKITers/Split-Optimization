@@ -38,7 +38,7 @@ def train_model(
         instructor.model.train()
         train_metrics_batch = {"Loss": [], "Accuracy": []}
         for data, target in instructor.train_dataloader:
-            loss, metrics = instructor.objective_function(data=data, target=target)
+            _, loss, metrics = instructor.objective_function(data=data, target=target)
 
             instructor.optimizer.zero_grad()
             loss.backward()
@@ -57,7 +57,7 @@ def train_model(
         with torch.no_grad():
             val_metrics_batch = {"Loss": [], "Accuracy": []}
             for data, target in instructor.test_dataloader:
-                loss, metrics = instructor.objective_function(data=data, target=target)
+                _, loss, metrics = instructor.objective_function(data=data, target=target)
 
                 val_metrics_batch["Loss"].append(loss.item())
                 val_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())

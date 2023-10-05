@@ -83,4 +83,4 @@ class Instructor:
                 # we don't apply the sign here as it is only relevant for optimization and could be confusing when a negative accuracy or so is displayed
                 metrics_val[name] = metric["f"](output, target, **kwargs)
 
-        return loss_val, metrics_val
+        return output, loss_val, metrics_val
