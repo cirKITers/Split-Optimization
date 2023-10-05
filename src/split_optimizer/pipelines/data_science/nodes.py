@@ -78,45 +78,21 @@ def train_model(
 
 def test_model(
     instructor: Instructor,
-    model: nn.Module,
 ) -> Dict:
     instructor.model.eval()
-
     with torch.no_grad():
-        correct = 0
-        test_loss_list = []
-        predictions = []
+        test_metrics_batch = {"Loss": [], "Accuracy": []}
         for data, target in instructor.test_dataloader:
-            output = model(data)
+            loss, metrics = instructor.objective_function(data=data, target=target)
 
-            predictions.append(output)
+            test_metrics_batch["Loss"].append(loss.item())
+            test_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
 
-            for i in output:
-                pred = i.argmax()
-                if pred == target.argmax():
-                    correct += 1
-
-            loss = instructor.test_loss(output, target)
-            test_loss_list.append(loss.item())
-
-        accuracy = correct / len(test_loss_list)
-        average_test_loss = sum(test_loss_list) / len(test_loss_list)
-
-        print(
-            "Performance on test data:\n\tLoss: {:.4f}\n\tAccuracy: {:.1f}".format(
-                average_test_loss, accuracy
-            )
-        )
-
-        label_predictions = []
-        for i in predictions:
-            label_predictions.append(np.argmax(i).item())
-
-        test_output = {
-            "average_test_loss": average_test_loss,
-            "accuracy": accuracy,
-            "pred": label_predictions,
-        }
+    test_output = {
+        "average_test_loss": np.mean(test_metrics_batch["Loss"]),
+        "accuracy": np.mean(test_metrics_batch["Accuracy"]),
+        # "pred": label_predictions,
+    }
 
     return {"test_output": test_output}
 
