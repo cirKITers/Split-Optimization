@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 from .ansaetze import ansaetze
 
+
 class QLayers:
     def __init__(self, n_qubits, n_layers, number_classes, data_reupload):
         self.number_classes = number_classes
@@ -18,7 +19,6 @@ class QLayers:
 
         self.data_reupload = data_reupload
 
-
         self.iec = qml.templates.AngleEmbedding
         self.vqc = ansaetze.circuit_19
 
@@ -30,7 +30,7 @@ class QLayers:
             inputs = self._inputs
         else:
             self._inputs = inputs
-            
+
         dru = torch.zeros(len(weights))
         dru[:: int(1 / self.data_reupload)] = 1
 
@@ -62,7 +62,7 @@ class CLayers(nn.Module):
             nn.MaxPool2d(kernel_size=2),
         )
         self.fc_layer = nn.Sequential(
-            nn.Linear(1*28*28, n_qubits),
+            nn.Linear(1 * 28 * 28, n_qubits),
             nn.Tanh(),
         )
 
@@ -86,9 +86,13 @@ class Model(nn.Module):
         self.number_classes = len(classes)
         self.clayer = CLayers(self.n_qubits)
         dev = qml.device("default.qubit", wires=self.n_qubits)
-        self.vqc = QLayers(self.n_qubits, n_layers, self.number_classes, data_reupload=data_reupload)
+        self.vqc = QLayers(
+            self.n_qubits, n_layers, self.number_classes, data_reupload=data_reupload
+        )
         self.qnode = qml.QNode(self.vqc.quantum_circuit, dev, interface="torch")
         self.qlayer = qml.qnn.TorchLayer(self.qnode, self.vqc.weight_shape)
+
+        self.sm = nn.Softmax(dim=1)  # dim=1 because x will have shape bs x n_classes
 
     def forward(self, x):
         x = self.clayer(x)
