@@ -50,7 +50,7 @@ def train_model(
         train_metrics["Accuracy"].append(np.mean(train_metrics_batch["Accuracy"]))
 
         log.debug(
-            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{train_metrics['Accuracy'][-1]:.2f}"
+            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
         )
 
         instructor.model.eval()
