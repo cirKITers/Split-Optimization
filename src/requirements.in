@@ -6,3 +6,4 @@ kedro-viz
 kedro-mlflow
 mlflow
 pennylane
+torchmetrics
