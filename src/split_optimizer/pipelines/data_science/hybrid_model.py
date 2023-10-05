@@ -59,31 +59,53 @@ class CLayers(nn.Module):
     def __init__(self, n_qubits):
         super(CLayers, self).__init__()
 
-        self.conv1 = nn.Sequential(
+        # Bx1x28x28 -> Bx3x14x14
+        self.conv_layer_1 = nn.Sequential(
             nn.Conv2d(
                 in_channels=1,
-                out_channels=16,
-                kernel_size=5,
+                out_channels=3,
+                kernel_size=3,
                 stride=1,
-                padding=2,
+                padding=1,
             ),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2),
         )
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(16, 32, 5, 1, 2),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
+        # # Bx3x28x28 -> Bx5x14x14
+        # self.conv_layer_2 = nn.Sequential(
+        #     nn.Conv2d(
+        #         in_channels=3,
+        #         out_channels=5,
+        #         kernel_size=4,
+        #         stride=1,
+        #         padding=0,
+        #     ),
+        #     nn.ReLU(),
+        #     # nn.MaxPool2d(kernel_size=2),
+        # )
         # fully connected layer, output 10 classes
-        self.out = nn.Linear(32 * 7 * 7, 3)
+        self.fc_layer = nn.Sequential(
+            # nn.Conv2d(
+            #     in_channels=1,
+            #     out_channels=3,
+            #     kernel_size=3,
+            #     stride=1,
+            #     padding=1,
+            # ),
+            nn.Linear(1*28*28, n_qubits),
+            nn.Tanh(),
+        )
+
+        self.flatten = nn.Flatten()
+        # self.out = nn.Linear(3*14*14, n_qubits)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.conv2(x)
+        x = self.flatten(x)
+        x = self.fc_layer(x)
+        # x = self.conv_layer_2(x)
         # flatten the output of conv2 to (batch_size, 32 * 7 * 7)
-        x = x.view(x.size(0), -1)
-        x = self.out(x)
+        # x = self.flatten(x)
+        # x = self.out(x)
         return x
 
 
