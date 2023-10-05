@@ -24,15 +24,6 @@ class QLayers:
 
         self.argnum = range(self.n_qubits, self.n_qubits + self.n_qubits * n_layers)
         self.weight_shape = {"weights": [n_layers, n_qubits, self.vqc(None)]}
-    # def quantum_circuit(self, weights, inputs=None):
-    #     if inputs is None:
-    #         inputs = self._inputs
-    #     else:
-    #         self._inputs = inputs
-        
-    #     # strongly entangling layer - weights = {(n_layers , n_qubits, n_parameters)}
-    #     qml.templates.BasicEntanglerLayers(weights, wires=range(self.n_qubits))
-    #     return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
 
     def quantum_circuit(self, weights, inputs=None):
         if inputs is None:
@@ -52,7 +43,6 @@ class QLayers:
             self.vqc(l_params)
 
         return [qml.expval(qml.PauliZ(i)) for i in range(self.number_classes)]
-        # return qml.probs(wires=range(self.number_classes))
 
 
 class CLayers(nn.Module):
@@ -71,27 +61,7 @@ class CLayers(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2),
         )
-        # # Bx3x28x28 -> Bx5x14x14
-        # self.conv_layer_2 = nn.Sequential(
-        #     nn.Conv2d(
-        #         in_channels=3,
-        #         out_channels=5,
-        #         kernel_size=4,
-        #         stride=1,
-        #         padding=0,
-        #     ),
-        #     nn.ReLU(),
-        #     # nn.MaxPool2d(kernel_size=2),
-        # )
-        # fully connected layer, output 10 classes
         self.fc_layer = nn.Sequential(
-            # nn.Conv2d(
-            #     in_channels=1,
-            #     out_channels=3,
-            #     kernel_size=3,
-            #     stride=1,
-            #     padding=1,
-            # ),
             nn.Linear(1*28*28, n_qubits),
             nn.Tanh(),
         )
