@@ -23,6 +23,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "n_qubits": "params:n_qubits",
                     "n_layers": "params:n_layers",
                     "classes": "params:classes",
+                    "data_reupload": "params:data_reupload",
                 },
                 outputs={
                     "model": "model",
@@ -111,6 +112,7 @@ def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
                     "n_qubits_range_quant": "params:n_qubits_range_quant",
                     "n_layers_range_quant": "params:n_layers_range_quant",
                     "classes": "params:classes",
+                    "data_reupload_range_quant": "params:data_reupload_range_quant",
                     "loss_func": "params:loss_func",
                     "epochs": "params:epochs",
                     "optimizer_range": "params:optimizer_range",

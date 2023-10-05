@@ -4,7 +4,8 @@ data_science:
   n_qubits_range_quant: ${n_qubits_range_quant}
   n_layers: ${n_layers}
   n_layers_range_quant: ${n_layers_range_quant}
-  epochs: 40
+  data_reupload: 1.0
+  data_reupload_range_quant: [0.1, 1.0, 'lin']
   optimizer:
     combined:
       name: Adam

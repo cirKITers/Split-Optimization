@@ -140,8 +140,8 @@ def create_instructor(
     return {"instructor": instructor}
 
 
-def create_model(n_qubits: int, n_layers: int, classes: List):
-    model = Model(n_qubits=n_qubits, n_layers=n_layers, classes=classes)
+def create_model(n_qubits: int, n_layers: int, classes: List, data_reupload: int):
+    model = Model(n_qubits=n_qubits, n_layers=n_layers, classes=classes, data_reupload=data_reupload)
 
     return {"model": model}
 
@@ -241,6 +241,7 @@ def create_hyperparam_optimizer(
     n_qubits_range_quant: int,
     n_layers_range_quant: int,
     classes: List,
+    data_reupload_range_quant: List,
     loss_func: str,
     optimizer_range: Dict,
     epochs: List,
@@ -273,6 +274,7 @@ def create_hyperparam_optimizer(
         {
             "n_qubits_range_quant": n_qubits_range_quant,
             "n_layers_range_quant": n_layers_range_quant,
+            "data_reupload_range_quant": data_reupload_range_quant,
         },
         {
             "optimizer_range": optimizer_range,
