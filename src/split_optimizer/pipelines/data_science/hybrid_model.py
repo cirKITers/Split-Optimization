@@ -50,17 +50,17 @@ class CLayers(nn.Module):
         super(CLayers, self).__init__()
 
         # Bx1x28x28 -> Bx3x14x14
-        self.conv_layer_1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=1,
-                out_channels=3,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
-        )
+        # self.conv_layer_1 = nn.Sequential(
+        #     nn.Conv2d(
+        #         in_channels=1,
+        #         out_channels=3,
+        #         kernel_size=3,
+        #         stride=1,
+        #         padding=1,
+        #     ),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(kernel_size=2),
+        # )
         self.fc_layer = nn.Sequential(
             nn.Linear(1*28*28, n_qubits),
             nn.Tanh(),
@@ -91,6 +91,8 @@ class Model(nn.Module):
         self.qlayer = qml.qnn.TorchLayer(self.qnode, self.vqc.weight_shape)
 
     def forward(self, x):
-        x = self.clayer(x)
-        x = self.qlayer(x)
+        x = (self.clayer(x) + 1) * torch.pi / 2
+        x = self.sm(self.qlayer(x))
+        # x = self.clayer(x)
+
         return x
