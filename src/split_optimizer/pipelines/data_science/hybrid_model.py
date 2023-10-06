@@ -6,6 +6,9 @@ import torch.nn.functional as F
 
 from .ansaetze import ansaetze
 
+class TorchLayer(qml.qnn.TorchLayer):
+    def reset_parameters(self):
+        pass
 
 class QLayers:
     def __init__(self, n_qubits, n_layers, number_classes, data_reupload):
