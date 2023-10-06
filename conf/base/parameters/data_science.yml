@@ -31,6 +31,7 @@ data_science:
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
   
+  torch_seed: ${torch_seed}
 
   # Optuna
   n_trials: 40

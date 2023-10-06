@@ -40,6 +40,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
                     "class_weights_train": "class_weights_train",
+                    "torch_seed": "params:torch_seed",
                 },
                 outputs={
                     "instructor": "instructor",
@@ -119,6 +120,7 @@ def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
                     "class_weights_train": "class_weights_train",
+                    "torch_seed": "params:torch_seed",
                 },
                 outputs={
                     "hyperparam_optimizer": "hyperparam_optimizer",

@@ -113,6 +113,7 @@ def create_instructor(
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
     class_weights_train: List,
+    torch_seed: int,
 ):
     instructor = Instructor(
         model=model,
@@ -122,6 +123,7 @@ def create_instructor(
         train_dataloader=train_dataloader,
         test_dataloader=test_dataloader,
         class_weights_train=class_weights_train,
+        torch_seed=torch_seed,
     )
 
     return {"instructor": instructor}
@@ -240,6 +242,7 @@ def create_hyperparam_optimizer(
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
     class_weights_train: List,
+    torch_seed: int,
 ) -> Hyperparam_Optimizer:
     if run_id is None:
         name = mlflow.active_run().info.run_id
@@ -282,6 +285,7 @@ def create_hyperparam_optimizer(
             "train_dataloader": train_dataloader,
             "test_dataloader": test_dataloader,
             "class_weights_train": class_weights_train,
+            "torch_seed": torch_seed,
         },
     )
 
