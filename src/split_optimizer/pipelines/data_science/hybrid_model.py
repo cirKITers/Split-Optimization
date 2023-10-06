@@ -8,7 +8,7 @@ from .ansaetze import ansaetze
 
 class TorchLayer(qml.qnn.TorchLayer):
     def reset_parameters(self):
-        pass
+        nn.init.uniform_(self.qnode_weights['weights'], b=2 * torch.pi)
 
 class QModule:
     def __init__(self, n_qubits, n_layers, number_classes, data_reupload):
@@ -121,7 +121,7 @@ class Model(nn.Module):
 
         x = self.pre_clayer(x)
         # x = self.q_pre_proc(x)
-        # x = self.qlayer(x)
+        x = self.qlayer(x)
         x = self.post_clayer(x)
 
         # x = self.sm(x)
