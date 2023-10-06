@@ -17,11 +17,20 @@ class Instructor:
         train_dataloader: DataLoader,
         test_dataloader: DataLoader,
         class_weights_train: List,
+        torch_seed:int,
         # Optuna
         report_callback=None,
         early_stop_callback=None,
     ) -> None:
+        if torch_seed is not None:
+            torch.use_deterministic_algorithms(True)
+            torch.manual_seed(torch_seed)
+
         self.model = model
+
+        # trigger manual weight init as we cannot guarantee that torch seeding ran previously
+        self.model.reset_parameters()
+
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
 
