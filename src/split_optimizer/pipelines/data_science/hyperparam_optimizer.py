@@ -5,6 +5,7 @@ import time
 import mlflow
 from concurrent.futures import ProcessPoolExecutor, wait
 from joblib import parallel_backend
+from .metrics import metrics
 
 
 class Hyperparam_Optimizer:
@@ -16,6 +17,7 @@ class Hyperparam_Optimizer:
         n_trials: int,
         timeout: int,
         enabled_hyperparameters,
+        optimization_metric: List,
         n_jobs: int = 1,
         selective_optimization: bool = False,
         toggle_classical_quant: bool = False,
@@ -41,6 +43,7 @@ class Hyperparam_Optimizer:
         )
 
         self.n_trials = n_trials
+        self.optimization_metric = optimization_metric
         self.timeout = timeout
         self.toggle_classical_quant = toggle_classical_quant
         self.selective_optimization = selective_optimization
@@ -53,6 +56,10 @@ class Hyperparam_Optimizer:
 
         n_studies = self.n_jobs if self.pool_process else 1
 
+        direction = (
+            "minimize" if metrics[self.optimization_metric]["s"] > 0 else "maximize"
+        )
+
         for n_it in range(n_studies):
             resume_study = resume_study or (n_studies > 1 and n_it != 0)
 
@@ -61,15 +68,15 @@ class Hyperparam_Optimizer:
                     pruner=pruner,
                     sampler=sampler,
                     # directions=["maximize", "minimize", "maximize"],
-                    direction="minimize",
+                    direction=direction,
                     load_if_exists=resume_study,
                     study_name=name,
                     storage=f"sqlite:///{path}",
                 )
             )
 
-            # set_objective_names(self.studies[-1], ["Accuracy", "Loss", "Perfect LCAG"])
-            set_objective_names(self.studies[-1], ["Loss"])
+            self.studies[-1].set_metric_names([self.optimization_metric])
+            # set_objective_names(self.studies[-1], [self.optimization_metric])
 
     def set_variable_parameters(self, model_parameters, instructor_parameters):
         assert isinstance(model_parameters, Dict)
@@ -276,7 +283,10 @@ class Hyperparam_Optimizer:
         instructor_parameters["early_stop_callback"] = self.early_stop_callback
         instructor = self.create_instructor(**instructor_parameters)
 
-        metric = self.objective(instructor=instructor, trial=trial)
+        metric = self.objective(
+            instructor=instructor,
+            trial=trial,
+        )
 
-        return metric
+        return metric[self.optimization_metric]
         # return [metrics["accuracy"], metrics["loss"], metrics["perfect_lcag"]]
