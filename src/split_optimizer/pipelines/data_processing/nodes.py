@@ -90,7 +90,7 @@ def create_dataloader(
         train_dataset, shuffle=True, batch_size=batch_size, worker_init_fn = lambda id: seed_id
     )
     test_dataloader = torch.utils.data.DataLoader(
-        test_dataset, shuffle=False, batch_size=1, worker_init_fn = lambda id: seed_id
+        test_dataset, shuffle=False, batch_size=len(test_dataset), worker_init_fn = lambda id: seed_id
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}
 
