@@ -124,8 +124,7 @@ def train_model(
 
     return {
         "model": instructor.model,
-        "train_metrics": train_metrics,
-        "val_metrics": val_metrics,
+        "metrics": train_metrics | val_metrics,
     }
 
 
