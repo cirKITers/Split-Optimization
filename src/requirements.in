@@ -7,3 +7,5 @@ kedro-mlflow
 mlflow
 pennylane
 torchmetrics
+optuna
+optuna_dashboard
