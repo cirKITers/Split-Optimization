@@ -114,7 +114,7 @@ def test_model(
 
             test_metrics_batch["Loss"].append(loss.item())
             test_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
-            predictions.append(pred)
+            predictions += pred.tolist()
 
         label_predictions = []
         for i in predictions:
@@ -218,7 +218,10 @@ def plot_loss(model_history: dict) -> plt.figure:
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
     test_labels = []
     for _, target in test_dataloader:
-        test_labels.append(target.item())
+        if len(target) > 1:
+            test_labels += [t for t in target.tolist()]
+        else:
+            test_labels.append(target.item())
 
     label_predictions = test_output["pred"]
 
