@@ -3,7 +3,11 @@ import torch.nn as nn
 from typing import Dict, List
 
 from torch.utils.data.dataloader import DataLoader
-from torchmetrics.functional.classification import multiclass_accuracy, multiclass_auroc, multiclass_f1_score
+from torchmetrics.functional.classification import (
+    multiclass_accuracy,
+    multiclass_auroc,
+    multiclass_f1_score,
+)
 from .optimizer import SplitOptimizer, Adam, SGD, NGD
 
 
@@ -17,7 +21,7 @@ class Instructor:
         train_dataloader: DataLoader,
         test_dataloader: DataLoader,
         class_weights_train: List,
-        torch_seed:int,
+        torch_seed: int,
         # Optuna
         report_callback=None,
         early_stop_callback=None,
@@ -36,9 +40,9 @@ class Instructor:
 
         self.epochs = epochs
 
-        if "combined" not in optimizer:
+        if "split" in optimizer:
             self.optimizer = SplitOptimizer(model, optimizer)
-        else:
+        elif "combined" in optimizer:
             opt_name = optimizer["combined"]["name"]
             del optimizer["combined"]["name"]
 
@@ -50,6 +54,10 @@ class Instructor:
                 self.optimizer = NGD(model.parameters(), **optimizer["combined"])
             else:
                 raise ValueError(f"{opt_name} is not an optimizer in [Adam, SGD]")
+        else:
+            raise ValueError(
+                f"Sth. is wrong with your configuration. Did not found 'split' or 'combined' in {optimizer}"
+            )
 
         num_classes = len(
             class_weights_train
