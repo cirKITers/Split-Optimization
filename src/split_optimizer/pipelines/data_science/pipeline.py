@@ -55,8 +55,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 },
                 outputs={
                     "model": "trained_model",
-                    "train_metrics": "train_metrics",
-                    "val_metrics": "val_metrics",
+                    "metrics": "metrics",
                 },
                 name="train_model",
             ),
@@ -72,15 +71,17 @@ def create_training_pipeline(**kwargs) -> Pipeline:
             node(
                 plot_loss,
                 inputs={
-                    "train_metrics": "train_metrics",
-                    "val_metrics": "val_metrics",
+                    "epochs": "params:epochs",
+                    "metrics": "metrics",
                 },
-                outputs={"loss_curve": "loss_curve"},
+                outputs={"metrics_fig": "metrics_fig"},
+                name="plot_loss",
             ),
             node(
                 plot_confusionmatrix,
                 inputs=["test_output", "test_dataloader"],
                 outputs={"confusionmatrix": "confusionmatrix"},
+                name="plot_confusionmatrix",
             ),
             # node(
             #     mlflow_tracking,
