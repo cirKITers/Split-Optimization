@@ -133,28 +133,49 @@ class Hyperparam_Optimizer:
 
     def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()
+        choice = None
+
         for parameter, value in parameters.items():
-            if (
-                prefix == ""
-            ):  # check the following only if there is no parent (=prefix) available
-                if "_range_quant" in parameter:
-                    if not self.toggle_classical_quant and self.selective_optimization:
-                        continue  # continue if its a quantum parameter and we are classical
-                    param_name = parameter.replace("_range_quant", "")
-                else:
-                    if self.toggle_classical_quant and self.selective_optimization:
-                        continue  # continue if its a classical parameter and we are quantum
-                    param_name = parameter.replace("_range", "")
+            # if (
+            #     prefix == ""
+            # ):  # check the following only if there is no parent (=prefix) available
+            if "_range_quant" in parameter:
+                if not self.toggle_classical_quant and self.selective_optimization:
+                    continue  # continue if its a quantum parameter and we are classical
+                param_name = parameter.replace("_range_quant", "")
+            elif "_range" in parameter:
+                if self.toggle_classical_quant and self.selective_optimization:
+                    continue  # continue if its a classical parameter and we are quantum
+                param_name = parameter.replace("_range", "")
+            elif "_choice" in parameter:
+                param_name = parameter.replace("_choice", "")
+                assert type(value) == dict
+                choice = trial.suggest_categorical(param_name, value.keys())
             else:
                 param_name = parameter
 
             if isinstance(value, Dict):
-                updated_variable_parameters[param_name] = dict()
-                for sub_param, sub_value in value.items():
+                # updated_variable_parameters[param_name] = dict()
+                # for sub_param, sub_value in value.items():
+                #     if choice is not None and choice != sub_param:
+                #         continue
+                #     updated_variable_parameters[param_name][
+                #         sub_param
+                #     ] = self.update_variable_parameters(
+                #         trial, sub_value, prefix=f"{sub_param}_"
+                #     )
+                if choice is not None:
+                    updated_variable_parameters[param_name] = {}
                     updated_variable_parameters[param_name][
-                        sub_param
+                        choice
                     ] = self.update_variable_parameters(
-                        trial, sub_value, prefix=f"{sub_param}_"
+                        trial, value[choice], prefix=f"{prefix}{param_name}_{choice}_"
+                    )
+                else:
+                    updated_variable_parameters[
+                        param_name
+                    ] = self.update_variable_parameters(
+                        trial, value, prefix=f"{prefix}{param_name}_"
                     )
 
                 continue
@@ -204,6 +225,9 @@ class Hyperparam_Optimizer:
                     prefix + param_name, value
                 )
 
+        # if prefix != "":
+        #     return {prefix: updated_variable_parameters}
+        # else:
         return updated_variable_parameters
 
     def minimize(self):
