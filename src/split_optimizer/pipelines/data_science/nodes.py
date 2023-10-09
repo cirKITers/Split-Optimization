@@ -218,36 +218,74 @@ def mlflow_tracking(model_history, test_output):
     return {"metrics": metrics}
 
 
-def plot_loss(train_metrics: dict, val_metrics: dict) -> plt.figure:
-    # epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
+def plot_loss(epochs: int, metrics: dict) -> plt.figure:
+    epochs = list(range(1, epochs + 1))
 
     plt = go.Figure(
         [
             go.Scatter(
-                # x=list(epochs),
-                y=train_metrics["Loss"],
-                mode="lines+markers",
+                x=epochs,
+                y=metrics["Train_Loss"],
+                mode=design.scatter_markers,
                 name="Training Loss",
             ),
             go.Scatter(
-                # x=list(epochs),
-                y=train_metrics["Loss"],
-                mode="lines+markers",
-                name="Training Loss",
+                x=epochs,
+                y=metrics["Train_Accuracy"],
+                mode=design.scatter_markers,
+                name="Training Accuracy",
             ),
             go.Scatter(
-                # x=list(epochs),
-                y=train_metrics["Loss"],
-                mode="lines+markers",
+                x=epochs,
+                y=metrics["Val_Loss"],
+                mode=design.scatter_markers,
                 name="Validation Loss",
+            ),
+            go.Scatter(
+                x=epochs,
+                y=metrics["Val_Accuracy"],
+                mode=design.scatter_markers,
+                name="Validation Accuracy",
+            ),
+            go.Scatter(
+                x=epochs,
+                y=metrics["Val_AUROC"],
+                mode=design.scatter_markers,
+                name="Validation AUROC",
+            ),
+            go.Scatter(
+                x=epochs,
+                y=metrics["Val_F1"],
+                mode=design.scatter_markers,
+                name="Validation F1",
             ),
         ]
     )
     plt.update_layout(
-        title="Training and Validation Loss", xaxis_title="Epochs", yaxis_title="Loss"
+        yaxis=dict(
+            title="Metric",
+            showgrid=design.showgrid,
+        ),
+        xaxis=dict(
+            title="Epochs",
+            showgrid=design.showgrid,
+        ),
+        title=dict(
+            text=f"Training and Validation Metrics"
+            if design.print_figure_title
+            else "",
+            font=dict(
+                size=design.title_font_size,
+            ),
+        ),
+        hovermode="x",
+        font=dict(
+            size=design.legend_font_size,
+        ),
+        template="simple_white",
     )
-    mlflow.log_figure(plt, "loss_curve.html")
-    return {"loss_curve": plt}
+    mlflow.log_figure(plt, "metrics_fig.html")
+    return {"metrics_fig": plt}
 
 
 def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
