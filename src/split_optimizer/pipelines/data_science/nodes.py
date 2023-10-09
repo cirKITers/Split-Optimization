@@ -28,15 +28,24 @@ def train_model_optuna(trial, *args, **kwargs):
 
     return min(result["model_history"]["val_loss_list"])
 
+def append_metrics(metrics, metric, mean=False):
+    for l, m in metric.items():
+        if l not in metrics:
+            metrics[l] = []
+        if mean:
+            metrics[l].append(np.mean(m))
+        else:
+            metrics[l].append(m.item())
+    return metrics
 
 def train_model(
     instructor: Instructor,
 ) -> Dict:
-    train_metrics = {"Loss": [], "Accuracy": []}
-    val_metrics = {"Loss": [], "Accuracy": []}
+    train_metrics = {}
+    val_metrics = {}
     for epoch in range(instructor.epochs):
         instructor.model.train()
-        train_metrics_batch = {"Loss": [], "Accuracy": []}
+        train_metrics_batch = {"Loss": []}
         for data, target in instructor.train_dataloader:
             _, loss, metrics = instructor.objective_function(data=data, target=target)
 
@@ -44,13 +53,18 @@ def train_model(
             loss.backward()
             instructor.optimizer.step(data, target, instructor.objective_function)
             train_metrics_batch["Loss"].append(loss.item())
-            train_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
 
-        train_metrics["Loss"].append(np.mean(train_metrics_batch["Loss"]))
-        train_metrics["Accuracy"].append(np.mean(train_metrics_batch["Accuracy"]))
+            train_metrics_batch = append_metrics(train_metrics_batch, metrics)
 
+        train_metrics = append_metrics(train_metrics, train_metrics_batch, mean=True)
+
+        # log.debug(
+        #     f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
+        # )
+
+        metrics_string = [f"\t{l}: {m[-1]:2.4f}" for l, m in train_metrics.items()]
         log.debug(
-            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
+            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]{''.join(metrics_string)}"
         )
 
         instructor.model.eval()
@@ -60,10 +74,9 @@ def train_model(
                 _, loss, metrics = instructor.objective_function(data=data, target=target)
 
                 val_metrics_batch["Loss"].append(loss.item())
-                val_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
+                val_metrics_batch = append_metrics(val_metrics_batch, metrics)
 
-        val_metrics["Loss"].append(np.mean(val_metrics_batch["Loss"]))
-        val_metrics["Accuracy"].append(np.mean(val_metrics_batch["Accuracy"]))
+        val_metrics = append_metrics(val_metrics, val_metrics_batch, mean=True)
 
     model_history = {
         "train_loss_list": train_metrics["Loss"],
