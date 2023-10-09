@@ -6,6 +6,7 @@ from .spsa import SPSA
 
 class SplitOptimizer:
     def __init__(self, model, optimizer):
+        optimizer = optimizer["split"]  #
         classical_opt_name = optimizer["classical"]["name"]
         quantum_opt_name = optimizer["quantum"]["name"]
 
