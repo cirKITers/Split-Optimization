@@ -15,6 +15,7 @@ class Hyperparam_Optimizer:
         path: str,
         n_trials: int,
         timeout: int,
+        enabled_hyperparameters,
         n_jobs: int = 1,
         selective_optimization: bool = False,
         toggle_classical_quant: bool = False,
@@ -45,6 +46,8 @@ class Hyperparam_Optimizer:
         self.selective_optimization = selective_optimization
         self.pool_process = pool_process
 
+        self.enabled_hyperparameters = enabled_hyperparameters
+
         self.studies = []
         self.n_jobs = n_jobs
 
@@ -72,15 +75,35 @@ class Hyperparam_Optimizer:
         assert isinstance(model_parameters, Dict)
         assert isinstance(instructor_parameters, Dict)
 
-        self.variable_model_parameters = model_parameters
-        self.variable_instructor_parameters = instructor_parameters
+        def select_hyperparams(pair):
+            key, _ = pair
+            if len(self.enabled_hyperparameters) == 0:
+                return True
+            return key in self.enabled_hyperparameters
+
+        self.variable_model_parameters = dict(
+            filter(select_hyperparams, model_parameters.items())
+        )
+        self.variable_instructor_parameters = dict(
+            filter(select_hyperparams, instructor_parameters.items())
+        )
 
     def set_fixed_parameters(self, model_parameters, instructor_parameters):
         assert isinstance(model_parameters, Dict)
         assert isinstance(instructor_parameters, Dict)
 
-        self.fixed_model_parameters = model_parameters
-        self.fixed_instructor_parameters = instructor_parameters
+        def select_hyperparams(pair):
+            key, _ = pair
+            if len(self.enabled_hyperparameters) == 0:
+                return True
+            return key not in self.enabled_hyperparameters
+
+        self.fixed_model_parameters = dict(
+            filter(select_hyperparams, model_parameters.items())
+        )
+        self.fixed_instructor_parameters = dict(
+            filter(select_hyperparams, instructor_parameters.items())
+        )
 
     @staticmethod
     def create_model():

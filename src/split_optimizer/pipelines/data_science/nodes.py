@@ -49,9 +49,7 @@ class design:
 def train_model_optuna(trial, *args, **kwargs):
     result = train_model(*args, **kwargs)
 
-    # best_val_accuracy = max(result["model_history"]["val_loss_list"])
-
-    return min(result["model_history"]["val_loss_list"])
+    return min(result["metrics"]["Train_Loss"])
 
 
 def append_metrics(metrics, metric, mean=False, prefix=""):
@@ -322,6 +320,7 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
 def create_hyperparam_optimizer(
     n_trials: str,
     timeout: int,
+    enabled_hyperparameters: List,
     optuna_path: str,
     optuna_sampler_seed: int,
     pool_process: bool,
@@ -333,12 +332,16 @@ def create_hyperparam_optimizer(
     resume_study: bool,
     n_jobs: int,
     run_id: str,
+    n_qubits: int,
     n_qubits_range_quant: int,
+    n_layers: int,
     n_layers_range_quant: int,
     classes: List,
+    data_reupload: List,
     data_reupload_range_quant: List,
     quant_status: int,
     loss_func: str,
+    optimizer: Dict,
     optimizer_range: Dict,
     epochs: List,
     train_dataloader: DataLoader,
@@ -356,6 +359,7 @@ def create_hyperparam_optimizer(
         seed=optuna_sampler_seed,
         n_trials=n_trials,
         timeout=timeout,
+        enabled_hyperparameters=enabled_hyperparameters,
         path=optuna_path,
         n_jobs=n_jobs,
         selective_optimization=selective_optimization,
@@ -379,7 +383,13 @@ def create_hyperparam_optimizer(
     )
 
     hyperparam_optimizer.set_fixed_parameters(
-        {"classes": classes, "quant_status": quant_status},
+        {
+            "classes": classes,
+            "quant_status": quant_status,
+            "n_qubits": n_qubits,
+            "n_layers": n_layers,
+            "data_reupload": data_reupload,
+        },
         {
             "model": None,  # this must be overwritten later in the optimization step and just indicates the difference in implementation here
             "loss_func": loss_func,
@@ -388,6 +398,7 @@ def create_hyperparam_optimizer(
             "test_dataloader": test_dataloader,
             "class_weights_train": class_weights_train,
             "torch_seed": torch_seed,
+            "optimizer": optimizer,
         },
     )
 

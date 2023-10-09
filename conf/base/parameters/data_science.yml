@@ -49,3 +49,5 @@ data_science:
   pruner_warmup_steps: 5
   pruner_interval_steps: 1
   pruner_min_trials: 10
+
+  enabled_hyperparameters: [optimizer_range]
