@@ -57,7 +57,12 @@ class Hyperparam_Optimizer:
         n_studies = self.n_jobs if self.pool_process else 1
 
         direction = (
-            "minimize" if metrics[self.optimization_metric]["s"] > 0 else "maximize"
+            "minimize"
+            if metrics[
+                self.optimization_metric.replace("Train_", "").replace("Val_", "")
+            ]["s"]
+            > 0
+            else "maximize"
         )
 
         for n_it in range(n_studies):
