@@ -69,7 +69,7 @@ def train_model(
 
         instructor.model.eval()
         with torch.no_grad():
-            val_metrics_batch = {"Loss": [], "Accuracy": []}
+            val_metrics_batch = {"Loss": []}
             for data, target in instructor.test_dataloader:
                 _, loss, metrics = instructor.objective_function(data=data, target=target)
 
