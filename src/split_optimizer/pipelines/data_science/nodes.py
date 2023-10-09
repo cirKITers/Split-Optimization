@@ -57,14 +57,15 @@ def train_model_optuna(trial, *args, **kwargs):
 def append_metrics(metrics, metric, mean=False, prefix=""):
     latest_metric = {}
     for l, m in metric.items():
-        if l not in metrics:
-            metrics[prefix + l] = []
+        act_key = prefix + l
+        if act_key not in metrics.keys():
+            metrics[act_key] = []
         if mean:
             latest = np.mean(m)
         else:
             latest = m.item()
-        latest_metric[prefix + l] = latest
-        metrics[prefix + l].append(latest)
+        latest_metric[act_key] = latest
+        metrics[act_key].append(latest)
     return metrics, latest_metric
 
 
