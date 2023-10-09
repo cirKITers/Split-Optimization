@@ -11,12 +11,13 @@ data_science:
     # combined:
     #   name: Adam
     #   lr: 0.001
-    classical:
-      name: SGD
-      lr: 0.03
-    quantum:
-      name: Adam
-      lr: 0.04
+    split:
+      classical:
+        name: SGD
+        lr: 0.03
+      quantum:
+        name: Adam
+        lr: 0.04
   optimizer_choice:
     combined:
       name: [SGD, Adam, NGD]
