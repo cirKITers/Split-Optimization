@@ -8,7 +8,8 @@ from .ansaetze import ansaetze
 
 class TorchLayer(qml.qnn.TorchLayer):
     def reset_parameters(self):
-        nn.init.uniform_(self.qnode_weights['weights'], b=2 * torch.pi)
+        # nn.init.uniform_(self.qnode_weights['weights'], b=2 * torch.pi)
+        nn.init.zeros_(self.qnode_weights['weights'])
 
 class QModule:
     def __init__(self, n_in, n_layers, n_out, data_reupload, disable_learning):
