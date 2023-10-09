@@ -10,6 +10,8 @@ from torchmetrics.functional.classification import (
 )
 from .optimizer import SplitOptimizer, Adam, SGD, NGD
 
+from .metrics import metrics
+
 
 class Instructor:
     def __init__(
@@ -65,32 +67,16 @@ class Instructor:
 
         # this dictionary contains the available metrics as functionals (f) as well as any additional arguments that they might need for training and evaluation cases
         # furthermore a 'sign' (s) is provided, that is multiplied with the value when the metric is being used as a loss
-        self.metrics = {
-            "CrossEntropy": {
-                "f": nn.functional.cross_entropy,
-                "train_kwargs": dict(weight=class_weights_train),
-                "eval_kwargs": dict(),
-                "s": 1,
-            },
-            "Accuracy": {
-                "f": multiclass_accuracy,
-                "train_kwargs": dict(num_classes=num_classes),
-                "eval_kwargs": dict(num_classes=num_classes),
-                "s": -1,
-            },
-            "AUROC": {
-                "f": multiclass_auroc,
-                "train_kwargs": None,
-                "eval_kwargs": dict(num_classes=num_classes),
-                "s": -1,
-            },
-            "F1": {
-                "f": multiclass_f1_score,
-                "train_kwargs": None,
-                "eval_kwargs": dict(num_classes=num_classes),
-                "s": -1,
-            },
-        }
+        self.metrics = metrics
+        self.metrics["CrossEntropy"]["train_kwargs"] = dict(weight=class_weights_train)
+        self.metrics["CrossEntropy"]["eval_kwargs"] = dict()
+        self.metrics["Accuracy"]["train_kwargs"] = dict(num_classes=num_classes)
+        self.metrics["Accuracy"]["eval_kwargs"] = dict(num_classes=num_classes)
+        self.metrics["AUROC"]["train_kwargs"] = None
+        self.metrics["AUROC"]["eval_kwargs"] = dict(num_classes=num_classes)
+        self.metrics["F1"]["train_kwargs"] = None
+        self.metrics["F1"]["eval_kwargs"] = dict(num_classes=num_classes)
+
         self.loss_func = loss_func
 
         if loss_func not in self.metrics.keys():
@@ -111,8 +97,7 @@ class Instructor:
 
             if name == self.loss_func:
                 loss_val = metric["s"] * metric["f"](output, target, **kwargs)
-            else:
-                # we don't apply the sign here as it is only relevant for optimization and could be confusing when a negative accuracy or so is displayed
-                metrics_val[name] = metric["f"](output, target, **kwargs)
+
+            metrics_val[name] = metric["f"](output, target, **kwargs)
 
         return output, loss_val, metrics_val
