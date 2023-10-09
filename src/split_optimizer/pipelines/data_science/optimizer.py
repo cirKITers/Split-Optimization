@@ -11,18 +11,15 @@ class SplitOptimizer:
 
         del optimizer["classical"]["name"], optimizer["quantum"]["name"]
 
+        c_params = [p for p_l in model.get_clayers() for p in list(p_l.parameters())]
+        q_params = [p for p_l in model.get_qlayers() for p in list(p_l.parameters())]
+
         if classical_opt_name == "Adam":
-            self.classical_optimizer = Adam(
-                model.clayer.parameters(), **optimizer["classical"]
-            )
+            self.classical_optimizer = Adam(c_params, **optimizer["classical"])
         elif classical_opt_name == "SGD":
-            self.classical_optimizer = SGD(
-                model.clayer.parameters(), **optimizer["classical"]
-            )
+            self.classical_optimizer = SGD(c_params, **optimizer["classical"])
         elif classical_opt_name == "NGD":
-            self.classical_optimizer = NGD(
-                model.clayer.parameters(), **optimizer["classical"]
-            )
+            self.classical_optimizer = NGD(c_params, **optimizer["classical"])
         else:
             raise ValueError(
                 f"{classical_opt_name} is not an optimizer for the classical part in [Adam, SGD]"
@@ -30,27 +27,24 @@ class SplitOptimizer:
 
         if quantum_opt_name == "NGD":
             self.quantum_optimizer = NGD(
-                model.qlayer.parameters(), **optimizer["quantum"]
+                q_params,
+                **optimizer["quantum"],
             )
         elif quantum_opt_name == "QNG":
             self.quantum_optimizer = QNG(
-                model.qlayer.parameters(),
+                q_params,
                 model.qnode,
                 model.vqc.argnum,
                 **optimizer["quantum"],
             )
         elif quantum_opt_name == "SPSA":
             self.quantum_optimizer = SPSA(
-                model.qlayer.parameters(), model.vqc.argnum, **optimizer["quantum"]
+                q_params, model.vqc.argnum, **optimizer["quantum"]
             )
         elif quantum_opt_name == "Adam":
-            self.quantum_optimizer = Adam(
-                model.qlayer.parameters(), **optimizer["quantum"]
-            )
+            self.quantum_optimizer = Adam(q_params, **optimizer["quantum"])
         elif quantum_opt_name == "SGD":
-            self.quantum_optimizer = SGD(
-                model.qlayer.parameters(), **optimizer["quantum"]
-            )
+            self.quantum_optimizer = SGD(q_params, **optimizer["quantum"])
         else:
             raise ValueError(
                 f"{quantum_opt_name} is not an optimizer for the quantum part in [Adam, SGD, NGD, QNG, SPSA]"
