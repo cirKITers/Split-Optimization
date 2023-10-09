@@ -11,14 +11,14 @@ class TorchLayer(qml.qnn.TorchLayer):
         nn.init.uniform_(self.qnode_weights['weights'], b=2 * torch.pi)
 
 class QModule:
-    def __init__(self, n_qubits, n_layers, number_classes, data_reupload):
-        self.number_classes = number_classes
-        if not self.number_classes <= n_qubits:
+    def __init__(self, n_in, n_layers, n_out, data_reupload):
+        self.n_out = n_out
+        if not self.n_out <= n_in:
             raise ValueError(
-                f"Number of classes {self.number_classes} may not be higher than number of qubits {n_qubits}"
+                f"Number of classes {self.n_out} may not be higher than number of qubits {n_in}"
             )
 
-        self.n_qubits = n_qubits
+        self.n_qubits = n_in
 
         self.data_reupload = data_reupload
 
@@ -26,7 +26,7 @@ class QModule:
         self.vqc = ansaetze.circuit_19
 
         self.argnum = range(self.n_qubits, self.n_qubits + self.n_qubits * n_layers)
-        self.weight_shape = {"weights": [n_layers, n_qubits, self.vqc(None)]}
+        self.weight_shape = {"weights": [n_layers, n_in, self.vqc(None)]}
 
     
 
