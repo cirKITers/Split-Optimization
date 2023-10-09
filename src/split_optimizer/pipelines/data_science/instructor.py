@@ -72,13 +72,13 @@ class Instructor:
             },
             "AUROC": {
                 "f": multiclass_auroc,
-                "train_kwargs": dict(num_classes=num_classes),
-                "eval_kwargs": None,
+                "train_kwargs": None,
+                "eval_kwargs": dict(num_classes=num_classes),
                 "s": -1,
             },
             "F1": {
                 "f": multiclass_f1_score,
-                "train_kwargs": dict(num_classes=num_classes),
+                "train_kwargs": None,
                 "eval_kwargs": dict(num_classes=num_classes),
                 "s": -1,
             },
