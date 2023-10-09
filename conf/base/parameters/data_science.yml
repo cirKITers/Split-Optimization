@@ -10,7 +10,7 @@ data_science:
   optimizer:
     combined:
       name: Adam
-      lr: 0.02
+      lr: 0.001
     # classical:
     #   name: SGD
     #   lr: 0.03
