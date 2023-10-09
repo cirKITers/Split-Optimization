@@ -15,6 +15,7 @@ import plotly.graph_objects as go
 
 from .instructor import Instructor
 from .hyperparam_optimizer import Hyperparam_Optimizer
+from .metrics import metrics
 
 import logging
 
@@ -49,7 +50,15 @@ class design:
 def train_model_optuna(trial, *args, **kwargs):
     result = train_model(*args, **kwargs)
 
-    return min(result["metrics"]["Train_Loss"])
+    min_metric = {}
+    for l, m in result["metrics"].items():
+        name = l.replace("Train_", "").replace("Val_", "")
+        if metrics[name]["s"] < 0:
+            min_metric[l] = max(m)
+        else:
+            min_metric[l] = min(m)
+
+    return min_metric
 
 
 def append_metrics(metrics, metric, mean=False, prefix=""):
@@ -74,14 +83,13 @@ def train_model(
     val_metrics = {}
     for epoch in range(instructor.epochs):
         instructor.model.train()
-        train_metrics_batch = {"Loss": []}
+        train_metrics_batch = {}
         for data, target in instructor.train_dataloader:
             _, loss, metrics = instructor.objective_function(data=data, target=target)
 
             instructor.optimizer.zero_grad()
             loss.backward()
             instructor.optimizer.step(data, target, instructor.objective_function)
-            train_metrics_batch["Loss"].append(loss.item())
 
             train_metrics_batch, _ = append_metrics(train_metrics_batch, metrics)
 
@@ -100,13 +108,12 @@ def train_model(
 
         instructor.model.eval()
         with torch.no_grad():
-            val_metrics_batch = {"Loss": []}
+            val_metrics_batch = {}
             for data, target in instructor.test_dataloader:
                 _, loss, metrics = instructor.objective_function(
                     data=data, target=target
                 )
 
-                val_metrics_batch["Loss"].append(loss.item())
                 val_metrics_batch, _ = append_metrics(val_metrics_batch, metrics)
 
         val_metrics, val_latest = append_metrics(
@@ -130,15 +137,12 @@ def test_model(instructor: Instructor, model: Model) -> Dict:
     instructor.model = model
     instructor.model.eval()
     with torch.no_grad():
-        test_metrics_batch = {"Loss": [], "Accuracy": []}
+        test_metrics_batch = {}
         predictions = []
         for data, target in instructor.test_dataloader:
-            pred, loss, metrics = instructor.objective_function(
-                data=data, target=target
-            )
+            pred, _, metrics = instructor.objective_function(data=data, target=target)
 
-            test_metrics_batch["Loss"].append(loss.item())
-            test_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
+            test_metrics_batch, _ = append_metrics(test_metrics_batch, metrics)
             predictions += pred.tolist()
 
         label_predictions = []
@@ -146,7 +150,7 @@ def test_model(instructor: Instructor, model: Model) -> Dict:
             label_predictions.append(np.argmax(i).item())
 
     test_output = {
-        "average_test_loss": np.mean(test_metrics_batch["Loss"]),
+        "average_test_loss": np.mean(test_metrics_batch["CrossEntropy"]),
         "accuracy": np.mean(test_metrics_batch["Accuracy"]),
         "pred": label_predictions,
     }
@@ -223,40 +227,11 @@ def plot_loss(epochs: int, metrics: dict) -> plt.figure:
         [
             go.Scatter(
                 x=epochs,
-                y=metrics["Train_Loss"],
+                y=m,
                 mode=design.scatter_markers,
-                name="Training Loss",
-            ),
-            go.Scatter(
-                x=epochs,
-                y=metrics["Train_Accuracy"],
-                mode=design.scatter_markers,
-                name="Training Accuracy",
-            ),
-            go.Scatter(
-                x=epochs,
-                y=metrics["Val_Loss"],
-                mode=design.scatter_markers,
-                name="Validation Loss",
-            ),
-            go.Scatter(
-                x=epochs,
-                y=metrics["Val_Accuracy"],
-                mode=design.scatter_markers,
-                name="Validation Accuracy",
-            ),
-            go.Scatter(
-                x=epochs,
-                y=metrics["Val_AUROC"],
-                mode=design.scatter_markers,
-                name="Validation AUROC",
-            ),
-            go.Scatter(
-                x=epochs,
-                y=metrics["Val_F1"],
-                mode=design.scatter_markers,
-                name="Validation F1",
-            ),
+                name=f"Training {l}" if "Train_" in l else f"Validation {l}",
+            )
+            for l, m in metrics.items()
         ]
     )
     plt.update_layout(
