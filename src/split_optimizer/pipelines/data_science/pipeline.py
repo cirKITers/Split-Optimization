@@ -76,11 +76,11 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 inputs=["test_output", "test_dataloader"],
                 outputs={"confusionmatrix": "confusionmatrix"},
             ),
-            node(
-                mlflow_tracking,
-                inputs=["model_history", "test_output"],
-                outputs={"metrics": "metrics"},
-            ),
+            # node(
+            #     mlflow_tracking,
+            #     inputs=["model_history", "test_output"],
+            #     outputs={"metrics": "metrics"},
+            # ),
         ],
         inputs={
             "train_dataloader": "train_dataloader",

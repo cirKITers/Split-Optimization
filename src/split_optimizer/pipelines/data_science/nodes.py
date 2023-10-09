@@ -28,15 +28,18 @@ def train_model_optuna(trial, *args, **kwargs):
 
     return min(result["model_history"]["val_loss_list"])
 
-def append_metrics(metrics, metric, mean=False):
+def append_metrics(metrics, metric, mean=False, prefix=''):
+    latest_metric = {}
     for l, m in metric.items():
         if l not in metrics:
-            metrics[l] = []
+            metrics[prefix+l] = []
         if mean:
-            metrics[l].append(np.mean(m))
+            latest = np.mean(m)
         else:
-            metrics[l].append(m.item())
-    return metrics
+            latest = m.item()
+        latest_metric[prefix+l] = latest
+        metrics[prefix+l].append(latest)
+    return metrics, latest_metric
 
 def train_model(
     instructor: Instructor,
@@ -54,15 +57,15 @@ def train_model(
             instructor.optimizer.step(data, target, instructor.objective_function)
             train_metrics_batch["Loss"].append(loss.item())
 
-            train_metrics_batch = append_metrics(train_metrics_batch, metrics)
+            train_metrics_batch, _ = append_metrics(train_metrics_batch, metrics)
 
-        train_metrics = append_metrics(train_metrics, train_metrics_batch, mean=True)
+        train_metrics, train_latest = append_metrics(train_metrics, train_metrics_batch, mean=True, prefix='Train_')
 
         # log.debug(
         #     f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
         # )
 
-        metrics_string = [f"\t{l}: {m[-1]:3.4f}" for l, m in train_metrics.items()]
+        metrics_string = [f"\t{l}: {m:3.4f}" for l, m in train_latest.items()]
         log.debug(
             f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]{str().join(metrics_string)}"
         )
@@ -74,13 +77,21 @@ def train_model(
                 _, loss, metrics = instructor.objective_function(data=data, target=target)
 
                 val_metrics_batch["Loss"].append(loss.item())
-                val_metrics_batch = append_metrics(val_metrics_batch, metrics)
+                val_metrics_batch, _ = append_metrics(val_metrics_batch, metrics)
 
-        val_metrics = append_metrics(val_metrics, val_metrics_batch, mean=True)
+        val_metrics, val_latest = append_metrics(val_metrics, val_metrics_batch, mean=True, prefix='Val_')
+
+        metrics_string = [f"\t{l}: {m:3.4f}" for l, m in val_latest.items()]
+        log.debug(
+            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]{str().join(metrics_string)}"
+        )
+
+        mlflow.log_metrics(train_latest | val_latest, step=epoch)
+
 
     model_history = {
-        "train_loss_list": train_metrics["Loss"],
-        "val_loss_list": val_metrics["Loss"],
+        "train_loss_list": train_metrics["Train_Loss"],
+        "val_loss_list": val_metrics["Val_Loss"],
     }
 
     return {
