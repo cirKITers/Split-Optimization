@@ -129,12 +129,13 @@ def create_instructor(
     return {"instructor": instructor}
 
 
-def create_model(n_qubits: int, n_layers: int, classes: List, data_reupload: int):
+def create_model(n_qubits: int, n_layers: int, classes: List, data_reupload: int, quant_status:int):
     model = Model(
         n_qubits=n_qubits,
         n_layers=n_layers,
         classes=classes,
         data_reupload=data_reupload,
+        quant_status=quant_status,
     )
 
     return {"model": model}
@@ -236,6 +237,7 @@ def create_hyperparam_optimizer(
     n_layers_range_quant: int,
     classes: List,
     data_reupload_range_quant: List,
+    quant_status: int,
     loss_func: str,
     optimizer_range: Dict,
     epochs: List,
@@ -277,7 +279,7 @@ def create_hyperparam_optimizer(
     )
 
     hyperparam_optimizer.set_fixed_parameters(
-        {"classes": classes},
+        {"classes": classes, "quant_status":quant_status},
         {
             "model": None,  # this must be overwritten later in the optimization step and just indicates the difference in implementation here
             "loss_func": loss_func,
