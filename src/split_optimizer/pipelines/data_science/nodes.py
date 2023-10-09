@@ -28,18 +28,20 @@ def train_model_optuna(trial, *args, **kwargs):
 
     return min(result["model_history"]["val_loss_list"])
 
-def append_metrics(metrics, metric, mean=False, prefix=''):
+
+def append_metrics(metrics, metric, mean=False, prefix=""):
     latest_metric = {}
     for l, m in metric.items():
         if l not in metrics:
-            metrics[prefix+l] = []
+            metrics[prefix + l] = []
         if mean:
             latest = np.mean(m)
         else:
             latest = m.item()
-        latest_metric[prefix+l] = latest
-        metrics[prefix+l].append(latest)
+        latest_metric[prefix + l] = latest
+        metrics[prefix + l].append(latest)
     return metrics, latest_metric
+
 
 def train_model(
     instructor: Instructor,
@@ -59,7 +61,9 @@ def train_model(
 
             train_metrics_batch, _ = append_metrics(train_metrics_batch, metrics)
 
-        train_metrics, train_latest = append_metrics(train_metrics, train_metrics_batch, mean=True, prefix='Train_')
+        train_metrics, train_latest = append_metrics(
+            train_metrics, train_metrics_batch, mean=True, prefix="Train_"
+        )
 
         # log.debug(
         #     f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
@@ -74,12 +78,16 @@ def train_model(
         with torch.no_grad():
             val_metrics_batch = {"Loss": []}
             for data, target in instructor.test_dataloader:
-                _, loss, metrics = instructor.objective_function(data=data, target=target)
+                _, loss, metrics = instructor.objective_function(
+                    data=data, target=target
+                )
 
                 val_metrics_batch["Loss"].append(loss.item())
                 val_metrics_batch, _ = append_metrics(val_metrics_batch, metrics)
 
-        val_metrics, val_latest = append_metrics(val_metrics, val_metrics_batch, mean=True, prefix='Val_')
+        val_metrics, val_latest = append_metrics(
+            val_metrics, val_metrics_batch, mean=True, prefix="Val_"
+        )
 
         metrics_string = [f"\t{l}: {m:3.4f}" for l, m in val_latest.items()]
         log.debug(
@@ -88,29 +96,23 @@ def train_model(
 
         mlflow.log_metrics(train_latest | val_latest, step=epoch)
 
-
-    model_history = {
-        "train_loss_list": train_metrics["Train_Loss"],
-        "val_loss_list": val_metrics["Val_Loss"],
-    }
-
     return {
         "model": instructor.model,
-        "model_history": model_history,
+        "train_metrics": train_metrics,
+        "val_metrics": val_metrics,
     }
 
 
-def test_model(
-    instructor: Instructor,
-    model: Model
-) -> Dict:
+def test_model(instructor: Instructor, model: Model) -> Dict:
     instructor.model = model
     instructor.model.eval()
     with torch.no_grad():
         test_metrics_batch = {"Loss": [], "Accuracy": []}
         predictions = []
         for data, target in instructor.test_dataloader:
-            pred, loss, metrics = instructor.objective_function(data=data, target=target)
+            pred, loss, metrics = instructor.objective_function(
+                data=data, target=target
+            )
 
             test_metrics_batch["Loss"].append(loss.item())
             test_metrics_batch["Accuracy"].append(metrics["Accuracy"].item())
@@ -153,7 +155,9 @@ def create_instructor(
     return {"instructor": instructor}
 
 
-def create_model(n_qubits: int, n_layers: int, classes: List, data_reupload: int, quant_status:int):
+def create_model(
+    n_qubits: int, n_layers: int, classes: List, data_reupload: int, quant_status: int
+):
     model = Model(
         n_qubits=n_qubits,
         n_layers=n_layers,
@@ -189,20 +193,26 @@ def mlflow_tracking(model_history, test_output):
     return {"metrics": metrics}
 
 
-def plot_loss(model_history: dict) -> plt.figure:
-    epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
+def plot_loss(train_metrics: dict, val_metrics: dict) -> plt.figure:
+    # epochs = range(1, len(list(model_history["train_loss_list"])) + 1)
 
     plt = go.Figure(
         [
             go.Scatter(
-                x=list(epochs),
-                y=model_history["train_loss_list"],
+                # x=list(epochs),
+                y=train_metrics["Loss"],
                 mode="lines+markers",
                 name="Training Loss",
             ),
             go.Scatter(
-                x=list(epochs),
-                y=model_history["val_loss_list"],
+                # x=list(epochs),
+                y=train_metrics["Loss"],
+                mode="lines+markers",
+                name="Training Loss",
+            ),
+            go.Scatter(
+                # x=list(epochs),
+                y=train_metrics["Loss"],
                 mode="lines+markers",
                 name="Validation Loss",
             ),
@@ -306,7 +316,7 @@ def create_hyperparam_optimizer(
     )
 
     hyperparam_optimizer.set_fixed_parameters(
-        {"classes": classes, "quant_status":quant_status},
+        {"classes": classes, "quant_status": quant_status},
         {
             "model": None,  # this must be overwritten later in the optimization step and just indicates the difference in implementation here
             "loss_func": loss_func,
