@@ -8,25 +8,26 @@ data_science:
   data_reupload_range_quant: ${data_reupload_range_quant}
   epochs: 20
   optimizer:
-    combined:
-      name: Adam
-      lr: 0.001
-    # classical:
-    #   name: SGD
-    #   lr: 0.03
-    # quantum:
+    # combined:
     #   name: Adam
-    #   lr: 0.04
-  optimizer_range:
+    #   lr: 0.001
+    classical:
+      name: SGD
+      lr: 0.03
+    quantum:
+      name: Adam
+      lr: 0.04
+  optimizer_choice:
     combined:
       name: [SGD, Adam, NGD]
       lr: [0.01, 0.1, 'log']
-    # classical:
-    #   name: [SGD, Adam, NGD]
-    #   lr: [0.01, 0.1, 'log']
-    # quantum:
-    #   name: [SGD, Adam, NGD, QNG] #SPSA
-    #   lr: [0.01, 0.1, 'log']
+    split:
+      classical:
+        name: [SGD, Adam, NGD]
+        lr: [0.01, 0.1, 'log']
+      quantum:
+        name: [SGD, Adam, NGD, QNG] #SPSA
+        lr: [0.01, 0.1, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
@@ -50,4 +51,4 @@ data_science:
   pruner_interval_steps: 1
   pruner_min_trials: 10
 
-  enabled_hyperparameters: [optimizer_range]
+  enabled_hyperparameters: [optimizer_choice]
