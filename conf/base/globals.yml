@@ -9,6 +9,6 @@ n_layers_range_quant: [1, 2, "linear"]
 data_reupload: 1.0
 data_reupload_range_quant: [0.1, 1.0, 'lin']
 
-quant_status: 0 # 0: passthrough, 1: only iec, 2: iec + pqc
+quant_status: 2 # 0: passthrough, 1: only iec, 2: iec + pqc
 
 torch_seed: 33 #see data_science.yml for optuna seed
