@@ -133,12 +133,10 @@ class Hyperparam_Optimizer:
 
     def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()
-        choice = None
+        choice = None  # indicate that this level is not a choice
 
         for parameter, value in parameters.items():
-            # if (
-            #     prefix == ""
-            # ):  # check the following only if there is no parent (=prefix) available
+            # the following section removes any reserved strings from the parameter name and draws a choice if possible
             if "_range_quant" in parameter:
                 if not self.toggle_classical_quant and self.selective_optimization:
                     continue  # continue if its a quantum parameter and we are classical
@@ -150,40 +148,45 @@ class Hyperparam_Optimizer:
             elif "_choice" in parameter:
                 param_name = parameter.replace("_choice", "")
                 assert type(value) == dict
+                # if we have the choice; go and ask the trial what to do
                 choice = trial.suggest_categorical(param_name, value.keys())
             else:
+                # there is nothing fancy going on, copy the parameter name as is
                 param_name = parameter
 
+            # now, check if the hyperparameter is nested, i.e. there is another level below
             if isinstance(value, Dict):
-                # updated_variable_parameters[param_name] = dict()
-                # for sub_param, sub_value in value.items():
-                #     if choice is not None and choice != sub_param:
-                #         continue
-                #     updated_variable_parameters[param_name][
-                #         sub_param
-                #     ] = self.update_variable_parameters(
-                #         trial, sub_value, prefix=f"{sub_param}_"
-                #     )
+                # this is a nested parameter, check if we had the choice
                 if choice is not None:
+                    # we want to skip through this choice (i.e. not iterate at this level)
+                    # therefore create a new dict
                     updated_variable_parameters[param_name] = {}
+                    # and assign the result as a new dict to the only key in this dict (this is just to preserve the structure given by the config)
+                    # note that we preselect value[choice] and modify the prefix such that it includes the choice (to not get duplicates later when running trial.suggest(..))
                     updated_variable_parameters[param_name][
                         choice
                     ] = self.update_variable_parameters(
                         trial, value[choice], prefix=f"{prefix}{param_name}_{choice}_"
                     )
                 else:
+                    # the easy case; just go one level deeper and pass as prefix the current prefix (in case we are multilevel) as well as the current parameter name
                     updated_variable_parameters[
                         param_name
                     ] = self.update_variable_parameters(
                         trial, value, prefix=f"{prefix}{param_name}_"
                     )
 
+                # as this is just a "virtual" level, there is no reason the check the following
                 continue
-
-            if not isinstance(value, List):
+            # ok, so this is not nested, and therefore can only be a list (i.e. a _range hyperparameter)
+            elif not isinstance(value, List):
                 raise RuntimeError(
                     "Provides parameter is not a dictionary or a list. Cannot infer hyperparameters."
                 )
+
+            # ----
+            # here ends the recursive call from previous section
+
             # if we have three values (-> no bool) and they are not categorical (str) and the last one is a str (linear/log)
             if (
                 len(value) == 3
@@ -225,9 +228,6 @@ class Hyperparam_Optimizer:
                     prefix + param_name, value
                 )
 
-        # if prefix != "":
-        #     return {prefix: updated_variable_parameters}
-        # else:
         return updated_variable_parameters
 
     def minimize(self):
