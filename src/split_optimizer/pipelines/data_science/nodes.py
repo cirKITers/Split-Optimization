@@ -342,7 +342,7 @@ def create_hyperparam_optimizer(
     quant_status: int,
     loss_func: str,
     optimizer: Dict,
-    optimizer_range: Dict,
+    optimizer_choice: Dict,
     epochs: List,
     train_dataloader: DataLoader,
     test_dataloader: DataLoader,
@@ -378,7 +378,7 @@ def create_hyperparam_optimizer(
             "data_reupload_range_quant": data_reupload_range_quant,
         },
         {
-            "optimizer_range": optimizer_range,
+            "optimizer_choice": optimizer_choice,
         },
     )
 

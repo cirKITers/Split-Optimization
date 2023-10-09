@@ -130,7 +130,7 @@ def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
                     "loss_func": "params:loss_func",
                     "epochs": "params:epochs",
                     "optimizer": "params:optimizer",
-                    "optimizer_range": "params:optimizer_range",
+                    "optimizer_choice": "params:optimizer_choice",
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
                     "class_weights_train": "class_weights_train",
