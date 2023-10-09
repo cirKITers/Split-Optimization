@@ -3,7 +3,7 @@ import torch.nn as nn
 from typing import Dict, List
 
 from torch.utils.data.dataloader import DataLoader
-from torchmetrics.functional.classification import multiclass_accuracy, multiclass_auroc
+from torchmetrics.functional.classification import multiclass_accuracy, multiclass_auroc, multiclass_f1_score
 from .optimizer import SplitOptimizer, Adam, SGD, NGD
 
 
@@ -72,6 +72,12 @@ class Instructor:
             },
             "AUROC": {
                 "f": multiclass_auroc,
+                "train_kwargs": dict(num_classes=num_classes),
+                "eval_kwargs": dict(num_classes=num_classes),
+                "s": -1,
+            },
+            "F1": {
+                "f": multiclass_f1_score,
                 "train_kwargs": dict(num_classes=num_classes),
                 "eval_kwargs": dict(num_classes=num_classes),
                 "s": -1,
