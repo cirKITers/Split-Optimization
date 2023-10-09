@@ -62,9 +62,9 @@ def train_model(
         #     f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
         # )
 
-        metrics_string = [f"\t{l}: {m[-1]:2.4f}" for l, m in train_metrics.items()]
+        metrics_string = [f"\t{l}: {m[-1]:3.4f}" for l, m in train_metrics.items()]
         log.debug(
-            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]{''.join(metrics_string)}"
+            f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]{str().join(metrics_string)}"
         )
 
         instructor.model.eval()
