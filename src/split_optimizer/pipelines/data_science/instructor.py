@@ -73,7 +73,7 @@ class Instructor:
             "AUROC": {
                 "f": multiclass_auroc,
                 "train_kwargs": dict(num_classes=num_classes),
-                "eval_kwargs": dict(num_classes=num_classes),
+                "eval_kwargs": None,
                 "s": -1,
             },
             "F1": {
@@ -97,6 +97,9 @@ class Instructor:
             kwargs = (
                 metric["train_kwargs"] if self.model.training else metric["eval_kwargs"]
             )
+            # metric can be disabled by setting kwargs to None
+            if kwargs is None:
+                continue
 
             if name == self.loss_func:
                 loss_val = metric["s"] * metric["f"](output, target, **kwargs)
