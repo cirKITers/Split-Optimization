@@ -30,11 +30,11 @@ class QModule:
         self.vqc = ansaetze.circuit_19
 
         if self.disable_learning:
-            self.argnum = range(self.n_qubits, self.n_qubits)
             self.weight_shape = {"weights": []}
+            self.argnum = range(self.n_qubits, self.n_qubits)
         else:
-            self.argnum = range(self.n_qubits, self.n_qubits + self.n_qubits * n_layers)
-            self.weight_shape = {"weights": [n_layers, n_in, self.vqc(None)]}
+            self.weight_shape = {"weights": [n_layers, self.n_qubits, self.vqc(None)]}
+            self.argnum = range(n_in, n_in + sum(self.weight_shape["weights"]))
 
     def quantum_circuit(self, weights, inputs=None):
         if inputs is None:
