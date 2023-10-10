@@ -35,7 +35,7 @@ loggers:
     level: INFO
 
   split_optimizer:
-    level: DEBUG
+    level: INFO
 
 root:
   handlers: [rich, info_file_handler]
