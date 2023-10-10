@@ -106,7 +106,7 @@ def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
                 create_hyperparam_optimizer,
                 inputs={
                     "optuna_n_trials": "params:optuna_n_trials",
-                    "optuna_timeout": "params:timeout",
+                    "optuna_timeout": "params:optuna_timeout",
                     "optuna_enabled_hyperparameters": "params:optuna_enabled_hyperparameters",
                     "optuna_optimization_metric": "params:optuna_optimization_metric",
                     "optuna_path": "params:optuna_path",
