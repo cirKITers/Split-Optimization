@@ -38,18 +38,18 @@ data_science:
 
   # Optuna
   # number of trials within one study. Multiple processes with resume_study=True will add to this number
-  optuna_n_trials: 40
+  optuna_n_trials: 60
   optuna_timeout: 10800 #30h
   # this allows to control which parameters are considered during optimization. Leave empty to enable all
   optuna_enabled_hyperparameters: [optimizer_choice]
   # default the loss function value, but can also be any metric that is returned by the training method
-  optuna_optimization_metric: Train_CrossEntropy
+  optuna_optimization_metric: Val_Accuracy
 
   optuna_path: "studies/split_optimizer.db"
   optuna_selective_optimization: False # if true, only optimize classical params
   optuna_resume_study: True
   optuna_n_jobs: 1
-  optuna_run_id: "OptunaOptimization#001"
+  optuna_run_id: "OptunaOptimization#002"
 
   # Optuna/Sampling
   optuna_sampler: RandomSampler # TPESampler
