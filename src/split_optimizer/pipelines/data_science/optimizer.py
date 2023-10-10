@@ -39,6 +39,9 @@ class SplitOptimizer:
                 **optimizer["quantum"],
             )
         elif quantum_opt_name == "SPSA":
+            del optimizer["quantum"][
+                "lr"
+            ]  # TODO fix that asap because it can have a negative impact on estimate based samplers in optuna
             self.quantum_optimizer = SPSA(
                 q_params, model.vqc.argnum, **optimizer["quantum"]
             )
