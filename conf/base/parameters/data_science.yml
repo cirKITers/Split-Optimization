@@ -57,7 +57,7 @@ data_science:
   optuna_pool_process: False # alternative pool processing
 
   # Optuna/Pruning
-  pruner_startup_trials: 10
-  pruner_warmup_steps: 5
-  pruner_interval_steps: 1
-  pruner_min_trials: 10
+  pruner_startup_trials: 10 # number of trials that should run before pruning starts
+  pruner_warmup_steps: 10 # after which epoch should we prune?
+  pruner_interval_steps: 1 # check pruning condition every...
+  pruner_min_trials: 10 # minimum number of trials reported at a step to judge for pruning
