@@ -329,23 +329,24 @@ def create_hyperparam_optimizer(
     class_weights_train: List,
     torch_seed: int,
 ) -> Hyperparam_Optimizer:
-    if run_id is None:
+    if optuna_run_id is None:
         name = mlflow.active_run().info.run_id
     else:
-        name = run_id
+        name = optuna_run_id
 
     hyperparam_optimizer = Hyperparam_Optimizer(
         name=name,
+        sampler=optuna_sampler,
         seed=optuna_sampler_seed,
-        n_trials=n_trials,
-        timeout=timeout,
-        enabled_hyperparameters=enabled_hyperparameters,
-        optimization_metric=optimization_metric,
+        n_trials=optuna_n_trials,
+        timeout=optuna_timeout,
+        enabled_hyperparameters=optuna_enabled_hyperparameters,
+        optimization_metric=optuna_optimization_metric,
         path=optuna_path,
-        n_jobs=n_jobs,
-        selective_optimization=selective_optimization,
-        resume_study=resume_study,
-        pool_process=pool_process,
+        n_jobs=optuna_n_jobs,
+        selective_optimization=optuna_selective_optimization,
+        resume_study=optuna_resume_study,
+        pool_process=optuna_pool_process,
         pruner_startup_trials=pruner_startup_trials,
         pruner_warmup_steps=pruner_warmup_steps,
         pruner_interval_steps=pruner_interval_steps,
