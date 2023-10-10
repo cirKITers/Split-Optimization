@@ -76,9 +76,7 @@ def append_metrics(metrics, metric, mean=False, prefix=""):
     return metrics, latest_metric
 
 
-def train_model(
-    instructor: Instructor,
-) -> Dict:
+def train_model(instructor: Instructor) -> Dict:
     train_metrics = {}
     val_metrics = {}
     for epoch in range(instructor.epochs):
@@ -126,6 +124,11 @@ def train_model(
         )
 
         mlflow.log_metrics(train_latest | val_latest, step=epoch)
+
+        instructor.report_callback(metrics=train_latest | val_latest, step=epoch)
+        if instructor.early_stop_callback():
+            log.info(f"Early stopping triggered in epoch {epoch}. Stopping training.")
+            break
 
     return {
         "model": instructor.model,
@@ -293,21 +296,22 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
 
 
 def create_hyperparam_optimizer(
-    n_trials: str,
-    timeout: int,
-    enabled_hyperparameters: List,
-    optimization_metric: List,
+    optuna_n_trials: str,
+    optuna_timeout: int,
+    optuna_enabled_hyperparameters: List,
+    optuna_optimization_metric: List,
     optuna_path: str,
+    optuna_sampler: str,
     optuna_sampler_seed: int,
-    pool_process: bool,
+    optuna_pool_process: bool,
     pruner_startup_trials: int,
     pruner_warmup_steps: int,
     pruner_interval_steps: int,
     pruner_min_trials: int,
-    selective_optimization: bool,
-    resume_study: bool,
-    n_jobs: int,
-    run_id: str,
+    optuna_selective_optimization: bool,
+    optuna_resume_study: bool,
+    optuna_n_jobs: int,
+    optuna_run_id: str,
     n_qubits: int,
     n_qubits_range_quant: int,
     n_layers: int,
@@ -325,23 +329,24 @@ def create_hyperparam_optimizer(
     class_weights_train: List,
     torch_seed: int,
 ) -> Hyperparam_Optimizer:
-    if run_id is None:
+    if optuna_run_id is None:
         name = mlflow.active_run().info.run_id
     else:
-        name = run_id
+        name = optuna_run_id
 
     hyperparam_optimizer = Hyperparam_Optimizer(
         name=name,
+        sampler=optuna_sampler,
         seed=optuna_sampler_seed,
-        n_trials=n_trials,
-        timeout=timeout,
-        enabled_hyperparameters=enabled_hyperparameters,
-        optimization_metric=optimization_metric,
+        n_trials=optuna_n_trials,
+        timeout=optuna_timeout,
+        enabled_hyperparameters=optuna_enabled_hyperparameters,
+        optimization_metric=optuna_optimization_metric,
         path=optuna_path,
-        n_jobs=n_jobs,
-        selective_optimization=selective_optimization,
-        resume_study=resume_study,
-        pool_process=pool_process,
+        n_jobs=optuna_n_jobs,
+        selective_optimization=optuna_selective_optimization,
+        resume_study=optuna_resume_study,
+        pool_process=optuna_pool_process,
         pruner_startup_trials=pruner_startup_trials,
         pruner_warmup_steps=pruner_warmup_steps,
         pruner_interval_steps=pruner_interval_steps,

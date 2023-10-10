@@ -40,6 +40,9 @@ class Instructor:
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
 
+        self.report_callback = report_callback
+        self.early_stop_callback = early_stop_callback
+
         self.epochs = epochs
 
         if "split" in optimizer:
