@@ -25,8 +25,8 @@ class Instructor:
         class_weights_train: List,
         torch_seed: int,
         # Optuna
-        report_callback=None,
-        early_stop_callback=None,
+        report_callback=lambda *args, **kwargs: None,
+        early_stop_callback=lambda *args, **kwargs: None,
     ) -> None:
         if torch_seed is not None:
             torch.use_deterministic_algorithms(True)
