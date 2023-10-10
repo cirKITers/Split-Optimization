@@ -12,6 +12,7 @@ class Hyperparam_Optimizer:
     def __init__(
         self,
         name: str,
+        sampler: str,
         seed: int,
         path: str,
         n_trials: int,
@@ -38,9 +39,14 @@ class Hyperparam_Optimizer:
         )
         # pruner = o.pruners.PercentilePruner(10.0, n_warmup_steps=2, n_startup_trials=20)
 
-        sampler = o.samplers.TPESampler(
-            seed=seed, multivariate=True, constant_liar=True
-        )
+        if sampler == "TPESampler":
+            sampler = o.samplers.TPESampler(
+                seed=seed, multivariate=True, constant_liar=True
+            )
+        elif sampler == "RandomSampler":
+            sampler = o.samplers.RandomSampler(seed=seed)
+        else:
+            raise ValueError(f"Sampler {sampler} is not supported")
 
         self.n_trials = n_trials
         self.optimization_metric = optimization_metric
@@ -81,7 +87,6 @@ class Hyperparam_Optimizer:
             )
 
             self.studies[-1].set_metric_names([self.optimization_metric])
-            # set_objective_names(self.studies[-1], [self.optimization_metric])
 
     def set_variable_parameters(self, model_parameters, instructor_parameters):
         assert isinstance(model_parameters, Dict)
