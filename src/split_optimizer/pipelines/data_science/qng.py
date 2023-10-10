@@ -75,8 +75,8 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
                 # this cuts the metric tensor such that it results in the size of n_weights x n_weights
                 # therefore, we assume that the first rows and cols are reserved for the input which is reasonable as they are all-zero
                 self.metric_tensor = self.metric_tensor[
-                    self.argnum[0] :, self.argnum[0] :
-                ]
+                    self.argnum[0] : self.argnum[-1], self.argnum[0] : self.argnum[-1]
+                ]  # TODO: check that this is correct
 
                 # with the current parameters p and their gradients g, we can call the apply_grad method from the Pennylane optimizer which returns the updated parameter configuration. This will overwrite the current parameter configuration which the model will use in the next iteration. Remember, the parameters here are just references to the actual parameters within our model.
                 # again, we have to first convert to numpy and then back to torch tensors due to the incompability with Pennylane's implementation. This should be fixed in future.

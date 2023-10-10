@@ -35,7 +35,7 @@ class QModule:
         else:
             self.weight_shape = {"weights": [n_layers, self.n_qubits * self.vqc(None)]}
             self.argnum = range(
-                n_in, n_in + (n_layers * self.n_qubits * self.vqc(None))
+                n_in, n_in + (n_layers * self.n_qubits * self.vqc(None)) + 1
             )
 
     def quantum_circuit(self, weights, inputs=None):
