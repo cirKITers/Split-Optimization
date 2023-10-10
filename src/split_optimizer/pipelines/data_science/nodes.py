@@ -125,7 +125,7 @@ def train_model(instructor: Instructor) -> Dict:
 
         mlflow.log_metrics(train_latest | val_latest, step=epoch)
 
-        instructor.report_callback(metrics=train_metrics | val_metrics, step=epoch)
+        instructor.report_callback(metrics=train_latest | val_latest, step=epoch)
         if instructor.early_stop_callback():
             log.info(f"Early stopping triggered in epoch {epoch}. Stopping training.")
             break

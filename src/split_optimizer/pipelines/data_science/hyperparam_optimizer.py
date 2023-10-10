@@ -285,7 +285,10 @@ class Hyperparam_Optimizer:
         instructor_parameters[
             "model"
         ] = model  # update this single parameter using the returned model
-        instructor_parameters["report_callback"] = trial.report
+        instructor_parameters["report_callback"] = lambda metrics, step: trial.report(
+            metrics[self.optimization_metric], step=step
+        )
+
         instructor_parameters["early_stop_callback"] = trial.should_prune
         instructor = self.create_instructor(**instructor_parameters)
 
