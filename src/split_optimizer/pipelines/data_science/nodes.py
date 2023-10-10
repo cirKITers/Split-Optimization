@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 from .instructor import Instructor
 from .hyperparam_optimizer import Hyperparam_Optimizer
 from .metrics import metrics
+from .design import design
 
 import logging
 
@@ -373,6 +374,6 @@ def create_hyperparam_optimizer(
 def run_optuna(hyperparam_optimizer: Hyperparam_Optimizer):
     hyperparam_optimizer.minimize()
 
-    # artifacts = hyperparam_optimizer.log_study()
+    hyperparam_optimizer.log_study()
 
     return {}

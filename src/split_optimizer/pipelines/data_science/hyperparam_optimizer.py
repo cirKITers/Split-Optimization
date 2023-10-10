@@ -6,6 +6,7 @@ import mlflow
 from concurrent.futures import ProcessPoolExecutor, wait
 from joblib import parallel_backend
 from .metrics import metrics
+from .design import design
 
 
 class Hyperparam_Optimizer:
@@ -134,15 +135,83 @@ class Hyperparam_Optimizer:
     def objective():
         raise NotImplementedError("Objective method must be set!")
 
-    # def log_study(self):
-    #     for study in self.studies:
-    #         for trial in study.best_trials:
-    #             mlflow.log_params(
-    #                 {f"trial_{trial.number}_{k}": v for k, v in trial.params.items()}
-    #             )
+    def log_study(self):
+        for study in self.studies:
+            plt = o.visualization.plot_optimization_history(study)
 
-    #             mlflow.log_metric(f"trial_{trial.number}_accuracy", trial.values[0])
-    #             mlflow.log_metric(f"trial_{trial.number}_loss", trial.values[1])
+            plt.update_layout(
+                yaxis=dict(
+                    showgrid=design.showgrid,
+                ),
+                xaxis=dict(
+                    showgrid=design.showgrid,
+                ),
+                title=dict(
+                    # text=f"Training and Validation Metrics"
+                    # if design.print_figure_title
+                    # else "",
+                    font=dict(
+                        size=design.title_font_size,
+                    ),
+                ),
+                hovermode="x",
+                font=dict(
+                    size=design.legend_font_size,
+                ),
+                template="simple_white",
+            )
+            mlflow.log_figure(plt, "optuna_optimization_history.html")
+
+            plt = o.visualization.plot_intermediate_values(study)
+
+            plt.update_layout(
+                yaxis=dict(
+                    showgrid=design.showgrid,
+                ),
+                xaxis=dict(
+                    showgrid=design.showgrid,
+                ),
+                title=dict(
+                    # text=f"Training and Validation Metrics"
+                    # if design.print_figure_title
+                    # else "",
+                    font=dict(
+                        size=design.title_font_size,
+                    ),
+                ),
+                hovermode="x",
+                font=dict(
+                    size=design.legend_font_size,
+                ),
+                template="simple_white",
+            )
+            mlflow.log_figure(plt, "optuna_intermediate_values.html")
+
+            # TODO: the following is highly customizable and maybe should get more attention in the future
+            plt = o.visualization.plot_parallel_coordinate(study)
+
+            plt.update_layout(
+                yaxis=dict(
+                    showgrid=design.showgrid,
+                ),
+                xaxis=dict(
+                    showgrid=design.showgrid,
+                ),
+                title=dict(
+                    # text=f"Training and Validation Metrics"
+                    # if design.print_figure_title
+                    # else "",
+                    font=dict(
+                        size=design.title_font_size,
+                    ),
+                ),
+                hovermode="x",
+                font=dict(
+                    size=design.legend_font_size,
+                ),
+                template="simple_white",
+            )
+            mlflow.log_figure(plt, "optuna_parallel_coordinate.html")
 
     def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()
