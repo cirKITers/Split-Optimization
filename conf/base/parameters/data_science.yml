@@ -38,7 +38,7 @@ data_science:
 
   # Optuna
   # number of trials within one study. Multiple processes with resume_study=True will add to this number
-  optuna_n_trials: 100
+  optuna_n_trials: 200
   optuna_timeout: 10800 #30h
   # this allows to control which parameters are considered during optimization. Leave empty to enable all
   optuna_enabled_hyperparameters: [optimizer_choice]
@@ -49,7 +49,7 @@ data_science:
   optuna_selective_optimization: False # if true, only optimize classical params
   optuna_resume_study: True
   optuna_n_jobs: 1
-  optuna_run_id: "OptunaOptimization#002"
+  optuna_run_id: "OptunaOptimization#003"
 
   # Optuna/Sampling
   optuna_sampler: RandomSampler # TPESampler
