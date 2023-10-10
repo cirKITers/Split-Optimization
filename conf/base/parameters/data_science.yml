@@ -13,10 +13,10 @@ data_science:
     #   lr: 0.001
     split:
       classical:
-        name: SGD
+        name: SGD #Adam, SGD
         lr: 0.03
       quantum:
-        name: QNG
+        name: SPSA #Adam, SPSA, SGD, NGD, QNG
         lr: 0.04
   optimizer_choice:
     combined:
@@ -27,7 +27,7 @@ data_science:
         name: [SGD, Adam, NGD]
         lr: [0.001, 0.1, 'log']
       quantum:
-        name: [SGD, Adam, NGD] #QNG; SPSA
+        name: [SGD, Adam, NGD, QNG, SPSA] #QNG; SPSA
         lr: [0.001, 0.1, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
