@@ -134,19 +134,15 @@ class Hyperparam_Optimizer:
     def objective():
         raise NotImplementedError("Objective method must be set!")
 
-    def early_stop_callback(self):
-        # TODO: Implement early stopping
-        return False
+    # def log_study(self):
+    #     for study in self.studies:
+    #         for trial in study.best_trials:
+    #             mlflow.log_params(
+    #                 {f"trial_{trial.number}_{k}": v for k, v in trial.params.items()}
+    #             )
 
-    def log_study(self):
-        for study in self.studies:
-            for trial in study.best_trials:
-                mlflow.log_params(
-                    {f"trial_{trial.number}_{k}": v for k, v in trial.params.items()}
-                )
-
-                mlflow.log_metric(f"trial_{trial.number}_accuracy", trial.values[0])
-                mlflow.log_metric(f"trial_{trial.number}_loss", trial.values[1])
+    #             mlflow.log_metric(f"trial_{trial.number}_accuracy", trial.values[0])
+    #             mlflow.log_metric(f"trial_{trial.number}_loss", trial.values[1])
 
     def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()
@@ -290,7 +286,7 @@ class Hyperparam_Optimizer:
             "model"
         ] = model  # update this single parameter using the returned model
         instructor_parameters["report_callback"] = trial.report
-        instructor_parameters["early_stop_callback"] = self.early_stop_callback
+        instructor_parameters["early_stop_callback"] = trial.should_prune
         instructor = self.create_instructor(**instructor_parameters)
 
         metric = self.objective(
@@ -299,4 +295,3 @@ class Hyperparam_Optimizer:
         )
 
         return metric[self.optimization_metric]
-        # return [metrics["accuracy"], metrics["loss"], metrics["perfect_lcag"]]
