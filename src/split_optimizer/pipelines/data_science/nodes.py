@@ -76,9 +76,7 @@ def append_metrics(metrics, metric, mean=False, prefix=""):
     return metrics, latest_metric
 
 
-def train_model(
-    instructor: Instructor,
-) -> Dict:
+def train_model(instructor: Instructor) -> Dict:
     train_metrics = {}
     val_metrics = {}
     for epoch in range(instructor.epochs):
@@ -126,6 +124,11 @@ def train_model(
         )
 
         mlflow.log_metrics(train_latest | val_latest, step=epoch)
+
+        instructor.report_callback(metrics=train_metrics | val_metrics, step=epoch)
+        if instructor.early_stop_callback():
+            log.info(f"Early stopping triggered in epoch {epoch}. Stopping training.")
+            break
 
     return {
         "model": instructor.model,
