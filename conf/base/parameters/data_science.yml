@@ -16,7 +16,7 @@ data_science:
         name: SGD
         lr: 0.03
       quantum:
-        name: Adam
+        name: QNG
         lr: 0.04
   optimizer_choice:
     combined:
