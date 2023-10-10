@@ -1,6 +1,8 @@
 import torch
 import pennylane as qml
 
+from .metric_tensor import metric_tensor
+
 
 class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
     """Implementation of the Quantum Natural Gradient Optimizer
@@ -24,7 +26,7 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
         # Initialize the metric tensor
         # Note the argnum argument which specifies the parameter indices of which we want to calculate the metric tensor
         # Also important is hybrid=False as it forces the returned metric tensor being only calculated w.r.t. the gate arguments and not w.r.t. the QNode arguments (which would include the input of the classical layer)
-        self.metric_tensor_fn = qml.metric_tensor(
+        self.metric_tensor_fn = metric_tensor(
             qnode, approx=approx, argnum=argnum, hybrid=False
         )
 
