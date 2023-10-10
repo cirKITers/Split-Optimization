@@ -87,7 +87,11 @@ def train_model(instructor: Instructor) -> Dict:
 
             instructor.optimizer.zero_grad()
             loss.backward()
-            instructor.optimizer.step(data, target, instructor.objective_function)
+            instructor.optimizer.step(
+                data,
+                target,
+                lambda **kwargs: instructor.objective_function(**kwargs)[1],
+            )
 
             train_metrics_batch, _ = append_metrics(train_metrics_batch, metrics)
 
