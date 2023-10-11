@@ -145,9 +145,9 @@ class Hyperparam_Optimizer:
                     showgrid=design.showgrid,
                 ),
                 title=dict(
-                    # text=f"Training and Validation Metrics"
-                    # if design.print_figure_title
-                    # else "",
+                    text=f"Optimization History for {study.study_name}"
+                    if design.print_figure_title
+                    else "",
                     font=dict(
                         size=design.title_font_size,
                     ),
@@ -170,9 +170,9 @@ class Hyperparam_Optimizer:
                     showgrid=design.showgrid,
                 ),
                 title=dict(
-                    # text=f"Training and Validation Metrics"
-                    # if design.print_figure_title
-                    # else "",
+                    text=f"Intermediate Values for {study.study_name}"
+                    if design.print_figure_title
+                    else "",
                     font=dict(
                         size=design.title_font_size,
                     ),
@@ -196,9 +196,9 @@ class Hyperparam_Optimizer:
                     showgrid=design.showgrid,
                 ),
                 title=dict(
-                    # text=f"Training and Validation Metrics"
-                    # if design.print_figure_title
-                    # else "",
+                    text=f"Parallel Coordinates for {study.study_name}"
+                    if design.print_figure_title
+                    else "",
                     font=dict(
                         size=design.title_font_size,
                     ),
