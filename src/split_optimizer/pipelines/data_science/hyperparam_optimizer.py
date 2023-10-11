@@ -134,82 +134,85 @@ class Hyperparam_Optimizer:
         raise NotImplementedError("Objective method must be set!")
 
     def log_study(self):
-        for study in self.studies:
-            plt = o.visualization.plot_optimization_history(study)
+        study = self.studies[0]
+        # for study in self.studies:
+        mlflow.set_tag("mlflow.runName", study.study_name)
 
-            plt.update_layout(
-                yaxis=dict(
-                    showgrid=design.showgrid,
-                ),
-                xaxis=dict(
-                    showgrid=design.showgrid,
-                ),
-                title=dict(
-                    text=f"Optimization History for {study.study_name}"
-                    if design.print_figure_title
-                    else "",
-                    font=dict(
-                        size=design.title_font_size,
-                    ),
-                ),
-                hovermode="x",
+        plt = o.visualization.plot_optimization_history(study)
+
+        plt.update_layout(
+            yaxis=dict(
+                showgrid=design.showgrid,
+            ),
+            xaxis=dict(
+                showgrid=design.showgrid,
+            ),
+            title=dict(
+                text=f"Optimization History for {study.study_name}"
+                if design.print_figure_title
+                else "",
                 font=dict(
-                    size=design.legend_font_size,
+                    size=design.title_font_size,
                 ),
-                template="simple_white",
-            )
-            mlflow.log_figure(plt, "optuna_optimization_history.html")
+            ),
+            hovermode="x",
+            font=dict(
+                size=design.legend_font_size,
+            ),
+            template="simple_white",
+        )
+        mlflow.log_figure(plt, "optuna_optimization_history.html")
 
-            plt = o.visualization.plot_intermediate_values(study)
+        plt = o.visualization.plot_intermediate_values(study)
 
-            plt.update_layout(
-                yaxis=dict(
-                    showgrid=design.showgrid,
-                ),
-                xaxis=dict(
-                    showgrid=design.showgrid,
-                ),
-                title=dict(
-                    text=f"Intermediate Values for {study.study_name}"
-                    if design.print_figure_title
-                    else "",
-                    font=dict(
-                        size=design.title_font_size,
-                    ),
-                ),
-                hovermode="x",
+        plt.update_layout(
+            yaxis=dict(
+                showgrid=design.showgrid,
+            ),
+            xaxis=dict(
+                showgrid=design.showgrid,
+            ),
+            title=dict(
+                text=f"Intermediate Values for {study.study_name}"
+                if design.print_figure_title
+                else "",
                 font=dict(
-                    size=design.legend_font_size,
+                    size=design.title_font_size,
                 ),
-                template="simple_white",
-            )
-            mlflow.log_figure(plt, "optuna_intermediate_values.html")
+            ),
+            hovermode="x",
+            font=dict(
+                size=design.legend_font_size,
+            ),
+            template="simple_white",
+        )
+        mlflow.log_figure(plt, "optuna_intermediate_values.html")
 
-            # TODO: the following is highly customizable and maybe should get more attention in the future
-            plt = o.visualization.plot_parallel_coordinate(study)
+        # TODO: the following is highly customizable and maybe should get more attention in the future
+        plt = o.visualization.plot_parallel_coordinate(study)
 
-            plt.update_layout(
-                yaxis=dict(
-                    showgrid=design.showgrid,
-                ),
-                xaxis=dict(
-                    showgrid=design.showgrid,
-                ),
-                title=dict(
-                    text=f"Parallel Coordinates for {study.study_name}"
-                    if design.print_figure_title
-                    else "",
-                    font=dict(
-                        size=design.title_font_size,
-                    ),
-                ),
-                hovermode="x",
+        plt.update_layout(
+            yaxis=dict(
+                showgrid=design.showgrid,
+            ),
+            xaxis=dict(
+                showgrid=design.showgrid,
+            ),
+            title=dict(
+                text=f"Parallel Coordinates for {study.study_name}"
+                if design.print_figure_title
+                else "",
                 font=dict(
-                    size=design.legend_font_size,
+                    size=design.title_font_size,
                 ),
-                template="simple_white",
-            )
-            mlflow.log_figure(plt, "optuna_parallel_coordinate.html")
+            ),
+            hovermode="x",
+            font=dict(
+                size=design.legend_font_size,
+            ),
+            template="simple_white",
+        )
+        mlflow.log_figure(plt, "optuna_parallel_coordinate.html")
 
     def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()
