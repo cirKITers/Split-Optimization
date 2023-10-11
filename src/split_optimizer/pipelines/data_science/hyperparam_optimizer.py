@@ -155,7 +155,6 @@ class Hyperparam_Optimizer:
                     size=design.title_font_size,
                 ),
             ),
-            hovermode="x",
             font=dict(
                 size=design.legend_font_size,
             ),
