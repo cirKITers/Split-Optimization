@@ -371,9 +371,16 @@ def create_hyperparam_optimizer(
     return {"hyperparam_optimizer": hyperparam_optimizer}
 
 
-def run_optuna(hyperparam_optimizer: Hyperparam_Optimizer):
+def run_optuna(
+    hyperparam_optimizer: Hyperparam_Optimizer,
+    optuna_selected_parallel_params,
+    optuna_selected_slice_params,
+):
     hyperparam_optimizer.minimize()
 
-    hyperparam_optimizer.log_study()
+    hyperparam_optimizer.log_study(
+        selected_parallel_params=optuna_selected_parallel_params,
+        selected_slice_params=optuna_selected_slice_params,
+    )
 
     return {}
