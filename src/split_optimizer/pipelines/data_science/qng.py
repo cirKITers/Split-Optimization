@@ -1,5 +1,11 @@
 import torch
 import pennylane as qml
+import time
+from .metric_tensor import metric_tensor
+
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
@@ -24,7 +30,7 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
         # Initialize the metric tensor
         # Note the argnum argument which specifies the parameter indices of which we want to calculate the metric tensor
         # Also important is hybrid=False as it forces the returned metric tensor being only calculated w.r.t. the gate arguments and not w.r.t. the QNode arguments (which would include the input of the classical layer)
-        self.metric_tensor_fn = qml.metric_tensor(
+        self.metric_tensor_fn = metric_tensor(
             qnode, approx=approx, argnum=argnum, hybrid=False
         )
 
@@ -36,7 +42,7 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
 
         self.requires_closure = True
 
-    def step(self, closure=None):
+    def step(self):
         """Step method implementation. We call this to update the parameter values
 
         Args:
@@ -56,21 +62,24 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
                 # we can get the gradients of those parameters using the following line
                 g = p.grad.data
 
+                # t = time.time()
                 # now we call the closure (which is in fact the metric tensor function) to obtain the actual metric tensor, given the current parameter configuration.
                 # note that this will cause the circuit function being calles with inputs=None and therefore the inputs from the previous forward path will be used.
-                _metric_tensor = self.metric_tensor_fn(p)
+                self.metric_tensor = self.metric_tensor_fn(p)
+                # log.debug(f"Calculating the metric tensor took {time.time() - t}s")
 
-                # Reshape metric tensor to be square
-                shape = qml.math.shape(_metric_tensor)
-                size = qml.math.prod(shape[: len(shape) // 2])
-                self.metric_tensor = qml.math.reshape(_metric_tensor, (size, size))
                 # Add regularization
-                self.metric_tensor = self.metric_tensor + self.lam * qml.math.eye(
-                    size, like=_metric_tensor
-                )
+                if self.lam != 0:
+                    # # Reshape metric tensor to be square
+                    # shape = qml.math.shape(self.metric_tensor)
+                    # size = qml.math.prod(shape[: len(shape) // 2])
+                    # self.metric_tensor = qml.math.reshape(_metric_tensor, (size, size))
+                    self.metric_tensor = self.metric_tensor + self.lam * qml.math.eye(
+                        self.metric_tensor.shape[0], like=self.metric_tensor
+                    )
 
                 # the apply_grad method requires to have only numpy arrays, that's why we have to call .detach().numpy() on our torch tensors here and in the following lines
-                self.metric_tensor = self.metric_tensor.detach().numpy()
+                self.metric_tensor = self.metric_tensor.detach()
 
                 # this cuts the metric tensor such that it results in the size of n_weights x n_weights
                 # therefore, we assume that the first rows and cols are reserved for the input which is reasonable as they are all-zero
