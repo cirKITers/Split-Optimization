@@ -62,11 +62,11 @@ class QNG(qml.QNGOptimizer, torch.optim.Optimizer):
                 # we can get the gradients of those parameters using the following line
                 g = p.grad.data
 
-                t = time.time()
+                # t = time.time()
                 # now we call the closure (which is in fact the metric tensor function) to obtain the actual metric tensor, given the current parameter configuration.
                 # note that this will cause the circuit function being calles with inputs=None and therefore the inputs from the previous forward path will be used.
                 self.metric_tensor = self.metric_tensor_fn(p)
-                log.debug(f"Calculating the metric tensor took {time.time() - t}s")
+                # log.debug(f"Calculating the metric tensor took {time.time() - t}s")
 
                 # Add regularization
                 if self.lam != 0:
