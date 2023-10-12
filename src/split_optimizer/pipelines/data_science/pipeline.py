@@ -147,6 +147,8 @@ def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
                 run_optuna,
                 inputs={
                     "hyperparam_optimizer": "hyperparam_optimizer",
+                    "optuna_selected_parallel_params": "params:optuna_selected_parallel_params",
+                    "optuna_selected_slice_params": "params:optuna_selected_slice_params",
                 },
                 outputs={},
                 name="run_optuna",

@@ -6,6 +6,8 @@ from joblib import parallel_backend
 from .metrics import metrics
 from .design import design
 
+import plotly.graph_objects as go
+
 
 class Hyperparam_Optimizer:
     def __init__(
@@ -133,7 +135,7 @@ class Hyperparam_Optimizer:
     def objective():
         raise NotImplementedError("Objective method must be set!")
 
-    def log_study(self):
+    def log_study(self, selected_parallel_params, selected_slice_params):
         study = self.studies[0]
         # for study in self.studies:
         mlflow.set_tag("mlflow.runName", study.study_name)
@@ -155,7 +157,6 @@ class Hyperparam_Optimizer:
                     size=design.title_font_size,
                 ),
             ),
-            hovermode="x",
             font=dict(
                 size=design.legend_font_size,
             ),
@@ -189,15 +190,11 @@ class Hyperparam_Optimizer:
         mlflow.log_figure(plt, "optuna_intermediate_values.html")
 
         # TODO: the following is highly customizable and maybe should get more attention in the future
-        plt = o.visualization.plot_parallel_coordinate(study)
+        plt = o.visualization.plot_parallel_coordinate(
+            study, params=selected_parallel_params, target_name=self.optimization_metric
+        )
 
         plt.update_layout(
-            yaxis=dict(
-                showgrid=design.showgrid,
-            ),
-            xaxis=dict(
-                showgrid=design.showgrid,
-            ),
             title=dict(
                 text=f"Parallel Coordinates for {study.study_name}"
                 if design.print_figure_title
@@ -206,13 +203,35 @@ class Hyperparam_Optimizer:
                     size=design.title_font_size,
                 ),
             ),
-            hovermode="x",
+            font=dict(
+                size=design.legend_font_size,
+            ),
+            margin=go.layout.Margin(
+                b=100  # increase bottom margin so that we can plot long param names correctly
+            ),
+            template="simple_white",
+        )
+        mlflow.log_figure(plt, "optuna_parallel_coordinate.html")
+
+        plt = o.visualization.plot_slice(
+            study, params=selected_slice_params, target_name=self.optimization_metric
+        )
+
+        plt.update_layout(
+            title=dict(
+                text=f"Slice for {study.study_name}"
+                if design.print_figure_title
+                else "",
+                font=dict(
+                    size=design.title_font_size,
+                ),
+            ),
             font=dict(
                 size=design.legend_font_size,
             ),
             template="simple_white",
         )
-        mlflow.log_figure(plt, "optuna_parallel_coordinate.html")
+        mlflow.log_figure(plt, "optuna_slice.html")
 
     def update_variable_parameters(self, trial, parameters, prefix=""):
         updated_variable_parameters = dict()

@@ -61,3 +61,5 @@ data_science:
   pruner_warmup_steps: 10 # after which epoch should we prune?
   pruner_interval_steps: 1 # check pruning condition every...
   pruner_min_trials: 10 # minimum number of trials reported at a step to judge for pruning
+  optuna_selected_parallel_params: [optimizer_split_quantum_name, optimizer_split_classical_name, optimizer_split_quantum_lr, optimizer_split_classical_lr]
+  optuna_selected_slice_params: [optimizer]
