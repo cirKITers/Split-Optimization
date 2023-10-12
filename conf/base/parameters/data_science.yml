@@ -19,16 +19,16 @@ data_science:
         name: SPSA #Adam, SPSA, SGD, NGD, QNG
         lr: 0.04
   optimizer_choice:
-    combined:
-      name: [SGD, Adam, NGD]
-      lr: [0.001, 0.05, 'log']
-    # split:
-    #   classical:
-    #     name: [Adam] #SGD, Adam, NGD
-    #     lr: [0.001, 0.05, 'log']
-    #   quantum:
-    #     name: [QNG] #SGD, Adam, NGD, SPSA, QNG
-    #     lr: [0.001, 0.05, 'log']
+    # combined:
+    #   name: [SGD, Adam, NGD]
+    #   lr: [0.001, 0.05, 'log']
+    split:
+      classical:
+        name: [Adam] #SGD, Adam, NGD
+        lr: [0.001, 0.05, 'log']
+      quantum:
+        name: [Adam] #SGD, Adam, NGD, SPSA, QNG
+        lr: [0.001, 0.05, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
@@ -49,7 +49,7 @@ data_science:
   optuna_selective_optimization: False # if true, only optimize classical params
   optuna_resume_study: True
   optuna_n_jobs: 1
-  optuna_run_id: "OptunaOptimization#008"
+  optuna_run_id: "OptunaOptimization#009"
 
   # Optuna/Sampling
   optuna_sampler: TPESampler # TPESampler
