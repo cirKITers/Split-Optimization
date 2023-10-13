@@ -378,9 +378,12 @@ def run_optuna(
 ):
     hyperparam_optimizer.minimize()
 
-    hyperparam_optimizer.log_study(
-        selected_parallel_params=optuna_selected_parallel_params,
-        selected_slice_params=optuna_selected_slice_params,
-    )
+    try:
+        hyperparam_optimizer.log_study(
+            selected_parallel_params=optuna_selected_parallel_params,
+            selected_slice_params=optuna_selected_slice_params,
+        )
+    except Exception as e:
+        log.exception("Error while logging study")
 
     return {}
