@@ -6,10 +6,7 @@ kedro_init_version = "0.18.9"
 [tool.isort]
 profile = "black"
 
-[tool.pytest.ini_options]
-addopts = """
---cov-report term-missing \
---cov src/split_optimizer -ra"""
+
 
 [tool.coverage.report]
 fail_under = 0

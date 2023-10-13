@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Python: Kedro Run",
             "type": "python",
@@ -12,6 +13,19 @@
             "module": "kedro",
             "args": [
                 "run"
+            ],
+            "justMyCode": false
+            // Any other arguments should be passed as a comma-seperated-list
+            // e.g "args": ["run", "--pipeline", "pipeline_name"]
+        },
+        {
+            "name": "Python: PyTEST",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "module": "pytest",
+            "args": [
+                "-sv"
             ],
             "justMyCode": false
             // Any other arguments should be passed as a comma-seperated-list
