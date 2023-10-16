@@ -98,7 +98,7 @@ class PostClassicalModule(nn.Module):
 
 
 class Model(nn.Module):
-    def __init__(self, n_qubits, classes, n_layers, data_reupload, quant_status):
+    def __init__(self, n_qubits, classes, n_layers, data_reupload, quant_status, n_shots):
         super(Model, self).__init__()
         self.n_qubits = n_qubits
         self.quant_status = quant_status
@@ -109,7 +109,7 @@ class Model(nn.Module):
         if self.quant_status == 0:  # passthrough
             self.qlayer = nn.Identity()
         else:
-            dev = qml.device("default.qubit", wires=self.n_qubits)
+            dev = qml.device("default.qubit", wires=self.n_qubits, shots=n_shots)
             self.vqc = QModule(
                 self.n_qubits,
                 n_layers,

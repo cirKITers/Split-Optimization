@@ -25,6 +25,7 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "classes": "params:classes",
                     "data_reupload": "params:data_reupload",
                     "quant_status": "params:quant_status",
+                    "n_shots": "params:n_shots",
                 },
                 outputs={
                     "model": "model",
@@ -130,6 +131,7 @@ def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
                     "data_reupload": "params:data_reupload",
                     "data_reupload_range_quant": "params:data_reupload_range_quant",
                     "quant_status": "params:quant_status",
+                    "n_shots": "params:n_shots",
                     "loss_func": "params:loss_func",
                     "epochs": "params:epochs",
                     "optimizer": "params:optimizer",
