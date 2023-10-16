@@ -4,6 +4,7 @@ data_science:
   n_qubits_range_quant: ${n_qubits_range_quant}
   n_layers: ${n_layers}
   n_layers_range_quant: ${n_layers_range_quant}
+  n_shots: 100
   data_reupload: ${data_reupload}
   data_reupload_range_quant: ${data_reupload_range_quant}
   epochs: 10
@@ -49,7 +50,7 @@ data_science:
   optuna_selective_optimization: False # if true, only optimize classical params
   optuna_resume_study: True
   optuna_n_jobs: 1
-  optuna_run_id: "OptunaOptimization#010"
+  optuna_run_id: "OptunaOptimization#011"
 
   # Optuna/Sampling
   optuna_sampler: TPESampler # TPESampler
