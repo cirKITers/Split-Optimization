@@ -25,6 +25,7 @@ class Hyperparam_Optimizer:
         toggle_classical_quant: bool = False,
         resume_study: bool = False,
         pool_process=True,
+        pruner=None,
         pruner_startup_trials=10,
         pruner_warmup_steps=5,
         pruner_interval_steps=1,
@@ -32,12 +33,15 @@ class Hyperparam_Optimizer:
     ):
         # storage = self.initialize_storage(host, port, path, password)
 
-        pruner = o.pruners.MedianPruner(
-            n_startup_trials=pruner_startup_trials,
-            n_warmup_steps=pruner_warmup_steps,
-            interval_steps=pruner_interval_steps,
-            n_min_trials=pruner_min_trials,
-        )
+        if pruner is None:
+            pruner = None
+        else:
+            pruner = o.pruners.MedianPruner(
+                n_startup_trials=pruner_startup_trials,
+                n_warmup_steps=pruner_warmup_steps,
+                interval_steps=pruner_interval_steps,
+                n_min_trials=pruner_min_trials,
+            )
         # pruner = o.pruners.PercentilePruner(10.0, n_warmup_steps=2, n_startup_trials=20)
 
         if sampler == "TPESampler":

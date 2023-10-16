@@ -113,6 +113,7 @@ def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
                     "optuna_sampler": "params:optuna_sampler",
                     "optuna_sampler_seed": "params:optuna_sampler_seed",
                     "optuna_pool_process": "params:optuna_pool_process",
+                    "pruner": "params:pruner",
                     "pruner_startup_trials": "params:pruner_startup_trials",
                     "pruner_warmup_steps": "params:pruner_warmup_steps",
                     "pruner_interval_steps": "params:pruner_interval_steps",
