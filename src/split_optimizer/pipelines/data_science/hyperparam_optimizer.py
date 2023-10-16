@@ -34,9 +34,9 @@ class Hyperparam_Optimizer:
         # storage = self.initialize_storage(host, port, path, password)
 
         if pruner is None:
-            pruner = None
+            self.pruner = None
         else:
-            pruner = o.pruners.MedianPruner(
+            self.pruner = o.pruners.MedianPruner(
                 n_startup_trials=pruner_startup_trials,
                 n_warmup_steps=pruner_warmup_steps,
                 interval_steps=pruner_interval_steps,
@@ -81,7 +81,7 @@ class Hyperparam_Optimizer:
 
             self.studies.append(
                 o.create_study(
-                    pruner=pruner,
+                    pruner=self.pruner,
                     sampler=sampler,
                     # directions=["maximize", "minimize", "maximize"],
                     direction=direction,
@@ -382,7 +382,7 @@ class Hyperparam_Optimizer:
             metrics[self.optimization_metric], step=step
         )
 
-        instructor_parameters["early_stop_callback"] = trial.should_prune
+        instructor_parameters["early_stop_callback"] = trial.should_prune if self.pruner else lambda : False
         instructor = self.create_instructor(**instructor_parameters)
 
         metric = self.objective(
