@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import (
+    confusion_matrix,
+)  # TODO: switch to torchmetrics confusion matrix
 from typing import Dict, List
 import plotly.express as px
 import mlflow
