@@ -75,10 +75,6 @@ def train_model(instructor: Instructor) -> Dict:
             train_metrics, train_metrics_batch, mean=True, prefix="Train_"
         )
 
-        # log.debug(
-        #     f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
-        # )
-
         metrics_string = [f"\t{l}: {m:3.4f}" for l, m in train_latest.items()]
         log.debug(
             f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]{str().join(metrics_string)}"
@@ -166,7 +162,12 @@ def create_instructor(
 
 
 def create_model(
-    n_qubits: int, n_layers: int, classes: List, data_reupload: int, quant_status: int, n_shots:int
+    n_qubits: int,
+    n_layers: int,
+    classes: List,
+    data_reupload: int,
+    quant_status: int,
+    n_shots: int,
 ):
     model = Model(
         n_qubits=n_qubits,
