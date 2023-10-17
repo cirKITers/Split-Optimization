@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from sklearn import metrics
+from sklearn import metrics as m
 from typing import Dict, List
 import plotly.express as px
 import mlflow
@@ -256,7 +256,7 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
 
     label_predictions = test_output["pred"]
 
-    confusion_matrix = metrics.confusion_matrix(test_labels, label_predictions)
+    confusion_matrix = m.confusion_matrix(test_labels, label_predictions)
     confusion_matrix = confusion_matrix.transpose()
     labels = [f"{l}" for l in np.unique(test_labels)]
     fig = px.imshow(
