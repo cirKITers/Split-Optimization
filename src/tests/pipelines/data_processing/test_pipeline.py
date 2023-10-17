@@ -1,14 +1,7 @@
-from kedro.runner import SequentialRunner
 from pathlib import Path
-
-from kedro.io.data_catalog import DataCatalog
-
 import numpy as np
 from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
-
-
-from kedro.framework.project import settings
 
 
 def test_data_shape():
