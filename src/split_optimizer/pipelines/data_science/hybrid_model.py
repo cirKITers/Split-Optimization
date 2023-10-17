@@ -107,7 +107,7 @@ class Model(nn.Module):
         self.number_classes = len(classes)
         self.pre_clayer = PreClassicalModule(self.n_qubits)
         self.post_clayer = PostClassicalModule(self.n_qubits, self.number_classes)
-        self.n_shots = n_shots
+        self.n_shots = n_shots if n_shots > 0 else None
 
         if self.quant_status == 0:  # passthrough
             self.qlayer = nn.Identity()
@@ -153,7 +153,9 @@ class Model(nn.Module):
         x = self.pre_clayer(x)
         # x = self.q_pre_proc(x)
 
-        if self.n_shots is not None: # This super hacky and probably cause qng and spsa to fail!
+        if (
+            self.n_shots is not None
+        ):  # This super hacky and probably cause qng and spsa to fail!
             meas = []
             for _x in x:
                 meas.append(self.qlayer(_x))
