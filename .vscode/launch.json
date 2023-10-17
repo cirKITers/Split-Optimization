@@ -6,7 +6,7 @@
     "configurations": [
 
         {
-            "name": "Python: Kedro Run",
+            "name": "Kedro Run Default",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",

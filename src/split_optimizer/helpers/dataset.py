@@ -8,14 +8,10 @@ modo:
   model: ExampleModel
 """
 
-from split_optimizer.pipelines.data_science.hybrid_model import Net
+from split_optimizer.pipelines.data_science.hybrid_model import Model
 import torchvision
 from PIL import Image
 from typing import Any, Callable, Dict, List, Optional, Tuple
-
-models = {
-    "model": Net,
-}
 
 
 from os.path import isfile
@@ -42,10 +38,7 @@ class TorchLocalModel(AbstractDataSet):
     ) -> None:
         self._filepath = filepath
         self._model = model
-        if model in models:
-            self._Model = Net
-        else:
-            raise KeyError("Add model to models.")
+        self._Model = Model
         default_save_args = {}
         default_load_args = {}
 

@@ -1,10 +1,67 @@
 data_science:
-  loss_func: CrossEntropyLoss
+  loss_func: CrossEntropy
   n_qubits: ${n_qubits}
-  epochs: 3
-  learning_rate: 0.03
-  optimizer_list: [SGD, SPSA]
+  n_qubits_range_quant: ${n_qubits_range_quant}
+  n_layers: ${n_layers}
+  n_layers_range_quant: ${n_layers_range_quant}
+  n_shots: 100
+  data_reupload: ${data_reupload}
+  data_reupload_range_quant: ${data_reupload_range_quant}
+  epochs: 10
+  optimizer:
+    # combined:
+    #   name: Adam
+    #   lr: 0.001
+    split:
+      classical:
+        name: SGD #Adam, SGD
+        lr: 0.03
+      quantum:
+        name: SPSA #Adam, SPSA, SGD, NGD, QNG
+        lr: 0.04
+  optimizer_choice:
+    # combined:
+    #   name: [SGD, Adam, NGD]
+    #   lr: [0.001, 0.05, 'log']
+    split:
+      classical:
+        name: [Adam] #SGD, Adam, NGD
+        lr: [0.001, 0.05, 'log']
+      quantum:
+        name: [Adam] #SGD, Adam, NGD, SPSA, QNG
+        lr: [0.001, 0.05, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
+  quant_status: ${quant_status}
   
+  torch_seed: ${torch_seed}
+
+  # Optuna
+  # number of trials within one study. Multiple processes with resume_study=True will add to this number
+  optuna_n_trials: 400
+  optuna_timeout: 10800 #30h
+  # this allows to control which parameters are considered during optimization. Leave empty to enable all
+  optuna_enabled_hyperparameters: [optimizer_choice]
+  # default the loss function value, but can also be any metric that is returned by the training method
+  optuna_optimization_metric: Val_Accuracy
+
+  optuna_path: "studies/split_optimizer.db"
+  optuna_selective_optimization: False # if true, only optimize classical params
+  optuna_resume_study: True
+  optuna_n_jobs: 1
+  optuna_run_id: "OptunaOptimization#011"
+
+  # Optuna/Sampling
+  optuna_sampler: TPESampler # TPESampler
+  optuna_sampler_seed:  # should be None, if n_jobs=1 and separate processes are triggered from console
+  optuna_pool_process: False # alternative pool processing
+
+  # Optuna/Pruning
+  pruner:  # MedianPruner, None
+  pruner_startup_trials: 10 # number of trials that should run before pruning starts
+  pruner_warmup_steps: 10 # after which epoch should we prune?
+  pruner_interval_steps: 1 # check pruning condition every...
+  pruner_min_trials: 10 # minimum number of trials reported at a step to judge for pruning
+  optuna_selected_parallel_params: [optimizer_split_quantum_name, optimizer_split_classical_name, optimizer_split_quantum_lr, optimizer_split_classical_lr]
+  optuna_selected_slice_params: [optimizer]
