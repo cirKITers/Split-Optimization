@@ -4,7 +4,7 @@ data_science:
   n_qubits_range_quant: ${n_qubits_range_quant}
   n_layers: ${n_layers}
   n_layers_range_quant: ${n_layers_range_quant}
-  n_shots: 100
+  n_shots: ${n_shots}
   data_reupload: ${data_reupload}
   data_reupload_range_quant: ${data_reupload_range_quant}
   epochs: 10
