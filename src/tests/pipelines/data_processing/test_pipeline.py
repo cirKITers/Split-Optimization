@@ -2,9 +2,9 @@ from pathlib import Path
 import numpy as np
 from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
+import torch
 
-
-def test_data_shape():
+def test_data_preparation():
 
     bootstrap_project(Path.cwd())
     with KedroSession.create() as session:
@@ -33,15 +33,11 @@ def test_data_shape():
     test_data, _ = next(iter(test_dataloader))
     test_data_size = test_data.size()
 
-    for i in train_data[0, 0]:
-        for p in i:
-            assert p <= 1, "train_data is not normalized"
-    for i in test_data[0, 0]:
-        for p in i:
-            assert p <= 1, "train_data is not normalized"
-
+    assert torch.max(train_data) <= 1, "train_data is not normalized"
+    assert torch.max(test_data) <= 1, "test_data is not normalized"
+   
     assert np.all(
-        np.array(test_data_size) == np.array([250, 1, 28, 28])
+        np.array(test_data_size) == np.array([test_size, 1, 28, 28])
     ), f"test_data should have the shape[1, 1, 28, 28] but has the shape {np.array(test_data_size)}"
     assert np.all(
         np.array(train_data_size) == np.array([parameters["batch_size"], 1, 28, 28])
