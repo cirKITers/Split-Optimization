@@ -5,7 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from sklearn import metrics
+
+from sklearn.metrics import (
+    confusion_matrix,
+)  # TODO: switch to torchmetrics confusion matrix
 from typing import Dict, List
 import plotly.express as px
 import mlflow
@@ -74,10 +77,6 @@ def train_model(instructor: Instructor) -> Dict:
         train_metrics, train_latest = append_metrics(
             train_metrics, train_metrics_batch, mean=True, prefix="Train_"
         )
-
-        # log.debug(
-        #     f"Training [{100.0*(epoch+1) / instructor.epochs:2.0f}%]\tLoss:{train_metrics['Loss'][-1]:.4f}\tAccuracy:{100.0*train_metrics['Accuracy'][-1]:2.2f}%"
-        # )
 
         metrics_string = [f"\t{l}: {m:3.4f}" for l, m in train_latest.items()]
         log.debug(
@@ -166,7 +165,12 @@ def create_instructor(
 
 
 def create_model(
-    n_qubits: int, n_layers: int, classes: List, data_reupload: int, quant_status: int, n_shots:int
+    n_qubits: int,
+    n_layers: int,
+    classes: List,
+    data_reupload: int,
+    quant_status: int,
+    n_shots: int,
 ):
     model = Model(
         n_qubits=n_qubits,
@@ -255,17 +259,17 @@ def plot_confusionmatrix(test_output: dict, test_dataloader: DataLoader):
 
     label_predictions = test_output["pred"]
 
-    confusion_matrix = metrics.confusion_matrix(test_labels, label_predictions)
-    confusion_matrix = confusion_matrix.transpose()
+    cm = confusion_matrix(test_labels, label_predictions)
+    cm = cm.transpose()
     labels = [f"{l}" for l in np.unique(test_labels)]
     fig = px.imshow(
-        confusion_matrix,
+        cm,
         x=labels,
         y=labels,
         color_continuous_scale="Viridis",
         aspect="auto",
     )
-    z_text = z_text = [[str(y) for y in x] for x in confusion_matrix]
+    z_text = z_text = [[str(y) for y in x] for x in cm]
     fig.update_traces(text=z_text, texttemplate="%{text}")
     fig.update_layout(
         title_text="Confusion Matrix",

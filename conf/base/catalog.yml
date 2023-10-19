@@ -7,7 +7,7 @@ data_science.trained_model:
   type: split_optimizer.helpers.dataset.TorchLocalModel
   filepath: data/06_models/model.pt
   model: model
-  load_args: {"n_qubits": "${n_qubits}", "n_layers": "${n_layers}", "classes": "${classes}", "data_reupload": "${data_reupload}","quant_status": "${quant_status}"}
+  load_args: {"n_qubits": "${n_qubits}", "n_layers": "${n_layers}", "classes": "${classes}", "data_reupload": "${data_reupload}","quant_status": "${quant_status}", "n_shots" : "${n_shots}"}
 
 # data_science.metrics:
 #   type: kedro_mlflow.io.metrics.MlflowMetricsDataSet

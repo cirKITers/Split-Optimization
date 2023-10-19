@@ -98,18 +98,22 @@ class PostClassicalModule(nn.Module):
 
 
 class Model(nn.Module):
-    def __init__(self, n_qubits, classes, n_layers, data_reupload, quant_status, n_shots):
+    def __init__(
+        self, n_qubits, classes, n_layers, data_reupload, quant_status, n_shots
+    ):
         super(Model, self).__init__()
         self.n_qubits = n_qubits
         self.quant_status = quant_status
         self.number_classes = len(classes)
         self.pre_clayer = PreClassicalModule(self.n_qubits)
         self.post_clayer = PostClassicalModule(self.n_qubits, self.number_classes)
+        self.n_shots = n_shots if n_shots > 0 else None
 
         if self.quant_status == 0:  # passthrough
             self.qlayer = nn.Identity()
         else:
-            dev = qml.device("default.qubit", wires=self.n_qubits, shots=n_shots)
+            dev = qml.device("default.qubit", wires=self.n_qubits, shots=self.n_shots)
+
             self.vqc = QModule(
                 self.n_qubits,
                 n_layers,
@@ -148,7 +152,16 @@ class Model(nn.Module):
 
         x = self.pre_clayer(x)
         # x = self.q_pre_proc(x)
-        x = self.qlayer(x)
+
+        if (
+            self.n_shots is not None
+        ):  # This super hacky and probably cause qng and spsa to fail!
+            meas = []
+            for _x in x:
+                meas.append(self.qlayer(_x))
+            x = torch.stack(meas)
+        else:
+            self.qlayer(x)
         x = self.post_clayer(x)
 
         # x = self.sm(x)
