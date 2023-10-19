@@ -4,10 +4,10 @@ data_science:
   n_qubits_range_quant: ${n_qubits_range_quant}
   n_layers: ${n_layers}
   n_layers_range_quant: ${n_layers_range_quant}
-  n_shots: 100
+  n_shots:  # Empty to run analytically
   data_reupload: ${data_reupload}
   data_reupload_range_quant: ${data_reupload_range_quant}
-  epochs: 10
+  epochs: 5
   optimizer:
     # combined:
     #   name: Adam
@@ -20,16 +20,16 @@ data_science:
         name: SPSA #Adam, SPSA, SGD, NGD, QNG
         lr: 0.04
   optimizer_choice:
-    # combined:
-    #   name: [SGD, Adam, NGD]
-    #   lr: [0.001, 0.05, 'log']
+    combined:
+      name: [Adam] # SGD, Adam, NGD
+      lr: [0.001, 0.002, 0.004, 0.008, 0.016, 0.032, 0.064] # [0.001, 0.05, 'log']
     split:
       classical:
         name: [Adam] #SGD, Adam, NGD
-        lr: [0.001, 0.05, 'log']
+        lr: [0.001, 0.002, 0.004, 0.008, 0.016, 0.032, 0.064] # [0.001, 0.05, 'log']
       quantum:
         name: [Adam] #SGD, Adam, NGD, SPSA, QNG
-        lr: [0.001, 0.05, 'log']
+        lr: [0.001, 0.002, 0.004, 0.008, 0.016, 0.032, 0.064] # [0.001, 0.05, 'log']
   TEST_SIZE: ${TEST_SIZE}
   TRAINING_SIZE: ${TRAINING_SIZE}
   classes: ${classes}
@@ -50,10 +50,10 @@ data_science:
   optuna_selective_optimization: False # if true, only optimize classical params
   optuna_resume_study: True
   optuna_n_jobs: 1
-  optuna_run_id: "OptunaOptimization#011"
+  optuna_run_id: "OptunaOptimization#012"
 
   # Optuna/Sampling
-  optuna_sampler: TPESampler # TPESampler
+  optuna_sampler: RandomSampler # TPESampler, RandomSampler
   optuna_sampler_seed:  # should be None, if n_jobs=1 and separate processes are triggered from console
   optuna_pool_process: False # alternative pool processing
 
