@@ -1,6 +1,9 @@
 data_processing:
-  batch_size: 2
+  batch_size: 100
+  # batch_size_range: [1, 2, 4, 10, 100]
   TRAINING_SIZE: ${TRAINING_SIZE}
   TEST_SIZE: ${TEST_SIZE}
-  seed: 32
+
   classes: ${classes}
+
+  torch_seed: ${torch_seed}

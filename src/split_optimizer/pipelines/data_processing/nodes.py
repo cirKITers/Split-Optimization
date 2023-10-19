@@ -76,17 +76,21 @@ def normalize(test_dataset, train_dataset):
 def create_dataloader(
     train_dataset,
     test_dataset,
-    seed: int,
+    torch_seed: int,
     batch_size: int,
 ):
     # set seed
-    torch.manual_seed(seed)
+    if torch_seed is not None:
+        torch.use_deterministic_algorithms(True)
+        seed_id = torch.manual_seed(torch_seed)
+
     # create Data Loader
+    # see https://stackoverflow.com/questions/67180955/pytorch-dataloader-uses-same-random-seed-for-batches-run-in-parallel for details on the motivation why we use the worker_init_fn
     train_dataloader = torch.utils.data.DataLoader(
-        train_dataset, shuffle=True, batch_size=batch_size
+        train_dataset, shuffle=True, batch_size=batch_size, worker_init_fn = lambda id: seed_id
     )
     test_dataloader = torch.utils.data.DataLoader(
-        test_dataset, shuffle=False, batch_size=1
+        test_dataset, shuffle=False, batch_size=len(test_dataset), worker_init_fn = lambda id: seed_id
     )
     return {"train_dataloader": train_dataloader, "test_dataloader": test_dataloader}
 

@@ -9,6 +9,8 @@ from .nodes import (
     plot_loss,
     plot_confusionmatrix,
     mlflow_tracking,
+    create_hyperparam_optimizer,
+    run_optuna,
 )
 
 
@@ -21,6 +23,9 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                     "n_qubits": "params:n_qubits",
                     "n_layers": "params:n_layers",
                     "classes": "params:classes",
+                    "data_reupload": "params:data_reupload",
+                    "quant_status": "params:quant_status",
+                    "n_shots": "params:n_shots",
                 },
                 outputs={
                     "model": "model",
@@ -32,11 +37,12 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 inputs={
                     "model": "model",
                     "loss_func": "params:loss_func",
-                    "learning_rate": "params:learning_rate",
-                    "optimizer_list": "params:optimizer_list",
+                    "optimizer": "params:optimizer",
+                    "epochs": "params:epochs",
                     "train_dataloader": "train_dataloader",
                     "test_dataloader": "test_dataloader",
                     "class_weights_train": "class_weights_train",
+                    "torch_seed": "params:torch_seed",
                 },
                 outputs={
                     "instructor": "instructor",
@@ -47,11 +53,10 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 train_model,
                 inputs={
                     "instructor": "instructor",
-                    "epochs": "params:epochs",
                 },
                 outputs={
                     "model": "trained_model",
-                    "model_history": "model_history",
+                    "metrics": "metrics",
                 },
                 name="train_model",
             ),
@@ -65,17 +70,91 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 name="test_model",
             ),
             node(
-                plot_loss, inputs="model_history", outputs={"loss_curve": "loss_curve"}
+                plot_loss,
+                inputs={
+                    "epochs": "params:epochs",
+                    "metrics": "metrics",
+                },
+                outputs={"metrics_fig": "metrics_fig"},
+                name="plot_loss",
             ),
             node(
                 plot_confusionmatrix,
                 inputs=["test_output", "test_dataloader"],
                 outputs={"confusionmatrix": "confusionmatrix"},
+                name="plot_confusionmatrix",
+            ),
+            # node(
+            #     mlflow_tracking,
+            #     inputs=["model_history", "test_output"],
+            #     outputs={"metrics": "metrics"},
+            # ),
+        ],
+        inputs={
+            "train_dataloader": "train_dataloader",
+            "test_dataloader": "test_dataloader",
+            "class_weights_train": "class_weights_train",
+        },
+        outputs={},
+        namespace="data_science",
+    )
+
+
+def create_hyperparam_opt_pipeline(**kwargs) -> Pipeline:
+    return pipeline(
+        [
+            node(
+                create_hyperparam_optimizer,
+                inputs={
+                    "optuna_n_trials": "params:optuna_n_trials",
+                    "optuna_timeout": "params:optuna_timeout",
+                    "optuna_enabled_hyperparameters": "params:optuna_enabled_hyperparameters",
+                    "optuna_optimization_metric": "params:optuna_optimization_metric",
+                    "optuna_path": "params:optuna_path",
+                    "optuna_sampler": "params:optuna_sampler",
+                    "optuna_sampler_seed": "params:optuna_sampler_seed",
+                    "optuna_pool_process": "params:optuna_pool_process",
+                    "pruner": "params:pruner",
+                    "pruner_startup_trials": "params:pruner_startup_trials",
+                    "pruner_warmup_steps": "params:pruner_warmup_steps",
+                    "pruner_interval_steps": "params:pruner_interval_steps",
+                    "pruner_min_trials": "params:pruner_min_trials",
+                    "optuna_selective_optimization": "params:optuna_selective_optimization",
+                    "optuna_resume_study": "params:optuna_resume_study",
+                    "optuna_n_jobs": "params:optuna_n_jobs",
+                    "optuna_run_id": "params:optuna_run_id",
+                    "n_qubits": "params:n_qubits",
+                    "n_qubits_range_quant": "params:n_qubits_range_quant",
+                    "n_layers": "params:n_layers",
+                    "n_layers_range_quant": "params:n_layers_range_quant",
+                    "classes": "params:classes",
+                    "data_reupload": "params:data_reupload",
+                    "data_reupload_range_quant": "params:data_reupload_range_quant",
+                    "quant_status": "params:quant_status",
+                    "n_shots": "params:n_shots",
+                    "loss_func": "params:loss_func",
+                    "epochs": "params:epochs",
+                    "optimizer": "params:optimizer",
+                    "optimizer_choice": "params:optimizer_choice",
+                    "train_dataloader": "train_dataloader",
+                    "test_dataloader": "test_dataloader",
+                    "class_weights_train": "class_weights_train",
+                    "torch_seed": "params:torch_seed",
+                },
+                outputs={
+                    "hyperparam_optimizer": "hyperparam_optimizer",
+                },
+                name="create_hyperparam_optimizer",
             ),
             node(
-                mlflow_tracking,
-                inputs=["model_history", "test_output"],
-                outputs={"metrics": "metrics"},
+                run_optuna,
+                inputs={
+                    "hyperparam_optimizer": "hyperparam_optimizer",
+                    "optuna_selected_parallel_params": "params:optuna_selected_parallel_params",
+                    "optuna_selected_slice_params": "params:optuna_selected_slice_params",
+                },
+                outputs={},
+                name="run_optuna",
             ),
         ],
         inputs={
