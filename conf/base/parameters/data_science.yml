@@ -7,7 +7,7 @@ data_science:
   n_shots: ${n_shots}
   data_reupload: ${data_reupload}
   data_reupload_range_quant: ${data_reupload_range_quant}
-  epochs: 10
+  epochs: 3
   optimizer:
     # combined:
     #   name: Adam

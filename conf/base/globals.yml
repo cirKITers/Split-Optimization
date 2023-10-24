@@ -1,10 +1,10 @@
 TRAINING_SIZE: 500
 TEST_SIZE: 250
 save: True
-classes: [1,2,3,4,5]
-n_qubits: 8
+classes: [1,2]
+n_qubits: 4
 n_qubits_range_quant: [3, 6, "linear"] #make sure the lowest number is higher than n_classes
-n_layers: 5
+n_layers: 2
 n_layers_range_quant: [1, 2, "linear"]
 n_shots: 0
 data_reupload: 1.0
