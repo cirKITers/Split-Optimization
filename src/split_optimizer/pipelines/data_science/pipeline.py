@@ -68,7 +68,29 @@ def create_training_pipeline(**kwargs) -> Pipeline:
                 },
                 outputs={"test_output": "test_output"},
                 name="test_model",
-            ),
+            )
+            # node(
+            #     mlflow_tracking,
+            #     inputs=["model_history", "test_output"],
+            #     outputs={"metrics": "metrics"},
+            # ),
+        ],
+        inputs={
+            "train_dataloader": "train_dataloader",
+            "test_dataloader": "test_dataloader",
+            "class_weights_train": "class_weights_train",
+        },
+        outputs={
+            "metrics": "metrics",
+            "test_output": "test_output",
+        },
+        namespace="data_science",
+    )
+
+
+def create_postprocessing_pipeline(**kwargs) -> Pipeline:
+    return pipeline(
+        [
             node(
                 plot_loss,
                 inputs={
@@ -91,9 +113,9 @@ def create_training_pipeline(**kwargs) -> Pipeline:
             # ),
         ],
         inputs={
-            "train_dataloader": "train_dataloader",
+            "metrics": "metrics",
             "test_dataloader": "test_dataloader",
-            "class_weights_train": "class_weights_train",
+            "test_output": "test_output",
         },
         outputs={},
         namespace="data_science",
