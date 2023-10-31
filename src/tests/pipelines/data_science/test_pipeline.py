@@ -82,6 +82,10 @@ class TestTraining:
                 session = KedroSession.create()
                 parameters = session.load_context().config_loader["parameters"]["data_science"]
                 optimizer = parameters["optimizer"]
+
+                if 'split' not in optimizer:
+                    raise ValueError("Enable Split Optimizer in config")
+
                 parameters["epochs"] = 2
                 optimizer["split"]["classical"]["name"] = i
                 optimizer["split"]["quantum"]["name"] = p
