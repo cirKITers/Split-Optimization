@@ -9,3 +9,4 @@ pennylane
 torchmetrics
 optuna
 optuna_dashboard
+pytest
