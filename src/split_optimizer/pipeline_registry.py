@@ -24,6 +24,7 @@ def register_pipelines() -> dict[str, Pipeline]:
     return {
         "__default__": data_processing_pipeline + data_science_training_pipeline + post_processing_pipeline,
         "debug_pipeline": data_processing_pipeline + data_science_training_pipeline + post_processing_pipeline,
+        "test_pipeline": data_processing_pipeline + data_science_training_pipeline,
         "optuna_pipeline": data_processing_pipeline
         + data_science_hyperparam_opt_pipeline,
         "preprocessing": data_processing_pipeline,

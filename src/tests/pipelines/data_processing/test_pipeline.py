@@ -16,19 +16,10 @@ def run_preprocessing():
 
     return parameters, train_dataloader, test_dataloader
 
-def second_run_preprocessing():
-    bootstrap_project(Path.cwd())
-    with KedroSession.create() as second_session:
-        output = second_session.run(pipeline_name="preprocessing")
- 
-    second_train_dataloader = output["train_dataloader"]
-    second_test_dataloader = output["test_dataloader"]
-
-    return second_train_dataloader, second_test_dataloader
 
 class TestDataPreparation:
     parameters, train_dataloader, test_dataloader = run_preprocessing()
-    second_train_dataloader, second_test_dataloader = second_run_preprocessing()
+    _, second_train_dataloader, second_test_dataloader = run_preprocessing()
 
     def test_data_shape(self):
         train_data, _ = next(iter(self.train_dataloader))
