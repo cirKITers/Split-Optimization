@@ -60,6 +60,20 @@ The following parameters can be adjusted:
   - Number of classes
   - Number of qubits
 
+### Tests
+- run all tests:
+  pytest
+
+- test data_processing:
+  pytest -v src/tests/pipelines/data_processing/test_pipeline.py::TestDataPreparation
+
+- test training:
+  pytest -v src/tests/pipelines/data_science/test_pipeline.py::TestTraining
+
+- test implementation of all optimizers:
+  pytest -v src/tests/pipelines/data_science/test_pipeline.py::test_optimizer
+
+
 ## Literature :books:
 
 [1]: [Hybrid Quantum Classical Graph Neural Networks for Particle Track Reconstruction](https://arxiv.org/abs/2109.12636)\
