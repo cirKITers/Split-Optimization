@@ -1,8 +1,8 @@
 from pathlib import Path
 import numpy as np
+import torch
 from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
-import torch
 
 
 def run_preprocessing():
