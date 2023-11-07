@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from typing import Dict, List
+from typing import List
 
 from torch.utils.data.dataloader import DataLoader
 from torchmetrics.functional.classification import (

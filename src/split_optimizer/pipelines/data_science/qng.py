@@ -1,6 +1,5 @@
 import torch
 import pennylane as qml
-import time
 from .metric_tensor import metric_tensor
 
 import logging

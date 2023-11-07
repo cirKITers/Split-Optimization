@@ -11,11 +11,11 @@ modo:
 from split_optimizer.pipelines.data_science.hybrid_model import Model
 import torchvision
 from PIL import Image
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any,  Dict, Tuple
 
 
 from os.path import isfile
-from typing import Any, Union, Dict
+from typing import Any, Dict
 import torch
 from kedro.io import AbstractDataSet
 
