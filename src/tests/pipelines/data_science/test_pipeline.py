@@ -46,21 +46,22 @@ class TestTraining:
             self.second_train_loss, self.train_loss
         ), "training is not consistent"
 
-    def test_optimizer():
-        # iterate all optimizer, run a training
-        for i in ["SGD", "Adam"]:
-            for p in ["Adam", "SPSA", "SGD", "NGD", "QNG"]:
-                params = {
-                    "data_science": {
-                        "optimizer": {
-                            "split": {"classical": {"name": i}, "quantum": {"name": p}}
-                        }
+def test_optimizer():
+    bootstrap_project(Path.cwd())
+    # iterate all optimizer, run a training
+    for i in ["SGD", "Adam"]:
+        for p in ["Adam", "SPSA", "SGD", "NGD", "QNG"]:
+            params = {
+                "data_science": {
+                    "optimizer": {
+                        "split": {"classical": {"name": i}, "quantum": {"name": p}}
                     }
                 }
-                # create kedroSession and change optimizer by passing extra_params
-                with KedroSession.create(extra_params=params) as session:
-                    parameters = session.load_context().params["data_science"]
-                    optimizer = parameters["optimizer"]
-                    if "split" not in optimizer:
-                        raise ValueError("Enable Split Optimizer in config")
-                    output = session.run(pipeline_name="debug_pipeline")
+            }
+            # create kedroSession and change optimizer by passing extra_params
+            with KedroSession.create(extra_params=params) as session:
+                parameters = session.load_context().params["data_science"]
+                optimizer = parameters["optimizer"]
+                if "split" not in optimizer:
+                    raise ValueError("Enable Split Optimizer in config")
+                output = session.run(pipeline_name="debug_pipeline")
