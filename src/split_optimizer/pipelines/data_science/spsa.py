@@ -16,7 +16,7 @@ class SPSA(qml.SPSAOptimizer, torch.optim.Optimizer):
         self,
         params,
         argnum,
-        maxiter=None,
+        maxiter=100,  # TODO: propagate to kedro params
         alpha=0.602,
         gamma=0.101,
         c=0.2,

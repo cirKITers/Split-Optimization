@@ -1,6 +1,15 @@
-TRAINING_SIZE: 1000
+TRAINING_SIZE: 500
 TEST_SIZE: 250
 save: True
-classes: [1,6,9]
-n_qubits: 4
-n_layers: 1
+classes: [1,2,3,4,5]
+n_qubits: 8
+n_qubits_range_quant: [3, 6, "linear"] #make sure the lowest number is higher than n_classes
+n_layers: 5
+n_layers_range_quant: [1, 2, "linear"]
+n_shots: 0
+data_reupload: 1.0
+data_reupload_range_quant: [0.1, 1.0, 'lin']
+
+quant_status: 2 # 0: passthrough, 1: only iec, 2: iec + pqc
+
+torch_seed: 33 #see data_science.yml for optuna seed

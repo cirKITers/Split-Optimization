@@ -81,7 +81,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "train_dataset": "train_dataset_class_reduced",
                     "test_dataset": "test_dataset_class_reduced",
                     "batch_size": "params:batch_size",
-                    "seed": "params:seed",
+                    "torch_seed": "params:torch_seed",
                 },
                 outputs={
                     "train_dataloader": "train_dataloader",

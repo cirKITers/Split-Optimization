@@ -1,7 +1,7 @@
 info.log*
-
+studies/*
 stats.json
-mlruns/**
+mlruns/*
 mnist
 ##########################
 # KEDRO PROJECT

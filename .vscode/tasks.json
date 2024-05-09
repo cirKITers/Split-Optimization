@@ -1,0 +1,95 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Kedro Test",
+            "type": "shell",
+            "command": "poetry",
+            "args": ["run", "pytest"],
+            "group": "none",
+            "presentation": {
+                "reveal": "never",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Kedro Viz",
+            "type": "shell",
+            "command": "kedro",
+            "args": ["viz", "--autoreload"],
+            "group": "none",
+            "presentation": {
+                "reveal": "never",
+                "panel": "new"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "MLFlow Dashboard",
+            "type": "shell",
+            "command": "mlflow",
+            "args": ["mlflow", "ui"],
+            "group": "none",
+            "presentation": {
+                "reveal": "never",
+                "panel": "new"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Optuna Dashboard",
+            "type": "shell",
+            "command": "optuna-dashboard",
+            "args": ["sqlite:///studies/split_optimizer.db"],
+            "group": "none",
+            "presentation": {
+                "reveal": "never",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        // {
+        //     "label": "MkDocs Build",
+        //     "type": "shell",
+        //     "command": "poetry",
+        //     "args": ["run", "mkdocs", "build"],
+        //     "group": "none",
+        //     "presentation": {
+        //         "reveal": "never",
+        //         "panel": "dedicated"
+        //     },
+        //     "problemMatcher": []
+        // },
+        // {
+        //     "label": "MkDocs Serve",
+        //     "type": "shell",
+        //     "command": "poetry",
+        //     "args": ["run", "mkdocs", "serve"],
+        //     "group": "none",
+        //     "presentation": {
+        //         "reveal": "never",
+        //         "panel": "dedicated"
+        //     },
+        //     "problemMatcher": []
+        // },
+        // {
+        //     "label": "MkDocs Deploy",
+        //     "type": "shell",
+        //     "command": "poetry",
+        //     "args": ["run", "mkdocs", "gh-deploy"],
+        //     "group": "none",
+        //     "presentation": {
+        //         "reveal": "never",
+        //         "panel": "dedicated"
+        //     },
+        //     "problemMatcher": []
+        // },
+    ]
+  }

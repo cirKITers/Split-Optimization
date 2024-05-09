@@ -7,17 +7,17 @@ data_science.trained_model:
   type: split_optimizer.helpers.dataset.TorchLocalModel
   filepath: data/06_models/model.pt
   model: model
-  load_args: {"n_qubits": "${n_qubits}", "n_layers": "${n_layers}", "classes": "${classes}"}
+  load_args: {"n_qubits": "${n_qubits}", "n_layers": "${n_layers}", "classes": "${classes}", "data_reupload": "${data_reupload}","quant_status": "${quant_status}", "n_shots" : "${n_shots}"}
 
-data_science.metrics:
-  type: kedro_mlflow.io.metrics.MlflowMetricsDataSet
-  prefix: metrics
+# data_science.metrics:
+#   type: kedro_mlflow.io.metrics.MlflowMetricsDataSet
+#   prefix: metrics
 
-data_science.loss_curve:
+data_science.metrics_fig:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
   data_set:
     type: kedro.extras.datasets.plotly.JSONDataSet
-    filepath: data/08_reporting/loss_curve.json
+    filepath: data/08_reporting/metrics_fig.json
 
 data_science.confusionmatrix:
   type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet

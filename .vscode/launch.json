@@ -5,13 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Kedro Run",
+            "name": "Kedro Run Default",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
             "module": "kedro",
             "args": [
                 "run"
+            ],
+            "justMyCode": false
+            // Any other arguments should be passed as a comma-seperated-list
+            // e.g "args": ["run", "--pipeline", "pipeline_name"]
+        },
+        {
+            "name": "Kedro Run Hyperparam",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "module": "kedro",
+            "args": [
+                "run", "--pipeline", "optuna_pipeline"
             ],
             "justMyCode": false
             // Any other arguments should be passed as a comma-seperated-list
